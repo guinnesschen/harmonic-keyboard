@@ -26,11 +26,9 @@ export default function Instrument() {
     if (!isAudioInitialized) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      console.log("Key pressed:", e.key); // Debug logging
       if (e.repeat) return;
       const newVoicing = handleKeyPress(e, currentVoicing);
       if (newVoicing) {
-        console.log("New voicing:", newVoicing); // Debug logging
         const voicing = generateVoicing(newVoicing, currentVoicing);
         setCurrentVoicing(voicing);
         playChord(voicing);
@@ -38,7 +36,11 @@ export default function Instrument() {
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
-      handleKeyRelease(e);
+      const allKeysReleased = handleKeyRelease(e);
+      if (allKeysReleased) {
+        playChord(null); // Stop all sounds
+        setCurrentVoicing(null);
+      }
     };
 
     window.addEventListener("keydown", onKeyDown);

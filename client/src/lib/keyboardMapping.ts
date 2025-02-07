@@ -82,8 +82,9 @@ export function handleKeyPress(
   return newVoicing;
 }
 
-export function handleKeyRelease(e: KeyboardEvent) {
+export function handleKeyRelease(e: KeyboardEvent): boolean {
   activeKeys.delete(e.key);
+  return activeKeys.size === 0; // Return true if no keys are pressed
 }
 
 export function getKeyboardLayout() {

@@ -5,7 +5,7 @@ let synth: Tone.PolySynth;
 
 export async function initAudio() {
   await Tone.start();
-  
+
   synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       type: "triangle"
@@ -22,13 +22,19 @@ export async function initAudio() {
   synth.volume.value = -12;
 }
 
-export function playChord(voicing: ChordVoicing) {
+export function playChord(voicing: ChordVoicing | null) {
   if (!synth) return;
+
+  // If no voicing is provided, stop all sounds
+  if (!voicing) {
+    synth.releaseAll();
+    return;
+  }
 
   const frequencies = voicing.notes.map(note => 
     Tone.Frequency(note, "midi").toFrequency()
   );
 
-  synth.triggerRelease(frequencies); // Release any existing notes
+  synth.triggerRelease(); // Release any existing notes
   synth.triggerAttack(frequencies);
 }
