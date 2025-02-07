@@ -52,8 +52,7 @@ function getExtensionFromKey(key: string): ChordExtension | null {
   return extensionMap[key] || null;
 }
 
-// New function to generate voicing from current key state
-function generateVoicingFromKeyState(): ChordVoicing | null {
+export function generateVoicingFromKeyState(): ChordVoicing | null {
   // If no keys are pressed, return null
   if (!keyState.bass && !keyState.melody) {
     return null;
@@ -85,7 +84,8 @@ function generateVoicingFromKeyState(): ChordVoicing | null {
   if (keyState.quality) {
     voicing.quality = getQualityFromKey(keyState.quality)!;
   } else {
-    voicing.root = -1; // No chord quality selected, just play single notes
+    // No chord quality selected, just play single notes
+    voicing.root = -1;
   }
 
   // Process extension if both quality and extension are present
@@ -96,10 +96,7 @@ function generateVoicingFromKeyState(): ChordVoicing | null {
   return voicing;
 }
 
-export function handleKeyPress(
-  e: KeyboardEvent,
-  currentVoicing: ChordVoicing | null,
-): ChordVoicing | null {
+export function handleKeyPress(e: KeyboardEvent): void {
   const key = e.key.toLowerCase();
 
   // Update key state based on the category of the pressed key
@@ -111,12 +108,7 @@ export function handleKeyPress(
     keyState.quality = key;
   } else if (EXTENSION_KEYS.includes(key)) {
     keyState.extension = key;
-  } else {
-    return null; // Not a valid key
   }
-
-  // Generate new voicing based on current key state
-  return generateVoicingFromKeyState();
 }
 
 export function handleKeyRelease(e: KeyboardEvent): boolean {

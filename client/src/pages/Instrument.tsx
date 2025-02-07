@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
-import { handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
+import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
 import { initAudio, playChord } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
@@ -27,11 +27,16 @@ export default function Instrument() {
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      const newVoicing = handleKeyPress(e, currentVoicing);
-      if (newVoicing) {
-        const voicing = generateVoicing(newVoicing, currentVoicing);
-        setCurrentVoicing(voicing);
-        playChord(voicing);
+
+      // Update key state and get new voicing
+      handleKeyPress(e);
+      const newBasicVoicing = generateVoicingFromKeyState();
+
+      if (newBasicVoicing) {
+        // Generate full voicing with proper voice leading
+        const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
+        setCurrentVoicing(fullVoicing);
+        playChord(fullVoicing);
       }
     };
 
@@ -40,6 +45,17 @@ export default function Instrument() {
       if (allKeysReleased) {
         playChord(null); // Stop all sounds
         setCurrentVoicing(null);
+      } else {
+        // If some keys are still held, regenerate the voicing
+        const newBasicVoicing = generateVoicingFromKeyState();
+        if (newBasicVoicing) {
+          const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
+          setCurrentVoicing(fullVoicing);
+          playChord(fullVoicing);
+        } else {
+          playChord(null);
+          setCurrentVoicing(null);
+        }
       }
     };
 
