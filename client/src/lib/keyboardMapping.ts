@@ -1,11 +1,28 @@
-import { ChordQuality, ChordExtension, type ChordVoicing } from "@shared/schema";
+import {
+  ChordQuality,
+  ChordExtension,
+  type ChordVoicing,
+} from "@shared/schema";
 
 const BASS_KEYS = "ZSXDCVGBHNJM";
 const MELODY_KEYS = "QWERTYUIOP";
 const QUALITY_KEYS = "1234567";
 const EXTENSION_KEYS = "890-=";
 
-let activeKeys = new Set<string>();
+// Track the most recently pressed key for each category
+interface KeyState {
+  bass: string | null;
+  melody: string | null;
+  quality: string | null;
+  extension: string | null;
+}
+
+const keyState: KeyState = {
+  bass: null,
+  melody: null,
+  quality: null,
+  extension: null,
+};
 
 function getNoteFromKey(key: string, keyMap: string): number | null {
   const index = keyMap.indexOf(key.toUpperCase());
@@ -20,7 +37,7 @@ function getQualityFromKey(key: string): ChordQuality | null {
     "4": ChordQuality.Diminished,
     "5": ChordQuality.Augmented,
     "6": ChordQuality.Minor7,
-    "7": ChordQuality.Major7
+    "7": ChordQuality.Major7,
   };
   return qualityMap[key] || null;
 }
@@ -31,78 +48,88 @@ function getExtensionFromKey(key: string): ChordExtension | null {
     "9": ChordExtension.Add9,
     "0": ChordExtension.Add11,
     "-": ChordExtension.Add13,
-    "=": ChordExtension.Sharp11
+    "=": ChordExtension.Sharp11,
   };
   return extensionMap[key] || null;
 }
 
 export function handleKeyPress(
-  e: KeyboardEvent, 
-  currentVoicing: ChordVoicing | null
+  e: KeyboardEvent,
+  currentVoicing: ChordVoicing | null,
 ): ChordVoicing | null {
   const key = e.key;
-  if (activeKeys.has(key)) return null;
-  activeKeys.add(key);
 
-  const bassNote = getNoteFromKey(key, BASS_KEYS);
-  const melodyNote = getNoteFromKey(key, MELODY_KEYS);
-  const quality = getQualityFromKey(key);
-  const extension = getExtensionFromKey(key);
-
-  // Create a new voicing based on currently active keys
-  if (bassNote !== null || melodyNote !== null || quality !== null || extension !== null) {
-    const voicing: ChordVoicing = {
-      root: -1,
-      bass: -1,
-      melody: -1,
-      quality: ChordQuality.Major,
-      extension: ChordExtension.None,
-      notes: []
-    };
-
-    // Add bass note if pressed
-    const activeBassKey = Array.from(activeKeys).find(k => BASS_KEYS.includes(k.toUpperCase()));
-    if (activeBassKey) {
-      const bassIndex = getNoteFromKey(activeBassKey, BASS_KEYS)!;
-      voicing.root = bassIndex;
-      voicing.bass = bassIndex + 48;
-      voicing.notes = [voicing.bass];
-    }
-
-    // Add melody note if pressed
-    const activeMelodyKey = Array.from(activeKeys).find(k => MELODY_KEYS.includes(k.toUpperCase()));
-    if (activeMelodyKey) {
-      const melodyIndex = getNoteFromKey(activeMelodyKey, MELODY_KEYS)!;
-      voicing.melody = melodyIndex + 72;
-      if (!voicing.notes.includes(voicing.melody)) {
-        voicing.notes.push(voicing.melody);
-      }
-    }
-
-    // Only set quality if explicitly selected
-    const activeQualityKey = Array.from(activeKeys).find(k => QUALITY_KEYS.includes(k));
-    if (activeQualityKey) {
-      voicing.quality = getQualityFromKey(activeQualityKey)!;
-    } else {
-      voicing.quality = ChordQuality.Major;
-      voicing.root = -1; // Reset root if no quality selected
-    }
-
-    // Only set extension if explicitly selected and if we have a quality
-    const activeExtensionKey = Array.from(activeKeys).find(k => EXTENSION_KEYS.includes(k));
-    if (activeExtensionKey && activeQualityKey) {
-      voicing.extension = getExtensionFromKey(activeExtensionKey)!;
-    }
-
-    return voicing;
+  // Update key state based on the category of the pressed key
+  if (BASS_KEYS.includes(key.toUpperCase())) {
+    keyState.bass = key;
+  } else if (MELODY_KEYS.includes(key.toUpperCase())) {
+    keyState.melody = key;
+  } else if (QUALITY_KEYS.includes(key)) {
+    keyState.quality = key;
+  } else if (EXTENSION_KEYS.includes(key)) {
+    keyState.extension = key;
+  } else {
+    return null; // Not a valid key
   }
 
-  return null;
+  // Generate voicing based on current key state
+  const voicing: ChordVoicing = {
+    root: -1,
+    bass: -1,
+    melody: -1,
+    quality: ChordQuality.Major,
+    extension: ChordExtension.None,
+    notes: [],
+  };
+
+  // Add bass note if present
+  if (keyState.bass) {
+    const bassIndex = getNoteFromKey(keyState.bass, BASS_KEYS)!;
+    voicing.root = bassIndex;
+    voicing.bass = bassIndex + 48; // Bass octave
+    voicing.notes = [voicing.bass];
+  }
+
+  // Add melody note if present
+  if (keyState.melody) {
+    const melodyIndex = getNoteFromKey(keyState.melody, MELODY_KEYS)!;
+    voicing.melody = melodyIndex + 72; // Melody octave
+    if (!voicing.notes.includes(voicing.melody)) {
+      voicing.notes.push(voicing.melody);
+    }
+  }
+
+  // Set chord quality if present
+  if (keyState.quality) {
+    voicing.quality = getQualityFromKey(keyState.quality)!;
+  } else {
+    voicing.root = -1; // No chord quality selected
+  }
+
+  // Set extension if we have both quality and extension
+  if (keyState.quality && keyState.extension) {
+    voicing.extension = getExtensionFromKey(keyState.extension)!;
+  }
+
+  return voicing;
 }
 
 export function handleKeyRelease(e: KeyboardEvent): boolean {
-  activeKeys.delete(e.key);
-  return activeKeys.size === 0;
+  const key = e.key;
+
+  // Clear the released key from the appropriate category
+  if (BASS_KEYS.includes(key.toUpperCase()) && keyState.bass === key) {
+    keyState.bass = null;
+  } else if (MELODY_KEYS.includes(key.toUpperCase()) && keyState.melody === key) {
+    keyState.melody = null;
+  } else if (QUALITY_KEYS.includes(key) && keyState.quality === key) {
+    keyState.quality = null;
+  } else if (EXTENSION_KEYS.includes(key) && keyState.extension === key) {
+    keyState.extension = null;
+  }
+
+  // Return whether all keys are released
+  return !keyState.bass && !keyState.melody && !keyState.quality && !keyState.extension;
 }
 
 export function getKeyboardLayout() {
@@ -110,10 +137,10 @@ export function getKeyboardLayout() {
     melodyKeys: MELODY_KEYS.split(""),
     bassKeys: BASS_KEYS.split(""),
     qualityKeys: QUALITY_KEYS.split(""),
-    extensionKeys: EXTENSION_KEYS.split("")
+    extensionKeys: EXTENSION_KEYS.split(""),
   };
 }
 
 export function getActiveKeys() {
-  return activeKeys;
+  return Object.values(keyState).filter(key => key !== null) as string[];
 }

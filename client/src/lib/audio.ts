@@ -25,16 +25,19 @@ export async function initAudio() {
 export function playChord(voicing: ChordVoicing | null) {
   if (!synth) return;
 
-  // If no voicing is provided, stop all sounds
-  if (!voicing) {
-    synth.releaseAll();
+  // Stop all currently playing notes
+  synth.releaseAll();
+
+  // If no voicing is provided or no notes to play, return
+  if (!voicing || !voicing.notes.length) {
     return;
   }
 
+  // Convert MIDI notes to frequencies
   const frequencies = voicing.notes.map(note => 
     Tone.Frequency(note, "midi").toFrequency()
   );
 
-  synth.triggerRelease(); // Release any existing notes
+  // Play the new notes
   synth.triggerAttack(frequencies);
 }
