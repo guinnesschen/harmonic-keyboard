@@ -72,7 +72,7 @@ export function handleKeyPress(
     return null; // Not a valid key
   }
 
-  // Generate voicing based on current key state
+  // Initialize voicing with default values
   const voicing: ChordVoicing = {
     root: -1,
     bass: -1,
@@ -82,33 +82,41 @@ export function handleKeyPress(
     notes: [],
   };
 
-  // Add bass note if present (this will be our root note)
+  // If we have a bass note, set the root and bass note
   if (keyState.bass) {
     const bassIndex = getNoteFromKey(keyState.bass, BASS_KEYS)!;
     voicing.root = bassIndex;
     voicing.bass = bassIndex + 48; // Bass octave
-    voicing.notes = [voicing.bass];
   }
 
-  // If we have a quality selected, set it and make root valid
+  // If we have a quality selected, update it
   if (keyState.quality) {
     voicing.quality = getQualityFromKey(keyState.quality)!;
   } else {
-    voicing.root = -1; // No chord quality selected, just play single notes
+    // If no quality is selected, only play single notes
+    voicing.root = -1;
   }
 
   // Add melody note if present
   if (keyState.melody) {
     const melodyIndex = getNoteFromKey(keyState.melody, MELODY_KEYS)!;
     voicing.melody = melodyIndex + 72; // Melody octave
-    if (!voicing.notes.includes(voicing.melody)) {
-      voicing.notes.push(voicing.melody);
-    }
   }
 
-  // Set extension if we have both quality and extension
+  // Set extension if quality is selected
   if (keyState.quality && keyState.extension) {
     voicing.extension = getExtensionFromKey(keyState.extension)!;
+  }
+
+  // Initialize notes array with bass note if present
+  voicing.notes = [];
+  if (voicing.bass !== -1) {
+    voicing.notes.push(voicing.bass);
+  }
+
+  // Add melody note if present
+  if (voicing.melody !== -1) {
+    voicing.notes.push(voicing.melody);
   }
 
   return voicing;
