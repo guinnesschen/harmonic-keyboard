@@ -11,6 +11,17 @@ export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
 ): ChordVoicing {
+  // If we don't have an explicit quality selected, just return the basic voicing
+  // with only the specified bass and/or melody notes
+  const hasQuality = desired.quality !== undefined && desired.root !== -1;
+  if (!hasQuality) {
+    return {
+      ...desired,
+      notes: desired.notes.sort((a, b) => a - b) // Ensure notes are sorted
+    };
+  }
+
+  // If we have a quality selected, generate the full chord voicing
   const baseIntervals = getChordIntervals(desired.quality);
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
