@@ -25,37 +25,31 @@ export default function Instrument() {
   useEffect(() => {
     if (!isAudioInitialized) return;
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat) return;
-
-      // Update key state and get new voicing
-      handleKeyPress(e);
+    const updateVoicing = () => {
       const newBasicVoicing = generateVoicingFromKeyState();
-
       if (newBasicVoicing) {
-        // Generate full voicing with proper voice leading
         const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
         setCurrentVoicing(fullVoicing);
         playChord(fullVoicing);
+      } else {
+        playChord(null);
+        setCurrentVoicing(null);
       }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      handleKeyPress(e);
+      updateVoicing();
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
       const allKeysReleased = handleKeyRelease(e);
       if (allKeysReleased) {
-        playChord(null); // Stop all sounds
+        playChord(null);
         setCurrentVoicing(null);
       } else {
-        // If some keys are still held, regenerate the voicing
-        const newBasicVoicing = generateVoicingFromKeyState();
-        if (newBasicVoicing) {
-          const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
-          setCurrentVoicing(fullVoicing);
-          playChord(fullVoicing);
-        } else {
-          playChord(null);
-          setCurrentVoicing(null);
-        }
+        updateVoicing();
       }
     };
 
