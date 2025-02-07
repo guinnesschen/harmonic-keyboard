@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import { handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
@@ -11,21 +12,25 @@ export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
+  const initializeAudio = async () => {
+    try {
       await initAudio();
       setIsAudioInitialized(true);
-    };
-    init();
-  }, []);
+      console.log("Audio initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize audio:", error);
+    }
+  };
 
   useEffect(() => {
     if (!isAudioInitialized) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
+      console.log("Key pressed:", e.key); // Debug logging
       if (e.repeat) return;
       const newVoicing = handleKeyPress(e, currentVoicing);
       if (newVoicing) {
+        console.log("New voicing:", newVoicing); // Debug logging
         const voicing = generateVoicing(newVoicing, currentVoicing);
         setCurrentVoicing(voicing);
         playChord(voicing);
@@ -51,19 +56,30 @@ export default function Instrument() {
         <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           Harmonic Instrument
         </h1>
-        
-        <Card className="p-6">
-          <ChordDisplay voicing={currentVoicing} />
-        </Card>
 
-        <Card className="p-6">
-          <KeyboardGuide />
-        </Card>
+        {!isAudioInitialized ? (
+          <Card className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-4">Welcome to the Harmonic Instrument!</h2>
+            <p className="text-gray-600 mb-4">
+              Due to browser security requirements, we need your permission to enable audio.
+            </p>
+            <Button 
+              onClick={initializeAudio}
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+            >
+              Click here to start
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <Card className="p-6">
+              <ChordDisplay voicing={currentVoicing} />
+            </Card>
 
-        {!isAudioInitialized && (
-          <div className="text-center text-gray-600">
-            Click anywhere to start audio...
-          </div>
+            <Card className="p-6">
+              <KeyboardGuide />
+            </Card>
+          </>
         )}
       </div>
     </div>
