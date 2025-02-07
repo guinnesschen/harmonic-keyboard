@@ -26,36 +26,26 @@ export function generateVoicing(
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
 
-  // Always start by generating a basic chord
-  const basicChord = generateBasicChord(desired.root, allIntervals);
+  // Generate the basic chord tones
+  let chordTones = generateBasicChord(desired.root, allIntervals);
 
-  // Add the bass note if specified
+  // Always add the bass note first if specified
   if (desired.bass !== -1) {
     notes.push(desired.bass);
   }
 
-  // Add the chord tones
-  notes.push(...basicChord);
-
-  // Add melody note if specified
-  if (desired.melody !== -1 && !notes.includes(desired.melody)) {
-    notes.push(desired.melody);
-  }
-
-  // Sort notes from low to high and remove duplicates
-  notes = Array.from(new Set(notes)).sort((a, b) => a - b);
-
-  // Apply voice leading only if we have a previous chord
+  // Apply voice leading to chord tones if we have a previous chord
   if (previous && previous.notes.length > 0) {
-    const prevNotes = previous.notes.filter(
+    // Get previous chord tones excluding bass and melody
+    const prevChordTones = previous.notes.filter(
       note => note !== previous.bass && note !== previous.melody
     );
 
-    // Adjust each note to be closer to the previous chord's notes
-    notes = notes.map(note => {
-      const closestPrevNote = prevNotes.reduce((closest, prevNote) => {
+    // Adjust each chord tone to be closer to the previous chord's notes
+    chordTones = chordTones.map(note => {
+      const closestPrevNote = prevChordTones.reduce((closest, prevNote) => {
         return Math.abs(note - prevNote) < Math.abs(note - closest) ? prevNote : closest;
-      }, prevNotes[0]);
+      }, prevChordTones[0]);
 
       // Try to keep the note within an octave of the closest previous note
       const octaveAdjustment = Math.round((closestPrevNote - note) / 12) * 12;
@@ -64,9 +54,25 @@ export function generateVoicing(
       }
       return note;
     });
+  }
 
-    // Sort again after voice leading adjustments
-    notes = Array.from(new Set(notes)).sort((a, b) => a - b);
+  // Add the voice-led chord tones
+  notes.push(...chordTones);
+
+  // Add melody note if specified and not already included
+  if (desired.melody !== -1 && !notes.includes(desired.melody)) {
+    notes.push(desired.melody);
+  }
+
+  // Sort notes but ensure bass note stays at the bottom
+  if (desired.bass !== -1) {
+    // Remove bass note before sorting other notes
+    notes = notes.filter(note => note !== desired.bass);
+    notes.sort((a, b) => a - b);
+    // Re-add bass note at the beginning
+    notes.unshift(desired.bass);
+  } else {
+    notes.sort((a, b) => a - b);
   }
 
   return {
