@@ -55,12 +55,12 @@ export function handleKeyPress(
       root: -1,
       bass: -1,
       melody: -1,
-      quality: ChordQuality.Major, // Default, but won't be used unless quality is selected
+      quality: ChordQuality.Major,
       extension: ChordExtension.None,
       notes: []
     };
 
-    // Update active bass note
+    // Add bass note if pressed
     const activeBassKey = Array.from(activeKeys).find(k => BASS_KEYS.includes(k.toUpperCase()));
     if (activeBassKey) {
       const bassIndex = getNoteFromKey(activeBassKey, BASS_KEYS)!;
@@ -69,7 +69,7 @@ export function handleKeyPress(
       voicing.notes = [voicing.bass];
     }
 
-    // Update active melody note
+    // Add melody note if pressed
     const activeMelodyKey = Array.from(activeKeys).find(k => MELODY_KEYS.includes(k.toUpperCase()));
     if (activeMelodyKey) {
       const melodyIndex = getNoteFromKey(activeMelodyKey, MELODY_KEYS)!;
@@ -83,11 +83,14 @@ export function handleKeyPress(
     const activeQualityKey = Array.from(activeKeys).find(k => QUALITY_KEYS.includes(k));
     if (activeQualityKey) {
       voicing.quality = getQualityFromKey(activeQualityKey)!;
+    } else {
+      voicing.quality = ChordQuality.Major;
+      voicing.root = -1; // Reset root if no quality selected
     }
 
-    // Only set extension if explicitly selected
+    // Only set extension if explicitly selected and if we have a quality
     const activeExtensionKey = Array.from(activeKeys).find(k => EXTENSION_KEYS.includes(k));
-    if (activeExtensionKey) {
+    if (activeExtensionKey && activeQualityKey) {
       voicing.extension = getExtensionFromKey(activeExtensionKey)!;
     }
 
@@ -109,4 +112,8 @@ export function getKeyboardLayout() {
     qualityKeys: QUALITY_KEYS.split(""),
     extensionKeys: EXTENSION_KEYS.split("")
   };
+}
+
+export function getActiveKeys() {
+  return activeKeys;
 }

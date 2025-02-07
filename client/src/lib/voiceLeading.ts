@@ -17,11 +17,11 @@ export function generateVoicing(
   if (!hasQuality) {
     return {
       ...desired,
-      notes: desired.notes.sort((a, b) => a - b) // Ensure notes are sorted
+      notes: desired.notes 
     };
   }
 
-  // If we have a quality selected, generate the full chord voicing
+  // Generate full chord voicing only if we have a quality selected
   const baseIntervals = getChordIntervals(desired.quality);
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
@@ -44,9 +44,16 @@ export function generateVoicing(
     );
   }
 
-  // Ensure bass and melody notes are correct
-  voicingNotes = voicingNotes.filter(note => note !== desired.bass && note !== desired.melody);
-  voicingNotes = [desired.bass, ...voicingNotes, desired.melody];
+  // Ensure bass and melody notes are included if specified
+  if (desired.bass !== -1) {
+    voicingNotes = voicingNotes.filter(note => note !== desired.bass);
+    voicingNotes = [desired.bass, ...voicingNotes];
+  }
+
+  if (desired.melody !== -1) {
+    voicingNotes = voicingNotes.filter(note => note !== desired.melody);
+    voicingNotes.push(desired.melody);
+  }
 
   // Sort notes from low to high
   voicingNotes.sort((a, b) => a - b);
