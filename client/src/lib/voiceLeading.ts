@@ -7,6 +7,11 @@ function findClosestNote(target: number, possibilities: number[]): number {
   });
 }
 
+function generateDefaultVoicing(rootNote: number, intervals: number[]): number[] {
+  // For the first chord, generate a comfortable voicing in the middle register
+  return intervals.map(interval => rootNote + interval);
+}
+
 export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
@@ -39,20 +44,24 @@ export function generateVoicing(
   // Calculate the root note (middle C = 60)
   const rootNote = desired.root + 60;
 
-  // Generate all possible chord tones in different octaves
-  const chordTones = [
-    ...allIntervals.map(interval => rootNote + interval - 12), // Lower octave
-    ...allIntervals.map(interval => rootNote + interval),      // Middle octave
-    ...allIntervals.map(interval => rootNote + interval + 12)  // Upper octave
-  ];
-
-  // Start with the bass note
+  // Start with the bass note if present
   if (desired.bass !== -1) {
     notes.push(desired.bass);
   }
 
-  // Add chord tones based on voice leading if we have a previous voicing
-  if (previous && previous.notes.length > 0) {
+  // Handle chord tones differently based on whether we have a previous voicing
+  if (!previous) {
+    // For the first chord, generate a simple voicing in the middle register
+    const defaultVoicing = generateDefaultVoicing(rootNote, allIntervals);
+    notes.push(...defaultVoicing);
+  } else {
+    // For subsequent chords, use voice leading
+    const chordTones = [
+      ...allIntervals.map(interval => rootNote + interval - 12), // Lower octave
+      ...allIntervals.map(interval => rootNote + interval),      // Middle octave
+      ...allIntervals.map(interval => rootNote + interval + 12)  // Upper octave
+    ];
+
     const prevChordTones = previous.notes.filter(
       note => note !== previous.bass && note !== previous.melody
     );
@@ -63,10 +72,6 @@ export function generateVoicing(
     );
 
     notes.push(...ledVoices);
-  } else {
-    // For new chords, add a comfortable voicing in the middle register
-    const middleRegisterTones = allIntervals.map(interval => rootNote + interval);
-    notes.push(...middleRegisterTones);
   }
 
   // Add melody note if specified and not already included
