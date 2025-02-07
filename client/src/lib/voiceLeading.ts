@@ -1,39 +1,24 @@
 import type { ChordVoicing } from "@shared/schema";
 import { getChordIntervals, getExtensionIntervals } from "./chords";
 
-function findClosestNote(target: number, possibilities: number[]): number {
-  return possibilities.reduce((closest, current) => {
-    return Math.abs(current - target) < Math.abs(closest - target) ? current : closest;
-  });
-}
-
-function generateDefaultVoicing(rootNote: number, intervals: number[]): number[] {
-  // For the first chord, generate a comfortable voicing in the middle register
-  return intervals.map(interval => rootNote + interval);
+function generateBasicChord(rootNote: number, intervals: number[]): number[] {
+  // Generate the basic chord in the middle register (around middle C)
+  const baseOctave = 60; // Middle C
+  return intervals.map(interval => baseOctave + rootNote + interval);
 }
 
 export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
 ): ChordVoicing {
-  // Create a new voicing based on the desired voicing
   const voicing = { ...desired };
   let notes: number[] = [];
 
-  // If no quality is selected (root === -1) or no root note, just return the explicitly pressed notes
+  // If no quality is selected or no root note, just return single notes
   if (desired.root === -1) {
-    // Add bass note if present
-    if (desired.bass !== -1) {
-      notes.push(desired.bass);
-    }
-    // Add melody note if present
-    if (desired.melody !== -1) {
-      notes.push(desired.melody);
-    }
-    return {
-      ...desired,
-      notes
-    };
+    if (desired.bass !== -1) notes.push(desired.bass);
+    if (desired.melody !== -1) notes.push(desired.melody);
+    return { ...desired, notes };
   }
 
   // Get intervals for the chord quality and extensions
@@ -41,46 +26,48 @@ export function generateVoicing(
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
 
-  // Calculate the root note (middle C = 60)
-  const rootNote = desired.root + 60;
+  // Always start by generating a basic chord
+  const basicChord = generateBasicChord(desired.root, allIntervals);
 
-  // Start with the bass note if present
+  // Add the bass note if specified
   if (desired.bass !== -1) {
     notes.push(desired.bass);
   }
 
-  // Handle chord tones differently based on whether we have a previous voicing
-  if (!previous) {
-    // For the first chord, generate a simple voicing in the middle register
-    const defaultVoicing = generateDefaultVoicing(rootNote, allIntervals);
-    notes.push(...defaultVoicing);
-  } else {
-    // For subsequent chords, use voice leading
-    const chordTones = [
-      ...allIntervals.map(interval => rootNote + interval - 12), // Lower octave
-      ...allIntervals.map(interval => rootNote + interval),      // Middle octave
-      ...allIntervals.map(interval => rootNote + interval + 12)  // Upper octave
-    ];
+  // Add the chord tones
+  notes.push(...basicChord);
 
-    const prevChordTones = previous.notes.filter(
-      note => note !== previous.bass && note !== previous.melody
-    );
-
-    // Move each previous note to the closest new chord tone
-    const ledVoices = prevChordTones.map(prevNote =>
-      findClosestNote(prevNote, chordTones)
-    );
-
-    notes.push(...ledVoices);
-  }
-
-  // Add melody note if specified and not already included
+  // Add melody note if specified
   if (desired.melody !== -1 && !notes.includes(desired.melody)) {
     notes.push(desired.melody);
   }
 
-  // Remove duplicates and sort from low to high
+  // Sort notes from low to high and remove duplicates
   notes = Array.from(new Set(notes)).sort((a, b) => a - b);
+
+  // Apply voice leading only if we have a previous chord
+  if (previous && previous.notes.length > 0) {
+    const prevNotes = previous.notes.filter(
+      note => note !== previous.bass && note !== previous.melody
+    );
+
+    // Adjust each note to be closer to the previous chord's notes
+    notes = notes.map(note => {
+      const closestPrevNote = prevNotes.reduce((closest, prevNote) => {
+        return Math.abs(note - prevNote) < Math.abs(note - closest) ? prevNote : closest;
+      }, prevNotes[0]);
+
+      // Try to keep the note within an octave of the closest previous note
+      const octaveAdjustment = Math.round((closestPrevNote - note) / 12) * 12;
+      if (Math.abs(octaveAdjustment) <= 12) {
+        return note + octaveAdjustment;
+      }
+      return note;
+    });
+
+    // Sort again after voice leading adjustments
+    notes = Array.from(new Set(notes)).sort((a, b) => a - b);
+  }
 
   return {
     ...voicing,
