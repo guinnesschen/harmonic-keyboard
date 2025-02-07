@@ -5,36 +5,36 @@ const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", 
 export function getChordIntervals(quality: ChordQuality): number[] {
   switch (quality) {
     case ChordQuality.Major:
-      return [0, 4, 7];
+      return [0, 4, 7];  // Root, major third, perfect fifth
     case ChordQuality.Minor:
-      return [0, 3, 7];
+      return [0, 3, 7];  // Root, minor third, perfect fifth
     case ChordQuality.Dominant7:
-      return [0, 4, 7, 10];
+      return [0, 4, 7, 10];  // Root, major third, perfect fifth, minor seventh
     case ChordQuality.Diminished:
-      return [0, 3, 6];
+      return [0, 3, 6];  // Root, minor third, diminished fifth
     case ChordQuality.Augmented:
-      return [0, 4, 8];
+      return [0, 4, 8];  // Root, major third, augmented fifth
     case ChordQuality.Minor7:
-      return [0, 3, 7, 10];
+      return [0, 3, 7, 10];  // Root, minor third, perfect fifth, minor seventh
     case ChordQuality.Major7:
-      return [0, 4, 7, 11];
+      return [0, 4, 7, 11];  // Root, major third, perfect fifth, major seventh
     default:
-      return [0, 4, 7];
+      return [0, 4, 7];  // Default to major triad
   }
 }
 
 export function getExtensionIntervals(extension: ChordExtension): number[] {
   switch (extension) {
     case ChordExtension.Add9:
-      return [14]; // +2 octaves + major second
+      return [14];  // Major ninth
     case ChordExtension.Add11:
-      return [17]; // +2 octaves + perfect fourth
+      return [17];  // Perfect eleventh
     case ChordExtension.Add13:
-      return [21]; // +2 octaves + major sixth
+      return [21];  // Major thirteenth
     case ChordExtension.Sharp11:
-      return [18]; // +2 octaves + augmented fourth
+      return [18];  // Augmented eleventh
     default:
-      return [];
+      return [];  // No extensions
   }
 }
 
