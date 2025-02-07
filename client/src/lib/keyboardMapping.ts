@@ -57,12 +57,12 @@ export function handleKeyPress(
   e: KeyboardEvent,
   currentVoicing: ChordVoicing | null,
 ): ChordVoicing | null {
-  const key = e.key;
+  const key = e.key.toLowerCase();
 
   // Update key state based on the category of the pressed key
-  if (BASS_KEYS.includes(key.toUpperCase())) {
+  if (BASS_KEYS.toLowerCase().includes(key)) {
     keyState.bass = key;
-  } else if (MELODY_KEYS.includes(key.toUpperCase())) {
+  } else if (MELODY_KEYS.toLowerCase().includes(key)) {
     keyState.melody = key;
   } else if (QUALITY_KEYS.includes(key)) {
     keyState.quality = key;
@@ -82,12 +82,19 @@ export function handleKeyPress(
     notes: [],
   };
 
-  // Add bass note if present
+  // Add bass note if present (this will be our root note)
   if (keyState.bass) {
     const bassIndex = getNoteFromKey(keyState.bass, BASS_KEYS)!;
     voicing.root = bassIndex;
     voicing.bass = bassIndex + 48; // Bass octave
     voicing.notes = [voicing.bass];
+  }
+
+  // If we have a quality selected, set it and make root valid
+  if (keyState.quality) {
+    voicing.quality = getQualityFromKey(keyState.quality)!;
+  } else {
+    voicing.root = -1; // No chord quality selected, just play single notes
   }
 
   // Add melody note if present
@@ -99,13 +106,6 @@ export function handleKeyPress(
     }
   }
 
-  // Set chord quality if present
-  if (keyState.quality) {
-    voicing.quality = getQualityFromKey(keyState.quality)!;
-  } else {
-    voicing.root = -1; // No chord quality selected
-  }
-
   // Set extension if we have both quality and extension
   if (keyState.quality && keyState.extension) {
     voicing.extension = getExtensionFromKey(keyState.extension)!;
@@ -115,12 +115,12 @@ export function handleKeyPress(
 }
 
 export function handleKeyRelease(e: KeyboardEvent): boolean {
-  const key = e.key;
+  const key = e.key.toLowerCase();
 
   // Clear the released key from the appropriate category
-  if (BASS_KEYS.includes(key.toUpperCase()) && keyState.bass === key) {
+  if (BASS_KEYS.toLowerCase().includes(key) && keyState.bass === key) {
     keyState.bass = null;
-  } else if (MELODY_KEYS.includes(key.toUpperCase()) && keyState.melody === key) {
+  } else if (MELODY_KEYS.toLowerCase().includes(key) && keyState.melody === key) {
     keyState.melody = null;
   } else if (QUALITY_KEYS.includes(key) && keyState.quality === key) {
     keyState.quality = null;

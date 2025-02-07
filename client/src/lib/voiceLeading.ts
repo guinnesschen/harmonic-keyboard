@@ -11,8 +11,7 @@ export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
 ): ChordVoicing {
-  // If no quality is selected (root === -1), just return the basic voicing
-  // with the explicitly pressed notes
+  // If no quality is selected (root === -1), just return the explicitly pressed notes
   if (desired.root === -1) {
     return {
       ...desired,
@@ -20,44 +19,50 @@ export function generateVoicing(
     };
   }
 
-  // Generate full chord voicing since we have a quality selected
+  // Generate all possible notes for this chord based on intervals
   const baseIntervals = getChordIntervals(desired.quality);
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
 
-  // Generate all possible notes for this chord
-  const baseNote = desired.root + 60; // Middle C = 60
-  const possibleNotes = allIntervals.map(interval => baseNote + interval);
+  // Calculate base note (middle C = 60) and generate all chord tones
+  const baseNote = desired.root + 60;
+  let chordTones = allIntervals.map(interval => baseNote + interval);
 
-  let voicingNotes: number[];
-
+  // For the initial chord, spread the notes across octaves
   if (!previous) {
-    // Initial voicing - spread notes out evenly
-    voicingNotes = possibleNotes.map((note, i) => {
-      // Spread across octaves based on position in the chord
-      return note + Math.floor(i / 2) * 12;
+    chordTones = chordTones.map((note, i) => {
+      const octaveOffset = Math.floor(i / 3) * 12; // Group notes in threes across octaves
+      return note + octaveOffset;
     });
   } else {
-    // Voice leading - move each note to closest available note
-    voicingNotes = previous.notes.map(prevNote => 
-      findClosestNote(prevNote, possibleNotes)
-    );
+    // Voice leading - move each note to the closest available chord tone
+    chordTones = previous.notes.map(prevNote => {
+      const possibleNotes = [...chordTones];
+      // Add octaves above and below for more voice leading options
+      possibleNotes.push(...chordTones.map(n => n + 12));
+      possibleNotes.push(...chordTones.map(n => n - 12));
+      return findClosestNote(prevNote, possibleNotes);
+    });
   }
 
-  // Ensure bass note is included if specified
+  // Start with an empty notes array
+  let voicingNotes: number[] = [];
+
+  // Always include the bass note first if specified
   if (desired.bass !== -1) {
-    voicingNotes = voicingNotes.filter(note => note !== desired.bass);
-    voicingNotes = [desired.bass, ...voicingNotes];
+    voicingNotes.push(desired.bass);
   }
 
-  // Ensure melody note is included if specified
-  if (desired.melody !== -1) {
-    voicingNotes = voicingNotes.filter(note => note !== desired.melody);
+  // Add chord tones in the middle register
+  voicingNotes.push(...chordTones);
+
+  // Add melody note if specified
+  if (desired.melody !== -1 && !voicingNotes.includes(desired.melody)) {
     voicingNotes.push(desired.melody);
   }
 
-  // Sort notes from low to high
-  voicingNotes.sort((a, b) => a - b);
+  // Remove any duplicate notes and sort
+  voicingNotes = [...new Set(voicingNotes)].sort((a, b) => a - b);
 
   return {
     ...desired,
