@@ -13,19 +13,22 @@ export function generateVoicing(
 ): ChordVoicing {
   // Create a new voicing based on the desired voicing
   const voicing = { ...desired };
+  let notes: number[] = [];
 
-  // If no quality is selected (root === -1) or no root note, just return the basic voicing
+  // If no quality is selected (root === -1) or no root note, just return the explicitly pressed notes
   if (desired.root === -1) {
+    // Add bass note if present
+    if (desired.bass !== -1) {
+      notes.push(desired.bass);
+    }
+    // Add melody note if present
+    if (desired.melody !== -1) {
+      notes.push(desired.melody);
+    }
     return {
       ...desired,
-      notes: [...desired.notes]
+      notes
     };
-  }
-
-  // Initialize notes array with bass note if present
-  let notes: number[] = [];
-  if (desired.bass !== -1) {
-    notes.push(desired.bass);
   }
 
   // Get intervals for the chord quality and extensions
@@ -33,38 +36,37 @@ export function generateVoicing(
   const extensionIntervals = getExtensionIntervals(desired.extension);
   const allIntervals = [...baseIntervals, ...extensionIntervals];
 
-  // Generate all chord tones based on root note
-  const rootNote = desired.root + 60; // Middle C = 60
-  const chordTones = allIntervals.map(interval => rootNote + interval);
+  // Calculate the root note (middle C = 60)
+  const rootNote = desired.root + 60;
 
-  // If we have a previous voicing, use voice leading
+  // Generate all possible chord tones in different octaves
+  const chordTones = [
+    ...allIntervals.map(interval => rootNote + interval - 12), // Lower octave
+    ...allIntervals.map(interval => rootNote + interval),      // Middle octave
+    ...allIntervals.map(interval => rootNote + interval + 12)  // Upper octave
+  ];
+
+  // Start with the bass note
+  if (desired.bass !== -1) {
+    notes.push(desired.bass);
+  }
+
+  // Add chord tones based on voice leading if we have a previous voicing
   if (previous && previous.notes.length > 0) {
-    // Get previous chord tones (excluding bass and melody)
     const prevChordTones = previous.notes.filter(
       note => note !== previous.bass && note !== previous.melody
     );
 
-    // Generate possible positions for each note (including octaves above and below)
-    const possiblePositions = [
-      ...chordTones,
-      ...chordTones.map(note => note + 12), // Add octave above
-      ...chordTones.map(note => note - 12)  // Add octave below
-    ];
-
-    // Move each previous note to the closest new position
+    // Move each previous note to the closest new chord tone
     const ledVoices = prevChordTones.map(prevNote =>
-      findClosestNote(prevNote, possiblePositions)
+      findClosestNote(prevNote, chordTones)
     );
 
-    // Add the voice-led notes
     notes.push(...ledVoices);
   } else {
-    // For new chords, spread the notes across octaves
-    notes.push(...chordTones.map((note, i) => {
-      // Spread notes across octaves based on position in chord
-      const octaveOffset = Math.floor(i / 3) * 12;
-      return note + octaveOffset;
-    }));
+    // For new chords, add a comfortable voicing in the middle register
+    const middleRegisterTones = allIntervals.map(interval => rootNote + interval);
+    notes.push(...middleRegisterTones);
   }
 
   // Add melody note if specified and not already included
@@ -72,7 +74,7 @@ export function generateVoicing(
     notes.push(desired.melody);
   }
 
-  // Sort notes and remove duplicates
+  // Remove duplicates and sort from low to high
   notes = Array.from(new Set(notes)).sort((a, b) => a - b);
 
   return {

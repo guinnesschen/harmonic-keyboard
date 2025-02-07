@@ -9,7 +9,6 @@ const MELODY_KEYS = "QWERTYUIOP";
 const QUALITY_KEYS = "1234567";
 const EXTENSION_KEYS = "890-=";
 
-// Track the most recently pressed key for each category
 interface KeyState {
   bass: string | null;
   melody: string | null;
@@ -53,6 +52,50 @@ function getExtensionFromKey(key: string): ChordExtension | null {
   return extensionMap[key] || null;
 }
 
+// New function to generate voicing from current key state
+function generateVoicingFromKeyState(): ChordVoicing | null {
+  // If no keys are pressed, return null
+  if (!keyState.bass && !keyState.melody) {
+    return null;
+  }
+
+  const voicing: ChordVoicing = {
+    root: -1,
+    bass: -1,
+    melody: -1,
+    quality: ChordQuality.Major,
+    extension: ChordExtension.None,
+    notes: [],
+  };
+
+  // Process bass note if present
+  if (keyState.bass) {
+    const bassIndex = getNoteFromKey(keyState.bass, BASS_KEYS)!;
+    voicing.root = bassIndex;
+    voicing.bass = bassIndex + 48; // Bass octave
+  }
+
+  // Process melody note if present
+  if (keyState.melody) {
+    const melodyIndex = getNoteFromKey(keyState.melody, MELODY_KEYS)!;
+    voicing.melody = melodyIndex + 72; // Melody octave
+  }
+
+  // Process chord quality if present
+  if (keyState.quality) {
+    voicing.quality = getQualityFromKey(keyState.quality)!;
+  } else {
+    voicing.root = -1; // No chord quality selected, just play single notes
+  }
+
+  // Process extension if both quality and extension are present
+  if (keyState.quality && keyState.extension) {
+    voicing.extension = getExtensionFromKey(keyState.extension)!;
+  }
+
+  return voicing;
+}
+
 export function handleKeyPress(
   e: KeyboardEvent,
   currentVoicing: ChordVoicing | null,
@@ -72,54 +115,8 @@ export function handleKeyPress(
     return null; // Not a valid key
   }
 
-  // Initialize voicing with default values
-  const voicing: ChordVoicing = {
-    root: -1,
-    bass: -1,
-    melody: -1,
-    quality: ChordQuality.Major,
-    extension: ChordExtension.None,
-    notes: [],
-  };
-
-  // If we have a bass note, set the root and bass note
-  if (keyState.bass) {
-    const bassIndex = getNoteFromKey(keyState.bass, BASS_KEYS)!;
-    voicing.root = bassIndex;
-    voicing.bass = bassIndex + 48; // Bass octave
-  }
-
-  // If we have a quality selected, update it
-  if (keyState.quality) {
-    voicing.quality = getQualityFromKey(keyState.quality)!;
-  } else {
-    // If no quality is selected, only play single notes
-    voicing.root = -1;
-  }
-
-  // Add melody note if present
-  if (keyState.melody) {
-    const melodyIndex = getNoteFromKey(keyState.melody, MELODY_KEYS)!;
-    voicing.melody = melodyIndex + 72; // Melody octave
-  }
-
-  // Set extension if quality is selected
-  if (keyState.quality && keyState.extension) {
-    voicing.extension = getExtensionFromKey(keyState.extension)!;
-  }
-
-  // Initialize notes array with bass note if present
-  voicing.notes = [];
-  if (voicing.bass !== -1) {
-    voicing.notes.push(voicing.bass);
-  }
-
-  // Add melody note if present
-  if (voicing.melody !== -1) {
-    voicing.notes.push(voicing.melody);
-  }
-
-  return voicing;
+  // Generate new voicing based on current key state
+  return generateVoicingFromKeyState();
 }
 
 export function handleKeyRelease(e: KeyboardEvent): boolean {
