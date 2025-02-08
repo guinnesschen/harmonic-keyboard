@@ -28,7 +28,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
   const updateSettings = (path: string[], value: number | string) => {
     const newSettings = { ...settings };
     let current: any = newSettings;
-    
+
     // Navigate to the correct nested property
     for (let i = 0; i < path.length - 1; i++) {
       current = current[path[i]];
@@ -40,21 +40,21 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Sound Controls</h2>
-      
+    <Card className="p-6 bg-white">
+      <h2 className="text-xl font-semibold mb-4 text-gray-900">Sound Controls</h2>
+
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="oscillator">
-          <AccordionTrigger>Oscillator</AccordionTrigger>
+          <AccordionTrigger className="text-gray-900">Oscillator</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
               <div>
-                <Label>Waveform</Label>
+                <Label className="text-gray-900">Waveform</Label>
                 <Select
                   value={settings.oscillator.type}
                   onValueChange={(value) => updateSettings(["oscillator", "type"], value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -66,7 +66,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 </Select>
               </div>
               <div>
-                <Label>Spread</Label>
+                <Label className="text-gray-900">Spread</Label>
                 <Slider
                   value={[settings.oscillator.spread]}
                   min={0}
@@ -80,11 +80,11 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="envelope">
-          <AccordionTrigger>Envelope</AccordionTrigger>
+          <AccordionTrigger className="text-gray-900">Envelope</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
               <div>
-                <Label>Attack</Label>
+                <Label className="text-gray-900">Attack</Label>
                 <Slider
                   value={[settings.envelope.attack]}
                   min={0}
@@ -94,7 +94,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 />
               </div>
               <div>
-                <Label>Decay</Label>
+                <Label className="text-gray-900">Decay</Label>
                 <Slider
                   value={[settings.envelope.decay]}
                   min={0}
@@ -104,7 +104,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 />
               </div>
               <div>
-                <Label>Sustain</Label>
+                <Label className="text-gray-900">Sustain</Label>
                 <Slider
                   value={[settings.envelope.sustain]}
                   min={0}
@@ -114,7 +114,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 />
               </div>
               <div>
-                <Label>Release</Label>
+                <Label className="text-gray-900">Release</Label>
                 <Slider
                   value={[settings.envelope.release]}
                   min={0}
@@ -128,14 +128,14 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="effects">
-          <AccordionTrigger>Effects</AccordionTrigger>
+          <AccordionTrigger className="text-gray-900">Effects</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-6">
               {/* Reverb */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Reverb</h3>
+                <h3 className="text-sm font-medium text-gray-900">Reverb</h3>
                 <div>
-                  <Label>Decay</Label>
+                  <Label className="text-gray-900">Decay</Label>
                   <Slider
                     value={[settings.effects.reverb.decay]}
                     min={0.1}
@@ -145,7 +145,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Mix</Label>
+                  <Label className="text-gray-900">Mix</Label>
                   <Slider
                     value={[settings.effects.reverb.wet]}
                     min={0}
@@ -158,9 +158,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* Chorus */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Chorus</h3>
+                <h3 className="text-sm font-medium text-gray-900">Chorus</h3>
                 <div>
-                  <Label>Depth</Label>
+                  <Label className="text-gray-900">Depth</Label>
                   <Slider
                     value={[settings.effects.chorus.depth]}
                     min={0}
@@ -170,7 +170,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Frequency</Label>
+                  <Label className="text-gray-900">Frequency</Label>
                   <Slider
                     value={[settings.effects.chorus.frequency]}
                     min={0.1}
@@ -180,7 +180,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Mix</Label>
+                  <Label className="text-gray-900">Mix</Label>
                   <Slider
                     value={[settings.effects.chorus.wet]}
                     min={0}
@@ -193,9 +193,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* Distortion */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Distortion</h3>
+                <h3 className="text-sm font-medium text-gray-900">Distortion</h3>
                 <div>
-                  <Label>Amount</Label>
+                  <Label className="text-gray-900">Amount</Label>
                   <Slider
                     value={[settings.effects.distortion.distortion]}
                     min={0}
@@ -205,7 +205,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Mix</Label>
+                  <Label className="text-gray-900">Mix</Label>
                   <Slider
                     value={[settings.effects.distortion.wet]}
                     min={0}
@@ -218,9 +218,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* EQ */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">EQ</h3>
+                <h3 className="text-sm font-medium text-gray-900">EQ</h3>
                 <div>
-                  <Label>Low</Label>
+                  <Label className="text-gray-900">Low</Label>
                   <Slider
                     value={[settings.effects.eq.low]}
                     min={-12}
@@ -230,7 +230,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Mid</Label>
+                  <Label className="text-gray-900">Mid</Label>
                   <Slider
                     value={[settings.effects.eq.mid]}
                     min={-12}
@@ -240,7 +240,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>High</Label>
+                  <Label className="text-gray-900">High</Label>
                   <Slider
                     value={[settings.effects.eq.high]}
                     min={-12}
@@ -253,9 +253,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* Compressor */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium">Compressor</h3>
+                <h3 className="text-sm font-medium text-gray-900">Compressor</h3>
                 <div>
-                  <Label>Threshold</Label>
+                  <Label className="text-gray-900">Threshold</Label>
                   <Slider
                     value={[settings.effects.compression.threshold]}
                     min={-60}
@@ -265,7 +265,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Ratio</Label>
+                  <Label className="text-gray-900">Ratio</Label>
                   <Slider
                     value={[settings.effects.compression.ratio]}
                     min={1}
@@ -275,7 +275,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Attack</Label>
+                  <Label className="text-gray-900">Attack</Label>
                   <Slider
                     value={[settings.effects.compression.attack]}
                     min={0.001}
@@ -285,7 +285,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                   />
                 </div>
                 <div>
-                  <Label>Release</Label>
+                  <Label className="text-gray-900">Release</Label>
                   <Slider
                     value={[settings.effects.compression.release]}
                     min={0.01}
@@ -300,10 +300,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="master">
-          <AccordionTrigger>Master</AccordionTrigger>
+          <AccordionTrigger className="text-gray-900">Master</AccordionTrigger>
           <AccordionContent>
             <div>
-              <Label>Volume</Label>
+              <Label className="text-gray-900">Volume</Label>
               <Slider
                 value={[settings.volume]}
                 min={-60}
