@@ -3,17 +3,17 @@ import { ChordQuality, type ChordQualityConfig } from "@shared/schema";
 export const defaultChordQualities: ChordQualityConfig = {
   root: {
     0: ChordQuality.Major,    // C
-    1: ChordQuality.Major,    // C#
-    2: ChordQuality.Major,    // D
-    3: ChordQuality.Major,    // D#
-    4: ChordQuality.Major,    // E
+    1: ChordQuality.Major,    // C#/Db
+    2: ChordQuality.Minor,    // D
+    3: ChordQuality.Major,    // D#/Eb
+    4: ChordQuality.Minor,    // E
     5: ChordQuality.Major,    // F
-    6: ChordQuality.Major,    // F#
+    6: ChordQuality.Major,    // F#/Gb
     7: ChordQuality.Major,    // G
-    8: ChordQuality.Major,    // G#
-    9: ChordQuality.Major,    // A
-    10: ChordQuality.Major,   // A#
-    11: ChordQuality.Major,   // B
+    8: ChordQuality.Major,    // G#/Ab
+    9: ChordQuality.Minor,    // A
+    10: ChordQuality.Major,   // A#/Bb
+    11: ChordQuality.HalfDiminished7,   // B
   },
   first: {
     0: ChordQuality.Minor,    // C

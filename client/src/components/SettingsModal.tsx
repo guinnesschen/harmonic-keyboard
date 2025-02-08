@@ -42,9 +42,9 @@ function QualitySelect({ value, onChange, noteIndex }: {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-sm text-gray-600 w-12">{noteName}</span>
+      <span className="text-sm text-gray-900 w-12">{noteName}</span>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-32">
+        <SelectTrigger className="w-32 text-gray-900">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

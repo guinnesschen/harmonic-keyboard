@@ -24,8 +24,8 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
         className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
           ${
             isActive
-              ? "bg-rose-600/80 text-white"
-              : "bg-transparent border border-rose-600/20 text-gray-900"
+              ? "bg-stone-500 text-white"
+              : "bg-transparent border border-stone-500/20 text-gray-900"
           }`}
       >
         {keyLabel}
