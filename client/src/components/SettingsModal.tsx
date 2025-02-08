@@ -185,15 +185,15 @@ export default function SettingsModal({
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="thirdseventh">
+              <AccordionItem value="third">
                 <AccordionTrigger className="text-sm">Third/Seventh in Bass</AccordionTrigger>
                 <AccordionContent className="space-y-2">
                   {Array.from({ length: 12 }, (_, i) => (
                     <QualitySelect
                       key={i}
                       noteIndex={i}
-                      value={localChordQualities.thirdseventh[i]}
-                      onChange={(quality) => updateChordQuality("thirdseventh", i, quality)}
+                      value={localChordQualities.third[i]}
+                      onChange={(quality) => updateChordQuality("third", i, quality)}
                     />
                   ))}
                 </AccordionContent>
