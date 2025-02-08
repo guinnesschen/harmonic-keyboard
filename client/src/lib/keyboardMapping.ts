@@ -17,8 +17,8 @@ const pressedKeys = new Set<string>();
 // Store the last generated voicing for sticky mode
 let lastGeneratedVoicing: ChordVoicing | null = null;
 
-// Track tab state for temporary sticky mode
-let isTabPressed = false;
+// Track spacebar state for temporary sticky mode
+let isSpacebarPressed = false;
 
 function getNoteFromKey(key: string, keyMap: string): number {
   const index = keyMap.indexOf(key.toLowerCase());
@@ -134,13 +134,13 @@ export function generateVoicingFromKeyState(
 ): ChordVoicing | null {
   const currentKeys = Array.from(pressedKeys).map(key => key.toLowerCase());
 
-  // Check if tab is pressed
-  if (currentKeys.includes("tab")) {
+  // Check if spacebar is pressed
+  if (currentKeys.includes(" ")) {
     return null;
   }
 
-  // Determine effective sticky mode (including temporary sticky from tab)
-  const effectiveStickyMode = stickyMode === StickyMode.On || isTabPressed;
+  // Determine effective sticky mode (including temporary sticky from spacebar)
+  const effectiveStickyMode = stickyMode === StickyMode.On || isSpacebarPressed;
 
   const bassKey = currentKeys.find(key => BASS_KEYS.includes(key));
   const qualityKey = currentKeys.find(key => QUALITY_KEYS.includes(key));
@@ -214,9 +214,8 @@ export function handleKeyPress(e: KeyboardEvent): void {
   const key = e.key.toLowerCase();
   pressedKeys.add(key);
 
-  if (key === "tab") {
-    isTabPressed = true;
-    e.preventDefault(); // Prevent tab from changing focus
+  if (key === " ") {
+    isSpacebarPressed = true;
   }
 }
 
@@ -224,10 +223,10 @@ export function handleKeyRelease(e: KeyboardEvent, stickyMode: StickyMode = Stic
   const key = e.key.toLowerCase();
   pressedKeys.delete(key);
 
-  if (key === "tab") {
-    isTabPressed = false;
+  if (key === " ") {
+    isSpacebarPressed = false;
     if (stickyMode === StickyMode.On) {
-      // In sticky mode, tab release clears the chord
+      // In sticky mode, spacebar release clears the chord
       lastGeneratedVoicing = null;
       return true;
     }
