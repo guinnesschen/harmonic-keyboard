@@ -93,7 +93,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             description = "Half-dim 7";
             break;
           case ChordQuality.DomSus:
-            description = "Dom Sus";
+            description = "DomSus";
             break;
           case ChordQuality.Sus:
             description = "Sus";
@@ -102,10 +102,13 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             description = "Aug";
             break;
           case ChordQuality.MinMaj7:
-            description = "Min/Maj7";
+            description = "Min Maj7";
             break;
           case ChordQuality.Add9:
             description = "Add 9";
+            break;
+          case ChordQuality.MinAdd9:
+            description = "Min Add 9";
             break;
           default:
             description = mapping.quality;
