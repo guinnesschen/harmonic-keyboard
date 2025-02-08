@@ -4,12 +4,10 @@ import {
   ChordQuality,
   ChordPosition,
   type ChordVoicing,
-  InversionMode,
 } from "@shared/schema";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
-  inversionMode: InversionMode;
 }
 
 interface KeyHintProps {
@@ -38,7 +36,6 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
 
 export default function KeyboardGuide({
   activeVoicing,
-  inversionMode,
 }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
@@ -69,21 +66,12 @@ export default function KeyboardGuide({
   };
 
   const getInversionDescription = (position: string): string => {
-    if (inversionMode === InversionMode.Traditional) {
-      return {
-        "0": "Root position",
-        "1": "1st inversion",
-        "2": "2nd inversion",
-        "3": "3rd inversion"
-      }[position] || "";
-    } else {
-      return {
-        "0": "Bass = root",
-        "1": "Bass = 3rd",
-        "2": "Bass = 5th",
-        "3": "Bass = 7th"
-      }[position] || "";
-    }
+    return {
+      "0": "Bass = root",
+      "1": "Bass = 3rd",
+      "2": "Bass = 5th",
+      "3": "Bass = 7th"
+    }[position] || "";
   };
 
   // Black key positions and offsets

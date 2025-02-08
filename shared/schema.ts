@@ -17,11 +17,6 @@ export const ChordPosition = {
   ThirdSeventh: "thirdseventh",
 } as const;
 
-export const InversionMode = {
-  Traditional: "traditional",
-  Functional: "functional",
-} as const;
-
 export const StickyMode = {
   Off: "off",
   On: "on",
@@ -29,10 +24,9 @@ export const StickyMode = {
 
 export type ChordQuality = typeof ChordQuality[keyof typeof ChordQuality];
 export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
-export type InversionMode = typeof InversionMode[keyof typeof InversionMode];
 export type StickyMode = typeof StickyMode[keyof typeof StickyMode];
 
-// New type for chord quality configuration
+// Type for chord quality configuration
 export type ChordQualityConfig = {
   root: Record<number, ChordQuality>;
   first: Record<number, ChordQuality>;

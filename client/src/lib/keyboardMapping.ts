@@ -1,7 +1,6 @@
 import {
   ChordQuality,
   ChordPosition,
-  InversionMode,
   StickyMode,
   type ChordVoicing,
 } from "@shared/schema";
@@ -26,11 +25,31 @@ function getNoteFromKey(key: string, keyMap: string): number {
   return index;
 }
 
-function getDefaultQualityForFunctionalMode(bassKey: string, position: ChordPosition): ChordQuality {
-  // Convert key to note index (0 = C, 1 = C#, etc.)
-  const noteIndex = getNoteFromKey(bassKey, BASS_KEYS);
+function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.Root): ChordQuality {
+  const qualityMap: Record<string, ChordQuality> = {
+    "q": ChordQuality.Major,
+    "w": ChordQuality.Major7,
+    "e": ChordQuality.Dominant7,
+    "r": ChordQuality.Minor,
+    "t": ChordQuality.Minor7,
+    "y": ChordQuality.Diminished7,
+    "u": ChordQuality.HalfDiminished7,
+  };
 
-  // Use the new configuration based on position
+  // If a quality key is pressed, use that quality directly
+  const qualityKey = Array.from(pressedKeys).find(key => QUALITY_KEYS.includes(key.toLowerCase()));
+  if (qualityKey) {
+    return qualityMap[qualityKey] || ChordQuality.Major;
+  }
+
+  // Get the bass key being pressed
+  const bassKey = Array.from(pressedKeys).find(key => BASS_KEYS.includes(key.toLowerCase()));
+  if (!bassKey) {
+    return ChordQuality.Major;
+  }
+
+  // Use the default quality based on position and bass note
+  const noteIndex = getNoteFromKey(bassKey, BASS_KEYS);
   switch (position) {
     case ChordPosition.Root:
       return getDefaultQuality("root", noteIndex);
@@ -45,58 +64,6 @@ function getDefaultQualityForFunctionalMode(bassKey: string, position: ChordPosi
   }
 }
 
-function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.Root, inversionMode: InversionMode = InversionMode.Traditional): ChordQuality {
-  // Default chord qualities for white keys (diatonic chords in C major)
-  const whiteKeyQualities: Record<string, ChordQuality> = {
-    "z": ChordQuality.Major,      // C
-    "x": ChordQuality.Minor,      // D
-    "c": ChordQuality.Minor,      // E
-    "v": ChordQuality.Major,      // F
-    "b": ChordQuality.Major,      // G
-    "n": ChordQuality.Minor,      // A
-    "m": ChordQuality.HalfDiminished7, // B
-  };
-
-  // All black keys default to major
-  const blackKeyQualities: Record<string, ChordQuality> = {
-    "s": ChordQuality.Major,      // C#
-    "d": ChordQuality.Major,      // D#
-    "g": ChordQuality.Major,      // F#
-    "h": ChordQuality.Major,      // G#
-    "j": ChordQuality.Major,      // A#
-  };
-
-  const qualityMap: Record<string, ChordQuality> = {
-    "q": ChordQuality.Major,
-    "w": ChordQuality.Major7,
-    "e": ChordQuality.Dominant7,
-    "r": ChordQuality.Minor,
-    "t": ChordQuality.Minor7,
-    "y": ChordQuality.Diminished7,
-    "u": ChordQuality.HalfDiminished7,
-  };
-
-  // If a quality key is pressed, use that
-  const qualityKey = Array.from(pressedKeys).find(key => QUALITY_KEYS.includes(key.toLowerCase()));
-  if (qualityKey) {
-    return qualityMap[qualityKey] || ChordQuality.Major;
-  }
-
-  // Get the bass key being pressed
-  const bassKey = Array.from(pressedKeys).find(key => BASS_KEYS.includes(key.toLowerCase()));
-  if (!bassKey) {
-    return ChordQuality.Major;
-  }
-
-  // In functional mode, use the new default qualities based on position and bass note
-  if (inversionMode === InversionMode.Functional) {
-    return getDefaultQualityForFunctionalMode(bassKey, position);
-  }
-
-  // In traditional mode, use the original default qualities
-  return whiteKeyQualities[bassKey] || blackKeyQualities[bassKey] || ChordQuality.Major;
-}
-
 function getPositionFromKey(key: string): ChordPosition {
   const positionMap: Record<string, ChordPosition> = {
     "0": ChordPosition.Root,
@@ -107,13 +74,10 @@ function getPositionFromKey(key: string): ChordPosition {
   return positionMap[key] || ChordPosition.Root;
 }
 
-// Helper function to calculate root note in functional mode
+// Calculate root note based on bass note and position
 function calculateRootFromBassAndFunction(bassNote: number, position: ChordPosition, quality: ChordQuality): number {
-  // Get intervals for the current chord quality
   const intervals = getChordIntervals(quality);
 
-  // In functional mode, we need to work backwards from the bass note and its function
-  // to determine the root note
   let offset = 0;
   switch (position) {
     case ChordPosition.First: // Bass is the third
@@ -154,10 +118,7 @@ function getChordIntervals(quality: ChordQuality): number[] {
   }
 }
 
-export function generateVoicingFromKeyState(
-  inversionMode: InversionMode = InversionMode.Traditional,
-  stickyMode: StickyMode = StickyMode.Off
-): ChordVoicing | null {
+export function generateVoicingFromKeyState(stickyMode: StickyMode = StickyMode.Off): ChordVoicing | null {
   const currentKeys = Array.from(pressedKeys).map(key => key.toLowerCase());
 
   // Check if spacebar is pressed
@@ -178,29 +139,24 @@ export function generateVoicingFromKeyState(
 
     // Update quality if a quality key is pressed
     if (qualityKey) {
-      voicing.quality = getQualityFromKey(qualityKey, voicing.position, inversionMode);
+      voicing.quality = getQualityFromKey(qualityKey, voicing.position);
     }
 
     // Update position if a position key is pressed
     if (positionKey) {
       const newPosition = getPositionFromKey(positionKey);
       voicing.position = newPosition;
-      // Update quality based on new position in functional mode
-      if (!qualityKey && inversionMode === InversionMode.Functional && bassKey) {
-        voicing.quality = getQualityFromKey(bassKey, newPosition, inversionMode);
+      // Update quality based on new position if no quality key is pressed
+      if (!qualityKey && bassKey) {
+        voicing.quality = getQualityFromKey(bassKey, newPosition);
       }
     }
 
     // Update root/bass if a bass key is pressed
     if (bassKey) {
       const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
-      if (inversionMode === InversionMode.Traditional) {
-        voicing.root = bassNote;
-        voicing.bass = -1; // Will be set by voiceLeading.ts
-      } else {
-        voicing.root = calculateRootFromBassAndFunction(bassNote, voicing.position, voicing.quality);
-        voicing.bass = bassNote + 48;
-      }
+      voicing.root = calculateRootFromBassAndFunction(bassNote, voicing.position, voicing.quality);
+      voicing.bass = bassNote + 48;
     }
 
     lastGeneratedVoicing = voicing;
@@ -215,30 +171,19 @@ export function generateVoicingFromKeyState(
   // Get the basic parameters
   const bassNote = bassKey ? getNoteFromKey(bassKey, BASS_KEYS) : (lastGeneratedVoicing?.root || 0);
   const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
-  // Get quality considering both the quality key and the position/bass note in functional mode
-  const quality = qualityKey
-    ? getQualityFromKey(qualityKey, position, inversionMode)
-    : getQualityFromKey(bassKey || "", position, inversionMode);
+  const quality = qualityKey 
+    ? getQualityFromKey(qualityKey, position)
+    : getQualityFromKey(bassKey || "", position);
 
-  let voicing: ChordVoicing;
-  if (inversionMode === InversionMode.Traditional) {
-    voicing = {
-      root: bassNote,
-      bass: -1, // Will be set by voiceLeading.ts based on position
-      quality,
-      position,
-      notes: [], // Will be populated by voiceLeading.ts
-    };
-  } else {
-    const rootNote = calculateRootFromBassAndFunction(bassNote, position, quality);
-    voicing = {
-      root: rootNote,
-      bass: bassNote + 48, // Set the actual bass note (in octave 3)
-      quality,
-      position,
-      notes: [], // Will be populated by voiceLeading.ts
-    };
-  }
+  const rootNote = calculateRootFromBassAndFunction(bassNote, position, quality);
+
+  const voicing: ChordVoicing = {
+    root: rootNote,
+    bass: bassNote + 48,
+    quality,
+    position,
+    notes: [], // Will be populated by voiceLeading.ts
+  };
 
   lastGeneratedVoicing = voicing;
   return voicing;

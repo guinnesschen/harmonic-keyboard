@@ -11,8 +11,9 @@ import {
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
-import { InversionMode, StickyMode } from "@shared/schema";
+import { StickyMode } from "@shared/schema";
 import SettingsModal from "@/components/SettingsModal";
+import { defaultChordQualities } from "@/lib/chordConfig";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -57,10 +58,8 @@ const defaultSettings: SynthSettings = {
 export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
-  const [inversionMode, setInversionMode] = useState<InversionMode>(
-    InversionMode.Traditional,
-  );
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
+  const [chordQualities, setChordQualities] = useState(defaultChordQualities);
 
   const initializeAudio = async () => {
     if (!isAudioInitialized) {
@@ -79,10 +78,7 @@ export default function Instrument() {
 
   useEffect(() => {
     const updateVoicing = () => {
-      const newBasicVoicing = generateVoicingFromKeyState(
-        inversionMode,
-        stickyMode,
-      );
+      const newBasicVoicing = generateVoicingFromKeyState(stickyMode);
       if (newBasicVoicing) {
         const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
         setCurrentVoicing(fullVoicing);
@@ -123,16 +119,16 @@ export default function Instrument() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [currentVoicing, isAudioInitialized, inversionMode, stickyMode]);
+  }, [currentVoicing, isAudioInitialized, stickyMode]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       <div className="relative z-10">
         <SettingsModal
-          inversionMode={inversionMode}
           stickyMode={stickyMode}
-          onInversionModeChange={setInversionMode}
+          chordQualities={chordQualities}
           onStickyModeChange={setStickyMode}
+          onChordQualitiesChange={setChordQualities}
         />
         <HelpModal />
         <SoundControlsModal initialSettings={defaultSettings} />
@@ -142,7 +138,6 @@ export default function Instrument() {
             <ChordDisplay voicing={currentVoicing} />
             <KeyboardGuide
               activeVoicing={currentVoicing}
-              inversionMode={inversionMode}
             />
           </div>
         </div>
