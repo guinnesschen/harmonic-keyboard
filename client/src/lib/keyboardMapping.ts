@@ -6,7 +6,7 @@ import {
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
-const QUALITY_KEYS = "qwerty";  // One key per chord quality
+const QUALITY_KEYS = "qwertyu";  // One key per chord quality, 'u' added for HalfDiminished7
 const POSITION_KEYS = "12345";  // Number row for inversions
 
 // Single source of truth for pressed keys
@@ -25,6 +25,7 @@ function getQualityFromKey(key: string): ChordQuality {
     "r": ChordQuality.Minor,
     "t": ChordQuality.Minor7,
     "y": ChordQuality.Diminished7,
+    "u": ChordQuality.HalfDiminished7,
   };
   return qualityMap[key] || ChordQuality.Major;
 }
@@ -87,11 +88,11 @@ export function getActiveKeys(): string[] {
   return Array.from(pressedKeys);
 }
 
-// Add this helper function to convert MIDI notes back to keyboard keys
+// Helper function to convert MIDI notes back to keyboard keys
 export function getMidiNoteKey(midiNote: number): string | null {
   const noteIndex = midiNote % 12;
   // Map note indices to piano keys (both white and black)
-  const keyMap = {
+  const keyMap: Record<number, string> = {
     0: 'z',  // C
     1: 's',  // C#
     2: 'x',  // D

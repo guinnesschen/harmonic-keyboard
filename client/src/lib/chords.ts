@@ -10,10 +10,10 @@ export function getChordIntervals(quality: ChordQuality): number[] {
       return [0, 3, 7];  // Root, minor third, perfect fifth
     case ChordQuality.Dominant7:
       return [0, 4, 7, 10];  // Root, major third, perfect fifth, minor seventh
-    case ChordQuality.Diminished:
-      return [0, 3, 6];  // Root, minor third, diminished fifth
-    case ChordQuality.Augmented:
-      return [0, 4, 8];  // Root, major third, augmented fifth
+    case ChordQuality.Diminished7:
+      return [0, 3, 6, 9];  // Root, minor third, diminished fifth, diminished seventh
+    case ChordQuality.HalfDiminished7:
+      return [0, 3, 6, 10];  // Root, minor third, diminished fifth, minor seventh
     case ChordQuality.Minor7:
       return [0, 3, 7, 10];  // Root, minor third, perfect fifth, minor seventh
     case ChordQuality.Major7:

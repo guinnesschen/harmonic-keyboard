@@ -40,21 +40,24 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
   const bassWhiteKeys = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
   const bassBlackKeys = ['S', 'D', 'G', 'H', 'J'];
+
+  // Adjust black key positions relative to white keys
   const blackKeyOffsets = {
-    'S': 0.75, // C#
-    'D': 0.75, // D#
-    'G': 0.75, // F#
-    'H': 0.75, // G#
-    'J': 0.75  // A#
+    'S': 10,  // C#
+    'D': 25,  // D#
+    'G': 55,  // F#
+    'H': 70,  // G#
+    'J': 85   // A#
   };
 
-  const qualityLabels = {
+  const qualityLabels: Record<string, string> = {
     'Q': 'Major',
     'W': 'Major 7',
     'E': 'Dominant 7',
     'R': 'Minor',
     'T': 'Minor 7',
-    'Y': 'Diminished 7'
+    'Y': 'Diminished 7',
+    'U': 'Half Dim 7'
   };
 
   return (
@@ -107,28 +110,9 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Root Notes (Piano Layout)</div>
           <div className="relative w-full max-w-4xl mx-auto h-72">
-            {/* Black keys */}
-            <div className="absolute top-0 left-0 flex h-48 z-10">
-              {bassBlackKeys.map((key, index) => (
-                <div
-                  key={key}
-                  style={{
-                    position: 'absolute',
-                    left: `${(index * 14.28) + blackKeyOffsets[key]}%`,
-                    width: '8%'
-                  }}
-                  className={`h-full flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
-                    ${isKeyActive(key)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-gray-800 text-white'}`}
-                >
-                  <span className="text-lg">{key}</span>
-                </div>
-              ))}
-            </div>
             {/* White keys */}
-            <div className="flex h-72 w-full">
-              {bassWhiteKeys.map((key) => (
+            <div className="flex h-72 w-full relative">
+              {bassWhiteKeys.map((key, index) => (
                 <div
                   key={key}
                   className={`flex-1 flex items-end pb-4 justify-center border-l last:border-r rounded-b-xl shadow-md transition-colors
@@ -137,6 +121,27 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                       : 'bg-white text-gray-700'}`}
                 >
                   <span className="text-xl">{key}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Black keys */}
+            <div className="absolute top-0 left-0 w-full">
+              {bassBlackKeys.map((key) => (
+                <div
+                  key={key}
+                  style={{
+                    position: 'absolute',
+                    left: `${blackKeyOffsets[key]}%`,
+                    width: '8%',
+                    height: '60%',
+                  }}
+                  className={`flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
+                    ${isKeyActive(key)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-gray-800 text-white'}`}
+                >
+                  <span className="text-lg">{key}</span>
                 </div>
               ))}
             </div>

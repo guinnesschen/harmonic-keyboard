@@ -4,7 +4,8 @@ export const ChordQuality = {
   Major: "major",
   Minor: "minor", 
   Dominant7: "dominant7",
-  Diminished7: "diminished7",
+  Diminished7: "diminished7",  // Full diminished (1, ♭3, ♭5, ♭♭7)
+  HalfDiminished7: "halfdiminished7", // Half diminished (1, ♭3, ♭5, ♭7)
   Minor7: "minor7",
   Major7: "major7",
 } as const;
