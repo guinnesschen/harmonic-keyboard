@@ -40,6 +40,10 @@ const defaultSettings: SynthSettings = {
       ratio: 4,
       attack: 0.003,
       release: 0.25
+    },
+    distortion: {
+      distortion: 0.4,
+      wet: 0.2
     }
   },
   volume: -12

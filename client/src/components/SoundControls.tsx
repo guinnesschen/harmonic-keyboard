@@ -191,6 +191,31 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 </div>
               </div>
 
+              {/* Distortion */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium">Distortion</h3>
+                <div>
+                  <Label>Amount</Label>
+                  <Slider
+                    value={[settings.effects.distortion.distortion]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={([value]) => updateSettings(["effects", "distortion", "distortion"], value)}
+                  />
+                </div>
+                <div>
+                  <Label>Mix</Label>
+                  <Slider
+                    value={[settings.effects.distortion.wet]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={([value]) => updateSettings(["effects", "distortion", "wet"], value)}
+                  />
+                </div>
+              </div>
+
               {/* EQ */}
               <div className="space-y-4">
                 <h3 className="text-sm font-medium">EQ</h3>

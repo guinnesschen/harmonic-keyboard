@@ -33,6 +33,10 @@ interface SynthSettings {
       attack: number;
       release: number;
     };
+    distortion: {
+      distortion: number;
+      wet: number;
+    };
   };
   volume: number;
 }
@@ -42,6 +46,7 @@ let reverb: Tone.Reverb;
 let chorus: Tone.Chorus;
 let eq: Tone.EQ3;
 let compressor: Tone.Compressor;
+let distortion: Tone.Distortion;
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -74,6 +79,10 @@ const defaultSettings: SynthSettings = {
       ratio: 4,
       attack: 0.003,
       release: 0.25
+    },
+    distortion: {
+      distortion: 0.4,
+      wet: 0.2
     }
   },
   volume: -12
@@ -109,12 +118,17 @@ export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<
     release: mergedSettings.effects.compression.release
   }).connect(eq);
 
+  distortion = new Tone.Distortion({
+    distortion: mergedSettings.effects.distortion.distortion,
+    wet: mergedSettings.effects.distortion.wet
+  }).connect(compressor);
+
   synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       type: mergedSettings.oscillator.type
     },
     envelope: mergedSettings.envelope
-  }).connect(compressor);
+  }).connect(distortion);
 
   synth.volume.value = mergedSettings.volume;
 }
@@ -134,7 +148,7 @@ export function updateSynthSettings(settings: Partial<SynthSettings>): void {
     synth.volume.value = settings.volume;
   }
   if (settings.effects) {
-    const { reverb: reverbSettings, chorus: chorusSettings, eq: eqSettings, compression: compressionSettings } = settings.effects;
+    const { reverb: reverbSettings, chorus: chorusSettings, eq: eqSettings, compression: compressionSettings, distortion: distortionSettings } = settings.effects;
 
     if (reverbSettings) {
       reverb.set(reverbSettings);
@@ -147,6 +161,9 @@ export function updateSynthSettings(settings: Partial<SynthSettings>): void {
     }
     if (compressionSettings) {
       compressor.set(compressionSettings);
+    }
+    if (distortionSettings) {
+      distortion.set(distortionSettings);
     }
   }
 }
