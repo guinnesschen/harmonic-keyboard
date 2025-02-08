@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
+import { getKeyboardLayout, getQualityKeyMappings } from "@/lib/keyboardMapping";
 import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 
 interface KeyboardGuideProps {
@@ -33,6 +33,7 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
 export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
+  const [qualityKeys] = useState(getQualityKeyMappings());
 
   useEffect(() => {
     const notes = new Set<number>();
@@ -49,16 +50,6 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   // Define octaves to display (3 octaves starting from C3)
   const octaves = [3, 4, 5];
 
-  const qualityDescriptions: Record<string, string> = {
-    Q: "Maj",
-    W: "Maj7",
-    E: "Dom7",
-    R: "Min",
-    T: "Min7",
-    Y: "Dim7",
-    U: "Half-dim7",
-  };
-
   const getInversionDescription = (position: string): string => {
     return (
       {
@@ -69,6 +60,14 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
       }[position] || ""
     );
   };
+
+  // Determine which quality keys are enabled and their descriptions
+  const qualityDescriptions = qualityKeys
+    .filter(mapping => mapping.enabled)
+    .reduce((acc, mapping) => ({
+      ...acc,
+      [mapping.key]: mapping.quality.charAt(0).toUpperCase() + mapping.quality.slice(1)
+    }), {} as Record<string, string>);
 
   // Black key positions and offsets
   const blackKeyPositions = [
@@ -119,29 +118,15 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
         {/* Chord Qualities */}
         <div className="w-full">
-          <div className="flex justify-between">
+          <div className="flex justify-between flex-wrap gap-4">
             {layout.qualityKeys.map((key) => (
               <KeyHint
                 key={key}
                 keyLabel={key}
-                description={qualityDescriptions[key]}
+                description={qualityDescriptions[key] || ""}
                 isActive={
                   activeVoicing?.quality ===
-                  (key === "Q"
-                    ? ChordQuality.Major
-                    : key === "W"
-                      ? ChordQuality.Major7
-                      : key === "E"
-                        ? ChordQuality.Dominant7
-                        : key === "R"
-                          ? ChordQuality.Minor
-                          : key === "T"
-                            ? ChordQuality.Minor7
-                            : key === "Y"
-                              ? ChordQuality.Diminished7
-                              : key === "U"
-                                ? ChordQuality.HalfDiminished7
-                                : null)
+                  qualityKeys.find(m => m.key === key && m.enabled)?.quality
                 }
               />
             ))}

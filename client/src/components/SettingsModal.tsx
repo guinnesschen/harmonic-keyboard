@@ -204,108 +204,114 @@ export default function SettingsModal({
             </Select>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-900">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="keyMappings">
+              <AccordionTrigger className="text-sm font-medium text-gray-900">
                 Chord Quality Key Mappings
-              </label>
-            </div>
-            <div className="space-y-2 border rounded-lg p-4">
-              {keyMappings.map((mapping, index) => (
-                <QualityKeyMappingItem
-                  key={index}
-                  mapping={mapping}
-                  onToggle={(enabled) => updateKeyMapping(index, { enabled })}
-                  onKeyChange={(key) => updateKeyMapping(index, { key })}
-                />
-              ))}
-            </div>
-          </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-2 border rounded-lg p-4">
+                  {keyMappings.map((mapping, index) => (
+                    <QualityKeyMappingItem
+                      key={index}
+                      mapping={mapping}
+                      onToggle={(enabled) => updateKeyMapping(index, { enabled })}
+                      onKeyChange={(key) => updateKeyMapping(index, { key })}
+                    />
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-900">
+            <AccordionItem value="defaultQualities">
+              <AccordionTrigger className="text-sm font-medium text-gray-900">
                 Default Chord Qualities
-              </label>
-              <Button variant="outline" size="sm" onClick={resetToDefaults}>
-                Reset to Defaults
-              </Button>
-            </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Button variant="outline" size="sm" onClick={resetToDefaults}>
+                      Reset to Defaults
+                    </Button>
+                  </div>
 
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="root">
-                <AccordionTrigger className="text-sm text-gray-900">
-                  Root Position
-                </AccordionTrigger>
-                <AccordionContent className="space-y-2">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <QualitySelect
-                      key={i}
-                      noteIndex={i}
-                      value={localChordQualities.root[i]}
-                      onChange={(quality) =>
-                        updateChordQuality("root", i, quality)
-                      }
-                    />
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="root">
+                      <AccordionTrigger className="text-sm text-gray-900">
+                        Root Position
+                      </AccordionTrigger>
+                      <AccordionContent className="space-y-2">
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <QualitySelect
+                            key={i}
+                            noteIndex={i}
+                            value={localChordQualities.root[i]}
+                            onChange={(quality) =>
+                              updateChordQuality("root", i, quality)
+                            }
+                          />
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
 
-              <AccordionItem value="first">
-                <AccordionTrigger className="text-sm text-gray-900">
-                  First Inversion
-                </AccordionTrigger>
-                <AccordionContent className="space-y-2">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <QualitySelect
-                      key={i}
-                      noteIndex={i}
-                      value={localChordQualities.first[i]}
-                      onChange={(quality) =>
-                        updateChordQuality("first", i, quality)
-                      }
-                    />
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
+                    <AccordionItem value="first">
+                      <AccordionTrigger className="text-sm text-gray-900">
+                        First Inversion
+                      </AccordionTrigger>
+                      <AccordionContent className="space-y-2">
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <QualitySelect
+                            key={i}
+                            noteIndex={i}
+                            value={localChordQualities.first[i]}
+                            onChange={(quality) =>
+                              updateChordQuality("first", i, quality)
+                            }
+                          />
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
 
-              <AccordionItem value="second">
-                <AccordionTrigger className="text-sm text-gray-900">
-                  Second Inversion
-                </AccordionTrigger>
-                <AccordionContent className="space-y-2">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <QualitySelect
-                      key={i}
-                      noteIndex={i}
-                      value={localChordQualities.second[i]}
-                      onChange={(quality) =>
-                        updateChordQuality("second", i, quality)
-                      }
-                    />
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
+                    <AccordionItem value="second">
+                      <AccordionTrigger className="text-sm text-gray-900">
+                        Second Inversion
+                      </AccordionTrigger>
+                      <AccordionContent className="space-y-2">
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <QualitySelect
+                            key={i}
+                            noteIndex={i}
+                            value={localChordQualities.second[i]}
+                            onChange={(quality) =>
+                              updateChordQuality("second", i, quality)
+                            }
+                          />
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
 
-              <AccordionItem value="third">
-                <AccordionTrigger className="text-sm text-gray-900">
-                  Third/Seventh in Bass
-                </AccordionTrigger>
-                <AccordionContent className="space-y-2">
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <QualitySelect
-                      key={i}
-                      noteIndex={i}
-                      value={localChordQualities.third[i]}
-                      onChange={(quality) =>
-                        updateChordQuality("third", i, quality)
-                      }
-                    />
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
+                    <AccordionItem value="third">
+                      <AccordionTrigger className="text-sm text-gray-900">
+                        Third/Seventh in Bass
+                      </AccordionTrigger>
+                      <AccordionContent className="space-y-2">
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <QualitySelect
+                            key={i}
+                            noteIndex={i}
+                            value={localChordQualities.third[i]}
+                            onChange={(quality) =>
+                              updateChordQuality("third", i, quality)
+                            }
+                          />
+                        ))}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </DialogContent>
     </Dialog>
