@@ -64,30 +64,53 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   // Determine which quality keys are enabled and their descriptions
   const qualityDescriptions = qualityKeys
     .filter(mapping => mapping.enabled)
-    .reduce((acc, mapping) => ({
-      ...acc,
-      [mapping.key]: mapping.quality.charAt(0).toUpperCase() + mapping.quality.slice(1)
-    }), {} as Record<string, string>);
-
-  // Black key positions and offsets
-  const blackKeyPositions = [
-    { left: "15%", midiOffset: 1 },
-    { left: "30%", midiOffset: 3 },
-    { left: "58.5%", midiOffset: 6 },
-    { left: "73%", midiOffset: 8 },
-    { left: "87%", midiOffset: 10 },
-  ];
-
-  // White key data with MIDI offsets
-  const whiteKeyData = [
-    { midiOffset: 0 },
-    { midiOffset: 2 },
-    { midiOffset: 4 },
-    { midiOffset: 5 },
-    { midiOffset: 7 },
-    { midiOffset: 9 },
-    { midiOffset: 11 },
-  ];
+    .reduce((acc, mapping) => {
+      let description;
+      switch (mapping.quality) {
+        case ChordQuality.Major:
+          description = "Major";
+          break;
+        case ChordQuality.Minor:
+          description = "Minor";
+          break;
+        case ChordQuality.Major7:
+          description = "Major 7";
+          break;
+        case ChordQuality.Minor7:
+          description = "Minor 7";
+          break;
+        case ChordQuality.Dominant7:
+          description = "Dom 7";
+          break;
+        case ChordQuality.Diminished7:
+          description = "Dim 7";
+          break;
+        case ChordQuality.HalfDiminished7:
+          description = "Half-dim 7";
+          break;
+        case ChordQuality.DomSus:
+          description = "Dom Sus";
+          break;
+        case ChordQuality.Sus:
+          description = "Sus";
+          break;
+        case ChordQuality.Aug:
+          description = "Aug";
+          break;
+        case ChordQuality.MinMaj7:
+          description = "Min/Maj7";
+          break;
+        case ChordQuality.Add9:
+          description = "Add 9";
+          break;
+        default:
+          description = mapping.quality;
+      }
+      return {
+        ...acc,
+        [mapping.key]: description
+      };
+    }, {} as Record<string, string>);
 
   return (
     <div className="space-y-12">
@@ -104,12 +127,12 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 isActive={
                   activeVoicing?.position ===
                   (num === 0
-                    ? "root"
+                    ? ChordPosition.Root
                     : num === 1
-                      ? "first"
+                      ? ChordPosition.First
                       : num === 2
-                        ? "second"
-                        : "thirdseventh")
+                        ? ChordPosition.Second
+                        : ChordPosition.Third)
                 }
               />
             ))}
@@ -176,3 +199,23 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     </div>
   );
 }
+
+// Black key positions and offsets
+const blackKeyPositions = [
+  { left: "15%", midiOffset: 1 },
+  { left: "30%", midiOffset: 3 },
+  { left: "58.5%", midiOffset: 6 },
+  { left: "73%", midiOffset: 8 },
+  { left: "87%", midiOffset: 10 },
+];
+
+// White key data with MIDI offsets
+const whiteKeyData = [
+  { midiOffset: 0 },
+  { midiOffset: 2 },
+  { midiOffset: 4 },
+  { midiOffset: 5 },
+  { midiOffset: 7 },
+  { midiOffset: 9 },
+  { midiOffset: 11 },
+];
