@@ -57,6 +57,7 @@ const defaultSettings: SynthSettings = {
 
 export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
+  const [prevVoicing, setPrevVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
   const [chordQualities, setChordQualities] = useState(defaultChordQualities);
@@ -80,12 +81,14 @@ export default function Instrument() {
     const updateVoicing = () => {
       const newBasicVoicing = generateVoicingFromKeyState(stickyMode);
       if (newBasicVoicing) {
-        const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
+        const fullVoicing = generateVoicing(newBasicVoicing, prevVoicing);
+        setPrevVoicing(currentVoicing);
         setCurrentVoicing(fullVoicing);
         playChord(fullVoicing);
       } else {
-        playChord(null);
+        setPrevVoicing(currentVoicing);
         setCurrentVoicing(null);
+        playChord(null);
       }
     };
 
