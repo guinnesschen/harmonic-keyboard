@@ -14,7 +14,7 @@ export const ChordPosition = {
   Root: "root",
   First: "first",
   Second: "second",
-  ThirdSeventh: "thirdseventh",
+  Third: "third",
 } as const;
 
 export const StickyMode = {
@@ -31,7 +31,7 @@ export type ChordQualityConfig = {
   root: Record<number, ChordQuality>;
   first: Record<number, ChordQuality>;
   second: Record<number, ChordQuality>;
-  thirdseventh: Record<number, ChordQuality>;
+  third: Record<number, ChordQuality>;
 };
 
 export interface ChordVoicing {

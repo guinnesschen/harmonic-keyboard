@@ -57,8 +57,8 @@ function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.
       return getDefaultQuality("first", noteIndex);
     case ChordPosition.Second:
       return getDefaultQuality("second", noteIndex);
-    case ChordPosition.ThirdSeventh:
-      return getDefaultQuality("thirdseventh", noteIndex);
+    case ChordPosition.Third:
+      return getDefaultQuality("third", noteIndex);
     default:
       return ChordQuality.Major;
   }
@@ -69,7 +69,7 @@ function getPositionFromKey(key: string): ChordPosition {
     "0": ChordPosition.Root,
     "1": ChordPosition.First,
     "2": ChordPosition.Second,
-    "3": ChordPosition.ThirdSeventh,
+    "3": ChordPosition.Third,
   };
   return positionMap[key] || ChordPosition.Root;
 }
@@ -86,7 +86,7 @@ function calculateRootFromBassAndFunction(bassNote: number, position: ChordPosit
     case ChordPosition.Second: // Bass is the fifth
       offset = -intervals[2]; // Subtract the fifth interval
       break;
-    case ChordPosition.ThirdSeventh: // Bass is the seventh
+    case ChordPosition.Third: // Bass is the seventh
       offset = -intervals[3]; // Subtract the seventh interval
       break;
     default: // Root position

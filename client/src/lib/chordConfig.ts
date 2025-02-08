@@ -43,7 +43,7 @@ export const defaultChordQualities: ChordQualityConfig = {
     10: ChordQuality.Major,   // A#
     11: ChordQuality.Minor,   // B
   },
-  thirdseventh: {
+  third: {
     0: ChordQuality.Minor7,     // C
     1: ChordQuality.Major7,     // C#
     2: ChordQuality.Minor7,     // D
