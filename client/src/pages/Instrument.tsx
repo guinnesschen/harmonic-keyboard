@@ -104,41 +104,43 @@ export default function Instrument() {
   }, [currentVoicing, isAudioInitialized]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8">
-      <div className="max-w-6xl mx-auto space-y-12">
+    <div className="min-h-screen bg-gradient-to-br from-background/95 to-background">
+      <div className="max-w-6xl mx-auto p-8 space-y-12">
         <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Harmonic Instrument
+          <h1 className="text-6xl font-light tracking-tighter bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+            Harmonova
           </h1>
-          <p className="text-lg text-gray-600">
-            Create beautiful chord progressions with your keyboard
+          <p className="text-lg text-muted-foreground font-light">
+            A new dimension of harmonic expression
           </p>
         </div>
 
         {!isAudioInitialized ? (
-          <Card className="p-8 text-center max-w-xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-4">Welcome!</h2>
-            <p className="text-gray-600 mb-6">
+          <Card className="p-8 text-center max-w-xl mx-auto bg-background/50 backdrop-blur border-primary/10">
+            <h2 className="text-2xl font-light mb-4">Welcome to Harmonova</h2>
+            <p className="text-muted-foreground mb-6">
               Due to browser security requirements, we need your permission to enable audio.
             </p>
             <Button 
               onClick={initializeAudio}
-              className="text-lg py-6 px-8 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
+              className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
             >
-              Click here to start
+              Begin Your Journey
             </Button>
           </Card>
         ) : (
           <div className="space-y-8 max-w-4xl mx-auto">
-            <Card className="p-6">
+            <Card className="p-6 bg-background/50 backdrop-blur border-primary/10">
               <ChordDisplay voicing={currentVoicing} />
             </Card>
 
-            <Card className="p-8 bg-white/80 backdrop-blur-sm">
+            <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
               <KeyboardGuide activeVoicing={currentVoicing} />
             </Card>
 
-            <SoundControls initialSettings={defaultSettings} />
+            <Card className="bg-background/50 backdrop-blur border-primary/10">
+              <SoundControls initialSettings={defaultSettings} />
+            </Card>
           </div>
         )}
       </div>
