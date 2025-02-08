@@ -125,20 +125,16 @@ export default function Instrument() {
             </Button>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-8">
-              <Card className="p-6">
-                <ChordDisplay voicing={currentVoicing} />
-              </Card>
+          <div className="space-y-8 max-w-4xl mx-auto">
+            <Card className="p-6">
+              <ChordDisplay voicing={currentVoicing} />
+            </Card>
 
-              <Card className="p-8 bg-white/80 backdrop-blur-sm">
-                <KeyboardGuide activeVoicing={currentVoicing} />
-              </Card>
-            </div>
+            <Card className="p-8 bg-white/80 backdrop-blur-sm">
+              <KeyboardGuide activeVoicing={currentVoicing} />
+            </Card>
 
-            <div>
-              <SoundControls initialSettings={defaultSettings} />
-            </div>
+            <SoundControls initialSettings={defaultSettings} />
           </div>
         )}
       </div>
