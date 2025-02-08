@@ -36,17 +36,25 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     'U': 'Half Dim 7'
   };
 
-  // Chromatic scale for MIDI note calculation
+  // Black key positions and offsets
   const blackKeyPositions = [
-    { note: 'C#', left: '14.5%', midiOffset: 1 },    // C# (1 semitone up from C)
-    { note: 'D#', left: '29%', midiOffset: 3 },      // D# (3 semitones up from C)
-    { note: 'F#', left: '57.5%', midiOffset: 6 },    // F# (6 semitones up from C)
-    { note: 'G#', left: '72%', midiOffset: 8 },      // G# (8 semitones up from C)
-    { note: 'A#', left: '86%', midiOffset: 10 }      // A# (10 semitones up from C)
+    { note: 'C#', left: '15%', midiOffset: 1 },    // C# (1 semitone up from C)
+    { note: 'D#', left: '30%', midiOffset: 3 },    // D# (3 semitones up from C)
+    { note: 'F#', left: '58.5%', midiOffset: 6 },  // F# (6 semitones up from C)
+    { note: 'G#', left: '73%', midiOffset: 8 },    // G# (8 semitones up from C)
+    { note: 'A#', left: '87%', midiOffset: 10 }    // A# (10 semitones up from C)
   ];
 
-  // White key MIDI offsets (C=0, D=2, E=4, F=5, G=7, A=9, B=11)
-  const whiteKeyOffsets = [0, 2, 4, 5, 7, 9, 11];
+  // White key data with MIDI offsets
+  const whiteKeyData = [
+    { note: 'C', midiOffset: 0 },
+    { note: 'D', midiOffset: 2 },
+    { note: 'E', midiOffset: 4 },
+    { note: 'F', midiOffset: 5 },
+    { note: 'G', midiOffset: 7 },
+    { note: 'A', midiOffset: 9 },
+    { note: 'B', midiOffset: 11 }
+  ];
 
   return (
     <div className="space-y-8">
@@ -55,15 +63,17 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
       <div className="grid gap-8">
         {/* Inversions */}
         <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">Inversions (Number Row)</div>
+          <div className="text-sm font-medium text-gray-500">
+            Inversions (Number Row)
+          </div>
           <div className="flex gap-3">
             {layout.positionKeys.map((key, i) => (
               <div key={key} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${getActiveKeys().includes(key.toLowerCase())
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-white text-gray-700'}`}
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-white text-gray-700"}`}
                 >
                   {key}
                 </div>
@@ -77,15 +87,17 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
         {/* Chord Qualities */}
         <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">Chord Qualities (Letter Keys)</div>
+          <div className="text-sm font-medium text-gray-500">
+            Chord Qualities (Letter Keys)
+          </div>
           <div className="flex gap-3">
             {layout.qualityKeys.map((key) => (
               <div key={key} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${getActiveKeys().includes(key.toLowerCase())
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-white text-gray-700'}`}
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-white text-gray-700"}`}
                 >
                   {key}
                 </div>
@@ -102,17 +114,17 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
           <div className="text-sm font-medium text-gray-500">Notes Being Played</div>
           <div className="relative w-full h-96 border rounded-lg bg-white p-4">
             <div className="flex h-full relative">
-              {octaves.map(octave => (
+              {octaves.map((octave) => (
                 <div key={octave} className="flex-1 relative">
                   {/* White Keys */}
                   <div className="flex h-full">
-                    {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((note, index) => {
-                      const midiNote = (octave + 1) * 12 + whiteKeyOffsets[index];
+                    {whiteKeyData.map(({ note, midiOffset }) => {
+                      const midiNote = (octave + 1) * 12 + midiOffset;
                       return (
                         <div
                           key={`${note}${octave}`}
                           className={`flex-1 flex items-end justify-center border-l last:border-r bg-white transition-colors
-                            ${isNoteActive(midiNote) ? 'bg-primary/40' : 'hover:bg-gray-50'}`}
+                            ${isNoteActive(midiNote) ? 'bg-primary' : 'hover:bg-gray-50'}`}
                         >
                           <span className="absolute bottom-4 text-sm text-gray-600">
                             {note}{octave}
