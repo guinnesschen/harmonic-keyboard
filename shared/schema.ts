@@ -4,8 +4,7 @@ export const ChordQuality = {
   Major: "major",
   Minor: "minor", 
   Dominant7: "dominant7",
-  Diminished: "diminished",
-  Augmented: "augmented",
+  Diminished7: "diminished7",
   Minor7: "minor7",
   Major7: "major7",
 } as const;
@@ -25,5 +24,5 @@ export interface ChordVoicing {
   bass: number;        // The actual bass note being played
   quality: ChordQuality;
   position: ChordPosition;
-  root: number;        // The root note of the chord (may differ from bass)
+  root: number;        // The root note of the chord (0-11 for C through B)
 }

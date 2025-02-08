@@ -6,8 +6,8 @@ import {
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
-const QUALITY_KEYS = "qwertyuiop";
-const POSITION_KEYS = "asdfghjkl";
+const QUALITY_KEYS = "qwerty";  // One key per chord quality
+const POSITION_KEYS = "12345";  // Number row for inversions
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
@@ -20,22 +20,20 @@ function getNoteFromKey(key: string, keyMap: string): number {
 function getQualityFromKey(key: string): ChordQuality {
   const qualityMap: Record<string, ChordQuality> = {
     "q": ChordQuality.Major,
-    "w": ChordQuality.Minor,
+    "w": ChordQuality.Major7,
     "e": ChordQuality.Dominant7,
-    "r": ChordQuality.Diminished,
-    "t": ChordQuality.Augmented,
-    "y": ChordQuality.Minor7,
-    "u": ChordQuality.Major7,
+    "r": ChordQuality.Minor,
+    "t": ChordQuality.Minor7,
+    "y": ChordQuality.Diminished7,
   };
   return qualityMap[key] || ChordQuality.Major;
 }
 
 function getPositionFromKey(key: string): ChordPosition {
   const positionMap: Record<string, ChordPosition> = {
-    "a": ChordPosition.Root,
-    "s": ChordPosition.First,
-    "d": ChordPosition.Second,
-    "f": ChordPosition.ThirdSeventh,
+    "1": ChordPosition.First,
+    "2": ChordPosition.Second,
+    "3": ChordPosition.ThirdSeventh,
   };
   return positionMap[key] || ChordPosition.Root;
 }
@@ -54,31 +52,16 @@ export function generateVoicingFromKeyState(): ChordVoicing | null {
     return null;
   }
 
+  // The root note comes from the bass key
+  const rootIndex = getNoteFromKey(bassKey, BASS_KEYS);
+
   const voicing: ChordVoicing = {
-    root: -1,
-    bass: -1,
-    quality: ChordQuality.Major,
-    position: ChordPosition.Root,
-    notes: [],
+    root: rootIndex,
+    bass: -1, // Will be set by voiceLeading.ts based on position
+    quality: qualityKey ? getQualityFromKey(qualityKey) : ChordQuality.Major,
+    position: positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root,
+    notes: [], // Will be populated by voiceLeading.ts
   };
-
-  // Process bass note
-  const bassIndex = getNoteFromKey(bassKey, BASS_KEYS);
-  voicing.bass = bassIndex + 48; // Bass octave
-
-  // If we have a quality selected, set the root to the bass note
-  // (this will be adjusted by position/inversion later)
-  if (qualityKey) {
-    voicing.root = bassIndex;
-    voicing.quality = getQualityFromKey(qualityKey);
-  } else {
-    voicing.root = -1; // No chord quality selected, just play single notes
-  }
-
-  // Process position/inversion if both quality and position are present
-  if (qualityKey && positionKey) {
-    voicing.position = getPositionFromKey(positionKey);
-  }
 
   return voicing;
 }
@@ -95,7 +78,7 @@ export function handleKeyRelease(e: KeyboardEvent): boolean {
 export function getKeyboardLayout() {
   return {
     qualityKeys: QUALITY_KEYS.toUpperCase().split(""),
-    positionKeys: POSITION_KEYS.toUpperCase().split(""),
+    positionKeys: POSITION_KEYS.split(""),
     bassKeys: BASS_KEYS.toUpperCase().split(""),
   };
 }

@@ -15,6 +15,15 @@ function isCompleteChord(voicing: ChordVoicing): boolean {
   return voicing.root !== -1 && voicing.quality !== undefined;
 }
 
+function getBassNoteForPosition(rootNote: number, intervals: number[], position: string): number {
+  // For root position, bass note is the root note
+  if (position === "root") return rootNote;
+
+  // Get the interval for the desired bass note based on position
+  const index = position === "first" ? 1 : position === "second" ? 2 : 3;
+  return (rootNote + intervals[index % intervals.length]) % 12;
+}
+
 export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
@@ -22,21 +31,15 @@ export function generateVoicing(
   const voicing = { ...desired };
   let notes: number[] = [];
 
-  // If no quality is selected (root === -1) or no root note, just play the bass note
-  if (desired.root === -1) {
-    if (desired.bass !== -1) notes.push(desired.bass);
-    return { ...desired, notes };
-  }
-
   // Get intervals for the chord quality
   const intervals = getChordIntervals(desired.quality);
 
-  // Always add the bass note first if specified
-  if (desired.bass !== -1) {
-    notes.push(desired.bass);
-  }
+  // Calculate the bass note based on position
+  const bassNote = getBassNoteForPosition(desired.root, intervals, desired.position);
+  voicing.bass = bassNote + 48; // Put in bass octave
+  notes.push(voicing.bass);
 
-  // Generate basic chord tones
+  // Generate basic chord tones starting from root
   let chordTones = generateBasicChord(desired.root, intervals);
 
   // Apply the chord position by rotating the intervals
@@ -56,7 +59,7 @@ export function generateVoicing(
   }
   chordTones = rotateArray(chordTones, rotationAmount);
 
-  // Apply voice leading logic based on chord completeness
+  // Apply voice leading logic if we have a previous chord
   if (previous && previous.notes.length > 0) {
     const isCurrentComplete = isCompleteChord(desired);
     const wasPreviousComplete = isCompleteChord(previous);
@@ -79,10 +82,6 @@ export function generateVoicing(
         }
         return note;
       });
-    } else if (!isCurrentComplete && wasPreviousComplete) {
-      // During transition, try to maintain previous chord tones that don't conflict
-      const prevNonBassNotes = previous.notes.filter(note => note !== previous.bass);
-      chordTones = prevNonBassNotes;
     }
   }
 
@@ -90,10 +89,10 @@ export function generateVoicing(
   notes.push(...chordTones);
 
   // Sort notes but ensure bass note stays at the bottom
-  if (desired.bass !== -1) {
-    notes = notes.filter(note => note !== desired.bass);
+  if (voicing.bass !== -1) {
+    notes = notes.filter(note => note !== voicing.bass);
     notes.sort((a, b) => a - b);
-    notes.unshift(desired.bass);
+    notes.unshift(voicing.bass);
   } else {
     notes.sort((a, b) => a - b);
   }

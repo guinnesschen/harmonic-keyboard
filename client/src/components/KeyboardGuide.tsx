@@ -31,28 +31,7 @@ export default function KeyboardGuide() {
 
       <div className="grid gap-6">
         <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Chord Qualities (Top Row)</div>
-          <div className="flex gap-2">
-            {layout.qualityKeys.map((key, i) => (
-              <div key={key} className="flex items-center gap-2">
-                <div 
-                  className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
-                    ${isKeyActive(key) 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-white text-gray-700'}`}
-                >
-                  {key}
-                </div>
-                <span className="text-xs text-gray-600">
-                  {Object.values(ChordQuality)[i]}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Chord Positions</div>
+          <div className="text-sm font-medium text-gray-500">Inversions (Number Row)</div>
           <div className="flex gap-2">
             {layout.positionKeys.map((key, i) => (
               <div key={key} className="flex items-center gap-2">
@@ -73,7 +52,28 @@ export default function KeyboardGuide() {
         </div>
 
         <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Bass Notes (Piano Layout)</div>
+          <div className="text-sm font-medium text-gray-500">Chord Qualities</div>
+          <div className="flex gap-2">
+            {layout.qualityKeys.map((key, i) => (
+              <div key={key} className="flex items-center gap-2">
+                <div 
+                  className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
+                    ${isKeyActive(key) 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-white text-gray-700'}`}
+                >
+                  {key}
+                </div>
+                <span className="text-xs text-gray-600">
+                  {Object.values(ChordQuality)[i]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-500">Root Notes (Piano Layout)</div>
           <div className="relative">
             {/* Black keys */}
             <div className="absolute top-0 left-0 flex gap-2 pl-7 z-10">
