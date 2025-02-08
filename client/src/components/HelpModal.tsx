@@ -16,7 +16,7 @@ export default function HelpModal() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="absolute top-4 right-16">
+        <Button variant="ghost" size="icon" className="absolute top-4 right-16 hover:bg-stone-100">
           <HelpCircle className="h-5 w-5 text-gray-600" />
         </Button>
       </DialogTrigger>
