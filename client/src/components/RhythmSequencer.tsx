@@ -132,13 +132,13 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
             return (
               <div
                 key={i}
-                className={`relative h-full border-r cursor-pointer ${
-                  isBarStart 
+                className={`relative h-full border-r cursor-pointer hover:bg-stone-100 transition-colors
+                  ${isBarStart 
                     ? 'border-gray-300' 
                     : isBeatStart 
                       ? 'border-gray-200' 
                       : 'border-gray-100'
-                }`}
+                  }`}
                 onClick={() => handleGridClick(i)}
                 onMouseEnter={(e) => {
                   if (isDragging && dragStartBeat !== null) {
@@ -155,7 +155,7 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
           {notes.map((note, i) => (
             <div
               key={i}
-              className="absolute h-full bg-stone-500/50 border border-stone-600"
+              className="absolute h-full bg-stone-500/50 border border-stone-600 hover:bg-stone-500/60 transition-colors"
               style={{
                 left: `${(note.startBeat / TOTAL_BEATS) * 100}%`,
                 width: `${(note.duration / TOTAL_BEATS) * 100}%`,
