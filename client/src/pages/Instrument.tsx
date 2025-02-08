@@ -105,14 +105,23 @@ export default function Instrument() {
       updateVoicing();
     };
 
+    const keyReleaseBuffer = useRef<NodeJS.Timeout | null>(null);
+    
     const onKeyUp = (e: KeyboardEvent) => {
       const allKeysReleased = handleKeyRelease(e, stickyMode);
-      if (allKeysReleased) {
-        playChord(null);
-        setCurrentVoicing(null);
-      } else {
-        updateVoicing();
+      
+      if (keyReleaseBuffer.current) {
+        clearTimeout(keyReleaseBuffer.current);
       }
+      
+      keyReleaseBuffer.current = setTimeout(() => {
+        if (allKeysReleased) {
+          playChord(null);
+          setCurrentVoicing(null);
+        } else {
+          updateVoicing();
+        }
+      }, 32); // 32ms window for grouping key releases
     };
 
     window.addEventListener("keydown", onKeyDown);
