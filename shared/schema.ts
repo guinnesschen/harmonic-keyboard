@@ -10,22 +10,20 @@ export const ChordQuality = {
   Major7: "major7",
 } as const;
 
-export const ChordExtension = {
-  None: "none",
-  Add9: "add9",
-  Add11: "add11",
-  Add13: "add13",
-  Sharp11: "sharp11",
+export const ChordPosition = {
+  Root: "root",        // Root position (1-3-5)
+  First: "first",      // First inversion (3-5-1)
+  Second: "second",    // Second inversion (5-1-3)
+  ThirdSeventh: "thirdseventh",  // For seventh chords (7-1-3-5)
 } as const;
 
 export type ChordQuality = typeof ChordQuality[keyof typeof ChordQuality];
-export type ChordExtension = typeof ChordExtension[keyof typeof ChordExtension];
+export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
 
 export interface ChordVoicing {
-  notes: number[]; // MIDI note numbers
-  bass: number;
-  melody: number;
+  notes: number[];     // MIDI note numbers
+  bass: number;        // The actual bass note being played
   quality: ChordQuality;
-  extension: ChordExtension;
-  root: number; // 0-11 representing C through B
+  position: ChordPosition;
+  root: number;        // The root note of the chord (may differ from bass)
 }

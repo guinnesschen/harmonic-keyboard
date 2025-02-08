@@ -1,15 +1,17 @@
 import type { ChordVoicing } from "@shared/schema";
-import { getChordIntervals, getExtensionIntervals } from "./chords";
+import { getChordIntervals } from "./chords";
 
 function generateBasicChord(rootNote: number, intervals: number[]): number[] {
   const baseOctave = 60; // Middle C
   return intervals.map(interval => baseOctave + rootNote + interval);
 }
 
+function rotateArray<T>(arr: T[], positions: number): T[] {
+  const pos = positions % arr.length;
+  return [...arr.slice(pos), ...arr.slice(0, pos)];
+}
+
 function isCompleteChord(voicing: ChordVoicing): boolean {
-  // A complete chord needs at least:
-  // 1. A root note (from bass)
-  // 2. A quality selection
   return voicing.root !== -1 && voicing.quality !== undefined;
 }
 
@@ -20,17 +22,14 @@ export function generateVoicing(
   const voicing = { ...desired };
   let notes: number[] = [];
 
-  // Handle single note cases (no chord quality selected)
+  // If no quality is selected (root === -1) or no root note, just play the bass note
   if (desired.root === -1) {
     if (desired.bass !== -1) notes.push(desired.bass);
-    if (desired.melody !== -1) notes.push(desired.melody);
     return { ...desired, notes };
   }
 
-  // Get intervals for the chord quality and extensions
-  const baseIntervals = getChordIntervals(desired.quality);
-  const extensionIntervals = getExtensionIntervals(desired.extension);
-  const allIntervals = [...baseIntervals, ...extensionIntervals];
+  // Get intervals for the chord quality
+  const intervals = getChordIntervals(desired.quality);
 
   // Always add the bass note first if specified
   if (desired.bass !== -1) {
@@ -38,7 +37,24 @@ export function generateVoicing(
   }
 
   // Generate basic chord tones
-  let chordTones = generateBasicChord(desired.root, allIntervals);
+  let chordTones = generateBasicChord(desired.root, intervals);
+
+  // Apply the chord position by rotating the intervals
+  let rotationAmount = 0;
+  switch (desired.position) {
+    case "first":
+      rotationAmount = 1;
+      break;
+    case "second":
+      rotationAmount = 2;
+      break;
+    case "thirdseventh":
+      rotationAmount = 3;
+      break;
+    default: // root position
+      rotationAmount = 0;
+  }
+  chordTones = rotateArray(chordTones, rotationAmount);
 
   // Apply voice leading logic based on chord completeness
   if (previous && previous.notes.length > 0) {
@@ -48,7 +64,7 @@ export function generateVoicing(
     if (isCurrentComplete && wasPreviousComplete) {
       // Full voice leading between complete chords
       const prevChordTones = previous.notes.filter(
-        note => note !== previous.bass && note !== previous.melody
+        note => note !== previous.bass
       );
 
       chordTones = chordTones.map(note => {
@@ -72,11 +88,6 @@ export function generateVoicing(
 
   // Add the chord tones
   notes.push(...chordTones);
-
-  // Add melody note if specified and not already included
-  if (desired.melody !== -1 && !notes.includes(desired.melody)) {
-    notes.push(desired.melody);
-  }
 
   // Sort notes but ensure bass note stays at the bottom
   if (desired.bass !== -1) {

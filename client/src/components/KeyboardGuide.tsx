@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordExtension } from "@shared/schema";
+import { ChordQuality, ChordPosition } from "@shared/schema";
 
 export default function KeyboardGuide() {
   const layout = getKeyboardLayout();
@@ -31,24 +31,7 @@ export default function KeyboardGuide() {
 
       <div className="grid gap-6">
         <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Melody Notes (Top Row)</div>
-          <div className="flex gap-2">
-            {layout.melodyKeys.map((key) => (
-              <div 
-                key={key} 
-                className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
-                  ${isKeyActive(key) 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-white text-gray-700'}`}
-              >
-                {key}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Chord Qualities</div>
+          <div className="text-sm font-medium text-gray-500">Chord Qualities (Top Row)</div>
           <div className="flex gap-2">
             {layout.qualityKeys.map((key, i) => (
               <div key={key} className="flex items-center gap-2">
@@ -69,9 +52,9 @@ export default function KeyboardGuide() {
         </div>
 
         <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Extensions</div>
+          <div className="text-sm font-medium text-gray-500">Chord Positions</div>
           <div className="flex gap-2">
-            {layout.extensionKeys.map((key, i) => (
+            {layout.positionKeys.map((key, i) => (
               <div key={key} className="flex items-center gap-2">
                 <div 
                   className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
@@ -82,7 +65,7 @@ export default function KeyboardGuide() {
                   {key}
                 </div>
                 <span className="text-xs text-gray-600">
-                  {Object.values(ChordExtension)[i]}
+                  {Object.values(ChordPosition)[i]}
                 </span>
               </div>
             ))}

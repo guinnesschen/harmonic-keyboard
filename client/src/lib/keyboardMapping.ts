@@ -1,14 +1,13 @@
 import {
   ChordQuality,
-  ChordExtension,
+  ChordPosition,
   type ChordVoicing,
 } from "@shared/schema";
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
-const MELODY_KEYS = "qwertyuiop";
-const QUALITY_KEYS = "1234567";
-const EXTENSION_KEYS = "890-=";
+const QUALITY_KEYS = "qwertyuiop";
+const POSITION_KEYS = "asdfghjkl";
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
@@ -20,26 +19,25 @@ function getNoteFromKey(key: string, keyMap: string): number {
 
 function getQualityFromKey(key: string): ChordQuality {
   const qualityMap: Record<string, ChordQuality> = {
-    "1": ChordQuality.Major,
-    "2": ChordQuality.Minor,
-    "3": ChordQuality.Dominant7,
-    "4": ChordQuality.Diminished,
-    "5": ChordQuality.Augmented,
-    "6": ChordQuality.Minor7,
-    "7": ChordQuality.Major7,
+    "q": ChordQuality.Major,
+    "w": ChordQuality.Minor,
+    "e": ChordQuality.Dominant7,
+    "r": ChordQuality.Diminished,
+    "t": ChordQuality.Augmented,
+    "y": ChordQuality.Minor7,
+    "u": ChordQuality.Major7,
   };
   return qualityMap[key] || ChordQuality.Major;
 }
 
-function getExtensionFromKey(key: string): ChordExtension {
-  const extensionMap: Record<string, ChordExtension> = {
-    "8": ChordExtension.None,
-    "9": ChordExtension.Add9,
-    "0": ChordExtension.Add11,
-    "-": ChordExtension.Add13,
-    "=": ChordExtension.Sharp11,
+function getPositionFromKey(key: string): ChordPosition {
+  const positionMap: Record<string, ChordPosition> = {
+    "a": ChordPosition.Root,
+    "s": ChordPosition.First,
+    "d": ChordPosition.Second,
+    "f": ChordPosition.ThirdSeventh,
   };
-  return extensionMap[key] || ChordExtension.None;
+  return positionMap[key] || ChordPosition.Root;
 }
 
 export function generateVoicingFromKeyState(): ChordVoicing | null {
@@ -48,47 +46,38 @@ export function generateVoicingFromKeyState(): ChordVoicing | null {
 
   // Find first matching key of each type
   const bassKey = currentKeys.find(key => BASS_KEYS.includes(key));
-  const melodyKey = currentKeys.find(key => MELODY_KEYS.includes(key));
   const qualityKey = currentKeys.find(key => QUALITY_KEYS.includes(key));
-  const extensionKey = currentKeys.find(key => EXTENSION_KEYS.includes(key));
+  const positionKey = currentKeys.find(key => POSITION_KEYS.includes(key));
 
-  // If no bass or melody key is pressed, return null
-  if (!bassKey && !melodyKey) {
+  // If no bass note is pressed, return null
+  if (!bassKey) {
     return null;
   }
 
   const voicing: ChordVoicing = {
     root: -1,
     bass: -1,
-    melody: -1,
     quality: ChordQuality.Major,
-    extension: ChordExtension.None,
+    position: ChordPosition.Root,
     notes: [],
   };
 
-  // Process bass note if present
-  if (bassKey) {
-    const bassIndex = getNoteFromKey(bassKey, BASS_KEYS);
-    voicing.root = bassIndex;
-    voicing.bass = bassIndex + 48; // Bass octave
-  }
+  // Process bass note
+  const bassIndex = getNoteFromKey(bassKey, BASS_KEYS);
+  voicing.bass = bassIndex + 48; // Bass octave
 
-  // Process melody note if present
-  if (melodyKey) {
-    const melodyIndex = getNoteFromKey(melodyKey, MELODY_KEYS);
-    voicing.melody = melodyIndex + 72; // Melody octave
-  }
-
-  // Process chord quality if present
+  // If we have a quality selected, set the root to the bass note
+  // (this will be adjusted by position/inversion later)
   if (qualityKey) {
+    voicing.root = bassIndex;
     voicing.quality = getQualityFromKey(qualityKey);
   } else {
     voicing.root = -1; // No chord quality selected, just play single notes
   }
 
-  // Process extension if both quality and extension are present
-  if (qualityKey && extensionKey) {
-    voicing.extension = getExtensionFromKey(extensionKey);
+  // Process position/inversion if both quality and position are present
+  if (qualityKey && positionKey) {
+    voicing.position = getPositionFromKey(positionKey);
   }
 
   return voicing;
@@ -105,10 +94,9 @@ export function handleKeyRelease(e: KeyboardEvent): boolean {
 
 export function getKeyboardLayout() {
   return {
-    melodyKeys: MELODY_KEYS.toUpperCase().split(""),
+    qualityKeys: QUALITY_KEYS.toUpperCase().split(""),
+    positionKeys: POSITION_KEYS.toUpperCase().split(""),
     bassKeys: BASS_KEYS.toUpperCase().split(""),
-    qualityKeys: QUALITY_KEYS.split(""),
-    extensionKeys: EXTENSION_KEYS.split(""),
   };
 }
 

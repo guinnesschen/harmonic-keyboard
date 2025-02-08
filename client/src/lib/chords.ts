@@ -1,4 +1,4 @@
-import { ChordQuality, ChordExtension } from "@shared/schema";
+import { ChordQuality } from "@shared/schema";
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -20,21 +20,6 @@ export function getChordIntervals(quality: ChordQuality): number[] {
       return [0, 4, 7, 11];  // Root, major third, perfect fifth, major seventh
     default:
       return [0, 4, 7];  // Default to major triad
-  }
-}
-
-export function getExtensionIntervals(extension: ChordExtension): number[] {
-  switch (extension) {
-    case ChordExtension.Add9:
-      return [14];  // Major ninth
-    case ChordExtension.Add11:
-      return [17];  // Perfect eleventh
-    case ChordExtension.Add13:
-      return [21];  // Major thirteenth
-    case ChordExtension.Sharp11:
-      return [18];  // Augmented eleventh
-    default:
-      return [];  // No extensions
   }
 }
 

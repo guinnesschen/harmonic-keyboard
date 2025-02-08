@@ -15,28 +15,33 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
     );
   }
 
-  const rootNoteName = midiNoteToNoteName(voicing.root + 60).replace(/\d+/, "");
   const bassNoteName = midiNoteToNoteName(voicing.bass);
-  const melodyNoteName = midiNoteToNoteName(voicing.melody);
+  const rootNoteName = voicing.root !== -1 
+    ? midiNoteToNoteName(voicing.root + 60).replace(/\d+/, "")
+    : bassNoteName.replace(/\d+/, "");
 
   return (
     <div className="space-y-4">
       <div className="text-2xl font-bold text-center">
         <span className="text-primary">{rootNoteName}</span>
         <span className="text-gray-600">{voicing.quality}</span>
-        {voicing.extension !== "none" && (
-          <span className="text-gray-400">{voicing.extension}</span>
+        {voicing.position !== "root" && (
+          <span className="text-gray-400">
+            {" "}({voicing.position} inversion)
+          </span>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="p-4">
-          <div className="text-sm text-gray-500">Bass</div>
+          <div className="text-sm text-gray-500">Bass Note</div>
           <div className="text-xl font-semibold">{bassNoteName}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-500">Melody</div>
-          <div className="text-xl font-semibold">{melodyNoteName}</div>
+          <div className="text-sm text-gray-500">Chord Structure</div>
+          <div className="text-xl font-semibold">
+            {voicing.notes.map(note => midiNoteToNoteName(note).replace(/\d+/, "")).join(" ")}
+          </div>
         </Card>
       </div>
 
