@@ -38,11 +38,11 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
   // Chromatic scale for MIDI note calculation
   const blackKeyPositions = [
-    { note: 'C#', left: '11.5%', midiOffset: 1 },  // C# (1 semitone up from C)
-    { note: 'D#', left: '25.5%', midiOffset: 3 },  // D# (3 semitones up from C)
-    { note: 'F#', left: '54%', midiOffset: 6 },    // F# (6 semitones up from C)
-    { note: 'G#', left: '68%', midiOffset: 8 },    // G# (8 semitones up from C)
-    { note: 'A#', left: '82%', midiOffset: 10 }    // A# (10 semitones up from C)
+    { note: 'C#', left: '13%', midiOffset: 1 },    // C# (1 semitone up from C)
+    { note: 'D#', left: '27.5%', midiOffset: 3 },  // D# (3 semitones up from C)
+    { note: 'F#', left: '56%', midiOffset: 6 },    // F# (6 semitones up from C)
+    { note: 'G#', left: '70%', midiOffset: 8 },    // G# (8 semitones up from C)
+    { note: 'A#', left: '84%', midiOffset: 10 }    // A# (10 semitones up from C)
   ];
 
   return (
