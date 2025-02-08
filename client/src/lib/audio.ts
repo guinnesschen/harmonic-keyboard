@@ -168,7 +168,7 @@ export function updateSynthSettings(settings: Partial<SynthSettings>): void {
   }
 }
 
-export function playChord(voicing: ChordVoicing | null) {
+export function playChord(voicing: ChordVoicing | null, duration?: number) {
   if (!synth) return;
 
   // Stop all currently playing notes
@@ -184,8 +184,17 @@ export function playChord(voicing: ChordVoicing | null) {
     Tone.Frequency(note, "midi").toFrequency()
   );
 
-  // Play the new notes
-  synth.triggerAttack(frequencies);
+  // If duration is provided, trigger attack/release with timing
+  if (duration !== undefined) {
+    synth.triggerAttack(frequencies);
+    // Schedule the release after the specified duration
+    Tone.Transport.scheduleOnce(() => {
+      synth.triggerRelease(frequencies);
+    }, `+${duration}`);
+  } else {
+    // For regular keyboard playing, just trigger the attack
+    synth.triggerAttack(frequencies);
+  }
 }
 
 export type { SynthSettings };
