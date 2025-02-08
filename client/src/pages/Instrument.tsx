@@ -3,7 +3,6 @@ import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import HelpModal from "@/components/HelpModal";
 import SoundControlsModal from "@/components/SoundControlsModal";
-import RhythmSequencer from "@/components/RhythmSequencer";
 import {
   generateVoicingFromKeyState,
   handleKeyPress,
@@ -77,12 +76,6 @@ export default function Instrument() {
     return true;
   };
 
-  const handleTimedChordTrigger = (duration: number) => {
-    if (currentVoicing) {
-      playChord(currentVoicing, duration);
-    }
-  };
-
   useEffect(() => {
     const updateVoicing = () => {
       const newBasicVoicing = generateVoicingFromKeyState(stickyMode);
@@ -99,6 +92,7 @@ export default function Instrument() {
     const onKeyDown = async (e: KeyboardEvent) => {
       if (e.repeat) return;
 
+      // Initialize audio on first key press if needed
       if (!isAudioInitialized) {
         const success = await initializeAudio();
         if (!success) return;
@@ -142,10 +136,8 @@ export default function Instrument() {
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="space-y-12 max-w-4xl mx-auto pt-8">
             <ChordDisplay voicing={currentVoicing} />
-            <KeyboardGuide activeVoicing={currentVoicing} />
-            <RhythmSequencer 
-              onTriggerChord={handleTimedChordTrigger}
-              activeChord={currentVoicing}
+            <KeyboardGuide
+              activeVoicing={currentVoicing}
             />
           </div>
         </div>
