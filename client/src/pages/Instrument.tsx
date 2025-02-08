@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import HelpModal from "@/components/HelpModal";
@@ -62,19 +63,15 @@ export default function Instrument() {
   );
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
 
-  useEffect(() => {
-    const initAudioContext = async () => {
-      try {
-        await initAudio(defaultSettings);
-        setIsAudioInitialized(true);
-        console.log("Audio initialized successfully");
-      } catch (error) {
-        console.error("Failed to initialize audio:", error);
-      }
-    };
-
-    initAudioContext();
-  }, []);
+  const initializeAudio = async () => {
+    try {
+      await initAudio(defaultSettings);
+      setIsAudioInitialized(true);
+      console.log("Audio initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize audio:", error);
+    }
+  };
 
   useEffect(() => {
     if (!isAudioInitialized) return;
@@ -118,6 +115,20 @@ export default function Instrument() {
       window.removeEventListener("keyup", onKeyUp);
     };
   }, [currentVoicing, isAudioInitialized, inversionMode, stickyMode]);
+
+  if (!isAudioInitialized) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-light text-gray-900">Welcome to Harmonova</h1>
+          <p className="text-gray-600">Click the button below to start playing</p>
+          <Button onClick={initializeAudio} size="lg">
+            Initialize Audio
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
