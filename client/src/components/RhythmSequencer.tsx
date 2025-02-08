@@ -22,24 +22,24 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
   const [currentBeat, setCurrentBeat] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartBeat, setDragStartBeat] = useState<number | null>(null);
-  
+
   const requestRef = useRef<number>();
   const previousTimeRef = useRef<number>();
   const lastTriggerTimeRef = useRef<number>(0);
-  
+
   // Grid constants
   const TOTAL_BARS = 4;
   const BEATS_PER_BAR = 4;
   const SUBDIVISIONS = 4; // 16th notes per beat
   const TOTAL_BEATS = TOTAL_BARS * BEATS_PER_BAR * SUBDIVISIONS;
-  
+
   const beatDuration = 60000 / bpm / SUBDIVISIONS; // Duration of one 16th note in ms
 
   const animate = (time: number) => {
     if (previousTimeRef.current === undefined) {
       previousTimeRef.current = time;
     }
-    
+
     const deltaTime = time - previousTimeRef.current;
     previousTimeRef.current = time;
 
@@ -77,13 +77,13 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
       if (dragStartBeat !== null) {
         const duration = Math.abs(beat - dragStartBeat) + 1;
         const startBeat = Math.min(beat, dragStartBeat);
-        
+
         // Remove any overlapping notes
         const nonOverlappingNotes = notes.filter(note => 
           note.startBeat + note.duration <= startBeat || 
           note.startBeat >= startBeat + duration
         );
-        
+
         setNotes([...nonOverlappingNotes, { startBeat, duration }]);
       }
       setDragStartBeat(null);
@@ -128,11 +128,11 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
           {Array.from({ length: TOTAL_BEATS }).map((_, i) => {
             const isBeatStart = i % SUBDIVISIONS === 0;
             const isBarStart = i % (SUBDIVISIONS * BEATS_PER_BAR) === 0;
-            
+
             return (
               <div
                 key={i}
-                className={`relative h-full border-r ${
+                className={`relative h-full border-r cursor-pointer ${
                   isBarStart 
                     ? 'border-gray-300' 
                     : isBeatStart 
@@ -140,6 +140,11 @@ export default function RhythmSequencer({ onTriggerChord, activeChord }: RhythmS
                       : 'border-gray-100'
                 }`}
                 onClick={() => handleGridClick(i)}
+                onMouseEnter={(e) => {
+                  if (isDragging && dragStartBeat !== null) {
+                    handleGridClick(i);
+                  }
+                }}
               />
             );
           })}
