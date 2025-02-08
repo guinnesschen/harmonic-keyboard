@@ -234,17 +234,6 @@ export function generateVoicingFromKeyState(
   return voicing;
 }
 
-export function handleKeyPress(e: KeyboardEvent): void {
-  const key = e.key.toLowerCase();
-  pressedKeys.add(key);
-
-  if (key === " ") {
-    e.preventDefault(); // Prevent tab from changing focus
-    e.stopPropagation();
-    isTabPressed = true;
-  }
-}
-
 export function handleKeyRelease(
   e: KeyboardEvent,
   stickyMode: StickyMode = StickyMode.Off,
@@ -252,7 +241,7 @@ export function handleKeyRelease(
   const key = e.key.toLowerCase();
   pressedKeys.delete(key);
 
-  if (key === " ") {
+  if (key === " " || key === "spacebar") {
     e.preventDefault(); // Prevent tab from changing focus
     e.stopPropagation();
     isTabPressed = false;

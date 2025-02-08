@@ -5,7 +5,10 @@ import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import SoundControls from "@/components/SoundControls";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
-import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
+import {
+  generateVoicingFromKeyState,
+  handleKeyRelease,
+} from "@/lib/keyboardMapping";
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
@@ -15,47 +18,51 @@ import SettingsModal from "@/components/SettingsModal";
 const defaultSettings: SynthSettings = {
   oscillator: {
     type: "triangle",
-    spread: 20
+    spread: 20,
   },
   envelope: {
     attack: 0.05,
     decay: 0.1,
     sustain: 0.3,
-    release: 1
+    release: 1,
   },
   effects: {
     reverb: {
       decay: 2,
-      wet: 0.3
+      wet: 0.3,
     },
     chorus: {
       depth: 0.5,
       frequency: 4,
-      wet: 0.3
+      wet: 0.3,
     },
     eq: {
       low: 0,
       mid: 0,
-      high: 0
+      high: 0,
     },
     compression: {
       threshold: -20,
       ratio: 4,
       attack: 0.003,
-      release: 0.25
+      release: 0.25,
     },
     distortion: {
       distortion: 0.4,
-      wet: 0.2
-    }
+      wet: 0.2,
+    },
   },
-  volume: -12
+  volume: -12,
 };
 
 export default function Instrument() {
-  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
+  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(
+    null,
+  );
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
-  const [inversionMode, setInversionMode] = useState<InversionMode>(InversionMode.Traditional);
+  const [inversionMode, setInversionMode] = useState<InversionMode>(
+    InversionMode.Traditional,
+  );
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
 
   const initializeAudio = async () => {
@@ -72,7 +79,10 @@ export default function Instrument() {
     if (!isAudioInitialized) return;
 
     const updateVoicing = () => {
-      const newBasicVoicing = generateVoicingFromKeyState(inversionMode, stickyMode);
+      const newBasicVoicing = generateVoicingFromKeyState(
+        inversionMode,
+        stickyMode,
+      );
       if (newBasicVoicing) {
         const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
         setCurrentVoicing(fullVoicing);
@@ -85,7 +95,6 @@ export default function Instrument() {
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      handleKeyPress(e);
       updateVoicing();
     };
 
@@ -113,7 +122,7 @@ export default function Instrument() {
       <BackgroundAnimation voicing={currentVoicing} />
 
       <div className="relative z-10">
-        <SettingsModal 
+        <SettingsModal
           inversionMode={inversionMode}
           stickyMode={stickyMode}
           onInversionModeChange={setInversionMode}
@@ -134,9 +143,10 @@ export default function Instrument() {
             <Card className="p-8 text-center max-w-xl mx-auto bg-background/50 backdrop-blur border-primary/10">
               <h2 className="text-2xl font-light mb-4">Welcome to Harmonova</h2>
               <p className="text-muted-foreground mb-6">
-                Due to browser security requirements, we need your permission to enable audio.
+                Due to browser security requirements, we need your permission to
+                enable audio.
               </p>
-              <Button 
+              <Button
                 onClick={initializeAudio}
                 className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
               >
@@ -150,8 +160,8 @@ export default function Instrument() {
               </Card>
 
               <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
-                <KeyboardGuide 
-                  activeVoicing={currentVoicing} 
+                <KeyboardGuide
+                  activeVoicing={currentVoicing}
                   inversionMode={inversionMode}
                 />
               </Card>
