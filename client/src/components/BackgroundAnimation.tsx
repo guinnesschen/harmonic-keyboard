@@ -29,12 +29,12 @@ function getChordColors(voicing: ChordVoicing | null) {
   return colors[voicing.quality] || colors.major;
 }
 
-function generateParticles(count: number, colors: string[]): ParticleProps[] {
+function generateParticles(count: number): ParticleProps[] {
   return Array.from({ length: count }, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
     scale: Math.random() * 1.5 + 0.5,
-    opacity: Math.random() * 0.5 + 0.2,
+    opacity: Math.random() * 0.4 + 0.3, // Increased opacity range
   }));
 }
 
@@ -44,7 +44,7 @@ export default function BackgroundAnimation({ voicing }: BackgroundAnimationProp
 
   useEffect(() => {
     // Generate new particles on chord changes
-    const newParticles = generateParticles(20, colors);
+    const newParticles = generateParticles(20); // Increased particle count
     setParticles(newParticles);
   }, [voicing?.quality, voicing?.root]);
 
@@ -76,11 +76,11 @@ export default function BackgroundAnimation({ voicing }: BackgroundAnimationProp
             }}
             style={{
               position: "absolute",
-              width: "200px",
-              height: "200px",
+              width: "400px", // Increased size
+              height: "400px", // Increased size
               borderRadius: "50%",
               background: `radial-gradient(circle, ${colors[0]}, ${colors[1]})`,
-              filter: "blur(40px)",
+              filter: "blur(60px)", // Increased blur
             }}
           />
         ))}
