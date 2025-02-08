@@ -51,39 +51,56 @@ export default function HelpModal() {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">
-                  Bass Notes (Z-M)
+                  Root Notes (Z through M)
                 </h4>
                 <p className="text-gray-600">
-                  Press any bass key to start playing. Each key represents a
-                  different root note.
+                  The bottom row of your keyboard (Z through M) represents the root notes of your chords. 
+                  These keys determine the fundamental pitch of your harmony. For example, pressing 'Z' 
+                  might give you a C, 'X' a D, and so on.
                 </p>
               </div>
 
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">
-                  Chord Qualities (Q-U)
+                  Chord Quality Modifiers (Q through U)
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-gray-600">
-                  <li>Q - Major (1-3-5)</li>
-                  <li>W - Major 7th (1-3-5-7)</li>
-                  <li>E - Dominant 7th (1-3-5-♭7)</li>
-                  <li>R - Minor (1-♭3-5)</li>
-                  <li>T - Minor 7th (1-♭3-5-♭7)</li>
-                  <li>Y - Diminished 7th (1-♭3-♭5-♭♭7)</li>
-                  <li>U - Half Diminished 7th (1-♭3-♭5-♭7)</li>
+                <p className="text-gray-600">
+                  Hold down one of these modifier keys while pressing a root note to determine the type of chord:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-gray-600 mt-2">
+                  <li>Q - Creates a major triad (bright and stable)</li>
+                  <li>W - Adds a major 7th for a jazzy, open sound</li>
+                  <li>E - Adds a dominant 7th for tension and movement</li>
+                  <li>R - Creates a minor triad (darker, more mysterious)</li>
+                  <li>T - Adds a minor 7th for a mellower jazz feel</li>
+                  <li>Y - Creates a fully diminished chord (maximum tension)</li>
+                  <li>U - Creates a half-diminished chord (subtle tension)</li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">
-                  Inversions (0-3)
+                  Inversion Modifiers (0 through 3)
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-gray-600">
-                  <li>0 - Root Position (1-3-5)</li>
-                  <li>1 - First Inversion (3-5-1)</li>
-                  <li>2 - Second Inversion (5-1-3)</li>
-                  <li>3 - Third/Seventh in bass</li>
+                <p className="text-gray-600">
+                  While holding your chord quality modifier, add one of these number keys to change how 
+                  the notes are stacked:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-gray-600 mt-2">
+                  <li>0 - Root position (default arrangement)</li>
+                  <li>1 - First inversion (third on bottom)</li>
+                  <li>2 - Second inversion (fifth on bottom)</li>
+                  <li>3 - Third inversion (seventh on bottom, for seventh chords)</li>
                 </ul>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Example Combinations</h4>
+                <p className="text-gray-600">
+                  To play a C major chord in first inversion: Hold 'Q' (major) + '1' (first inversion), 
+                  then press 'Z' (C root). For a G dominant seventh in third inversion: Hold 'E' (dominant) 
+                  + '3' (third inversion), then press 'V' (G root).
+                </p>
               </div>
             </div>
           </section>
