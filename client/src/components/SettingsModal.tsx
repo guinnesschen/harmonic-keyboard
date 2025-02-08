@@ -21,14 +21,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
 import { Settings } from "lucide-react";
 import {
   StickyMode,
   ChordQuality,
   type ChordQualityConfig,
+  type QualityKeyMapping,
+  LEGAL_QUALITY_KEYS,
 } from "@shared/schema";
 import { defaultChordQualities } from "@/lib/chordConfig";
 import { midiNoteToNoteName } from "@/lib/chords";
+import { getQualityKeyMappings, updateQualityKeyMappings } from "@/lib/keyboardMapping";
 
 interface SettingsModalProps {
   stickyMode: StickyMode;
@@ -62,11 +66,50 @@ function QualitySelect({
           <SelectItem value={ChordQuality.Minor7}>Minor 7</SelectItem>
           <SelectItem value={ChordQuality.Dominant7}>Dominant 7</SelectItem>
           <SelectItem value={ChordQuality.Diminished7}>Diminished 7</SelectItem>
-          <SelectItem value={ChordQuality.HalfDiminished7}>
-            Half-dim 7
-          </SelectItem>
+          <SelectItem value={ChordQuality.HalfDiminished7}>Half-dim 7</SelectItem>
+          <SelectItem value={ChordQuality.DomSus}>Dom Sus</SelectItem>
+          <SelectItem value={ChordQuality.Sus}>Sus</SelectItem>
+          <SelectItem value={ChordQuality.Aug}>Augmented</SelectItem>
+          <SelectItem value={ChordQuality.MinMaj7}>Minor Maj 7</SelectItem>
+          <SelectItem value={ChordQuality.Add9}>Add 9</SelectItem>
         </SelectContent>
       </Select>
+    </div>
+  );
+}
+
+function QualityKeyMappingItem({
+  mapping,
+  onToggle,
+  onKeyChange,
+}: {
+  mapping: QualityKeyMapping;
+  onToggle: (enabled: boolean) => void;
+  onKeyChange: (key: string) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2">
+      <div className="flex items-center gap-4">
+        <Switch
+          checked={mapping.enabled}
+          onCheckedChange={onToggle}
+        />
+        <Select value={mapping.key} onValueChange={onKeyChange}>
+          <SelectTrigger className="w-20">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LEGAL_QUALITY_KEYS.map(key => (
+              <SelectItem key={key} value={key}>
+                {key}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <span className="text-sm text-gray-900">
+        {mapping.quality.charAt(0).toUpperCase() + mapping.quality.slice(1)}
+      </span>
     </div>
   );
 }
@@ -80,6 +123,9 @@ export default function SettingsModal({
   const [isOpen, setIsOpen] = useState(false);
   const [localChordQualities, setLocalChordQualities] =
     useState<ChordQualityConfig>(chordQualities);
+  const [keyMappings, setKeyMappings] = useState<QualityKeyMapping[]>(
+    getQualityKeyMappings()
+  );
 
   const updateChordQuality = (
     position: keyof ChordQualityConfig,
@@ -95,6 +141,14 @@ export default function SettingsModal({
     };
     setLocalChordQualities(newConfig);
     onChordQualitiesChange(newConfig);
+  };
+
+  const updateKeyMapping = (index: number, updates: Partial<QualityKeyMapping>) => {
+    const newMappings = keyMappings.map((mapping, i) =>
+      i === index ? { ...mapping, ...updates } : mapping
+    );
+    setKeyMappings(newMappings);
+    updateQualityKeyMappings(newMappings);
   };
 
   const resetToDefaults = () => {
@@ -148,6 +202,24 @@ export default function SettingsModal({
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-900">
+                Chord Quality Key Mappings
+              </label>
+            </div>
+            <div className="space-y-2 border rounded-lg p-4">
+              {keyMappings.map((mapping, index) => (
+                <QualityKeyMappingItem
+                  key={index}
+                  mapping={mapping}
+                  onToggle={(enabled) => updateKeyMapping(index, { enabled })}
+                  onKeyChange={(key) => updateKeyMapping(index, { key })}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="space-y-4">

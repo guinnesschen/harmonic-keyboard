@@ -3,13 +3,29 @@ import {
   ChordPosition,
   StickyMode,
   type ChordVoicing,
+  type QualityKeyMapping,
 } from "@shared/schema";
-import { getDefaultQuality } from "./chordConfig";
+import { getDefaultQuality, getChordIntervals } from "./chordConfig";
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
-const QUALITY_KEYS = "qwertyu";  // One key per chord quality
 const POSITION_KEYS = "01234";  // Number row for inversions, including root position
+
+// Default quality key mappings
+let qualityKeyMappings: QualityKeyMapping[] = [
+  { key: "Q", quality: ChordQuality.Major, enabled: true },
+  { key: "W", quality: ChordQuality.Major7, enabled: true },
+  { key: "E", quality: ChordQuality.Dominant7, enabled: true },
+  { key: "R", quality: ChordQuality.Minor, enabled: true },
+  { key: "T", quality: ChordQuality.Minor7, enabled: true },
+  { key: "Y", quality: ChordQuality.Diminished7, enabled: true },
+  { key: "U", quality: ChordQuality.HalfDiminished7, enabled: true },
+  { key: "I", quality: ChordQuality.DomSus, enabled: false },
+  { key: "O", quality: ChordQuality.Sus, enabled: false },
+  { key: "P", quality: ChordQuality.Aug, enabled: false },
+  { key: "5", quality: ChordQuality.MinMaj7, enabled: false },
+  { key: "6", quality: ChordQuality.Add9, enabled: false },
+];
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
@@ -20,26 +36,39 @@ let lastGeneratedVoicing: ChordVoicing | null = null;
 // Track spacebar state for temporary sticky mode
 let isSpacebarPressed = false;
 
+export function updateQualityKeyMappings(newMappings: QualityKeyMapping[]) {
+  qualityKeyMappings = newMappings;
+}
+
+export function getQualityKeyMappings(): QualityKeyMapping[] {
+  return qualityKeyMappings;
+}
+
+function getEnabledQualityKeys(): string {
+  return qualityKeyMappings
+    .filter(mapping => mapping.enabled)
+    .map(mapping => mapping.key.toLowerCase())
+    .join("");
+}
+
 function getNoteFromKey(key: string, keyMap: string): number {
   const index = keyMap.indexOf(key.toLowerCase());
   return index;
 }
 
 function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.Root): ChordQuality {
-  const qualityMap: Record<string, ChordQuality> = {
-    "q": ChordQuality.Major,
-    "w": ChordQuality.Major7,
-    "e": ChordQuality.Dominant7,
-    "r": ChordQuality.Minor,
-    "t": ChordQuality.Minor7,
-    "y": ChordQuality.Diminished7,
-    "u": ChordQuality.HalfDiminished7,
-  };
+  // If a quality key is pressed, find the corresponding quality from mappings
+  const qualityKey = Array.from(pressedKeys).find(key => 
+    getEnabledQualityKeys().includes(key.toLowerCase())
+  );
 
-  // If a quality key is pressed, use that quality directly
-  const qualityKey = Array.from(pressedKeys).find(key => QUALITY_KEYS.includes(key.toLowerCase()));
   if (qualityKey) {
-    return qualityMap[qualityKey] || ChordQuality.Major;
+    const mapping = qualityKeyMappings.find(
+      m => m.key.toLowerCase() === qualityKey.toLowerCase() && m.enabled
+    );
+    if (mapping) {
+      return mapping.quality;
+    }
   }
 
   // Get the bass key being pressed
@@ -113,6 +142,16 @@ function getChordIntervals(quality: ChordQuality): number[] {
       return [0, 3, 6, 9];
     case ChordQuality.HalfDiminished7:
       return [0, 3, 6, 10];
+    case ChordQuality.DomSus:
+      return [0, 5, 7];
+    case ChordQuality.Sus:
+      return [0, 5, 7];
+    case ChordQuality.Aug:
+      return [0, 4, 8];
+    case ChordQuality.MinMaj7:
+      return [0, 3, 7, 11];
+    case ChordQuality.Add9:
+      return [0, 4, 7, 14];
     default:
       return [0, 4, 7];
   }
@@ -130,7 +169,7 @@ export function generateVoicingFromKeyState(stickyMode: StickyMode = StickyMode.
   const effectiveStickyMode = stickyMode === StickyMode.On || isSpacebarPressed;
 
   const bassKey = currentKeys.find(key => BASS_KEYS.includes(key));
-  const qualityKey = currentKeys.find(key => QUALITY_KEYS.includes(key));
+  const qualityKey = currentKeys.find(key => getEnabledQualityKeys().includes(key));
   const positionKey = currentKeys.find(key => POSITION_KEYS.includes(key));
 
   if (effectiveStickyMode && lastGeneratedVoicing) {
@@ -227,7 +266,7 @@ export function handleKeyRelease(e: KeyboardEvent, stickyMode: StickyMode = Stic
 
 export function getKeyboardLayout() {
   return {
-    qualityKeys: QUALITY_KEYS.toUpperCase().split(""),
+    qualityKeys: getEnabledQualityKeys().toUpperCase().split(""),
     positionKeys: POSITION_KEYS.split(""),
     bassKeys: BASS_KEYS.toUpperCase().split(""),
   };

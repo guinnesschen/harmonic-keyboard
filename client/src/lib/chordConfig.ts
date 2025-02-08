@@ -66,3 +66,34 @@ export function getDefaultQuality(
 ): ChordQuality {
   return defaultChordQualities[position][noteIndex] || ChordQuality.Major;
 }
+
+export function getChordIntervals(quality: ChordQuality): number[] {
+  switch (quality) {
+    case ChordQuality.Major:
+      return [0, 4, 7];
+    case ChordQuality.Minor:
+      return [0, 3, 7];
+    case ChordQuality.Major7:
+      return [0, 4, 7, 11];
+    case ChordQuality.Dominant7:
+      return [0, 4, 7, 10];
+    case ChordQuality.Minor7:
+      return [0, 3, 7, 10];
+    case ChordQuality.Diminished7:
+      return [0, 3, 6, 9];
+    case ChordQuality.HalfDiminished7:
+      return [0, 3, 6, 10];
+    case ChordQuality.DomSus:
+      return [0, 5, 7, 10];  // Root, 4th, 5th, b7
+    case ChordQuality.Sus:
+      return [0, 5, 7];      // Root, 4th, 5th
+    case ChordQuality.Aug:
+      return [0, 4, 8];      // Root, 3rd, #5
+    case ChordQuality.MinMaj7:
+      return [0, 3, 7, 11];  // Root, b3, 5, 7
+    case ChordQuality.Add9:
+      return [0, 2, 4, 7];   // Root, 2nd/9th, 3rd, 5th
+    default:
+      return [0, 4, 7];
+  }
+}

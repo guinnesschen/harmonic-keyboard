@@ -8,6 +8,11 @@ export const ChordQuality = {
   HalfDiminished7: "halfdiminished7",
   Minor7: "minor7",
   Major7: "major7",
+  DomSus: "domsus",
+  Sus: "sus",
+  Aug: "aug",
+  MinMaj7: "minmaj7",
+  Add9: "add9",
 } as const;
 
 export const ChordPosition = {
@@ -41,3 +46,13 @@ export interface ChordVoicing {
   position: ChordPosition;
   root: number;
 }
+
+// New type for quality key mapping configuration
+export interface QualityKeyMapping {
+  key: string;
+  quality: ChordQuality;
+  enabled: boolean;
+}
+
+export const LEGAL_QUALITY_KEYS = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '5', '6', '7', '8', '9'] as const;
+export type LegalQualityKey = typeof LEGAL_QUALITY_KEYS[number];
