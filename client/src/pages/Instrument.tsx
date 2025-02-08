@@ -3,10 +3,47 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
+import SoundControls from "@/components/SoundControls";
 import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
-import { initAudio, playChord } from "@/lib/audio";
+import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
+
+const defaultSettings: SynthSettings = {
+  oscillator: {
+    type: "triangle",
+    spread: 20
+  },
+  envelope: {
+    attack: 0.05,
+    decay: 0.1,
+    sustain: 0.3,
+    release: 1
+  },
+  effects: {
+    reverb: {
+      decay: 2,
+      wet: 0.3
+    },
+    chorus: {
+      depth: 0.5,
+      frequency: 4,
+      wet: 0.3
+    },
+    eq: {
+      low: 0,
+      mid: 0,
+      high: 0
+    },
+    compression: {
+      threshold: -20,
+      ratio: 4,
+      attack: 0.003,
+      release: 0.25
+    }
+  },
+  volume: -12
+};
 
 export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
@@ -14,7 +51,7 @@ export default function Instrument() {
 
   const initializeAudio = async () => {
     try {
-      await initAudio();
+      await initAudio(defaultSettings);
       setIsAudioInitialized(true);
       console.log("Audio initialized successfully");
     } catch (error) {
@@ -88,15 +125,21 @@ export default function Instrument() {
             </Button>
           </Card>
         ) : (
-          <>
-            <Card className="p-6">
-              <ChordDisplay voicing={currentVoicing} />
-            </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              <Card className="p-6">
+                <ChordDisplay voicing={currentVoicing} />
+              </Card>
 
-            <Card className="p-8 bg-white/80 backdrop-blur-sm">
-              <KeyboardGuide activeVoicing={currentVoicing} />
-            </Card>
-          </>
+              <Card className="p-8 bg-white/80 backdrop-blur-sm">
+                <KeyboardGuide activeVoicing={currentVoicing} />
+              </Card>
+            </div>
+
+            <div>
+              <SoundControls initialSettings={defaultSettings} />
+            </div>
+          </div>
         )}
       </div>
     </div>
