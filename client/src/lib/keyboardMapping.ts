@@ -8,7 +8,7 @@ import {
 import { getDefaultQuality, getChordIntervals } from "./chordConfig";
 
 // Define keyboard mappings (all lowercase for consistent comparison)
-const BASS_KEYS = "azsxdcvgbhnjml;/'\\";  // Extended with more keys following piano layout
+const BASS_KEYS = "zsxdcvgbhnjm";
 const POSITION_KEYS = "01234";  // Number row for inversions, including root position
 
 // Default quality key mappings
@@ -58,7 +58,7 @@ function getNoteFromKey(key: string, keyMap: string): number {
 
 function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.Root): ChordQuality {
   // If a quality key is pressed, find the corresponding quality from mappings
-  const qualityKey = Array.from(pressedKeys).find(key =>
+  const qualityKey = Array.from(pressedKeys).find(key => 
     getEnabledQualityKeys().includes(key.toLowerCase())
   );
 
@@ -179,7 +179,7 @@ export function generateVoicingFromKeyState(stickyMode: StickyMode = StickyMode.
   // Get the basic parameters
   const bassNote = bassKey ? getNoteFromKey(bassKey, BASS_KEYS) : (lastGeneratedVoicing?.root || 0);
   const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
-  const quality = qualityKey
+  const quality = qualityKey 
     ? getQualityFromKey(qualityKey, position)
     : getQualityFromKey(bassKey || "", position);
 
@@ -248,23 +248,18 @@ export function getActiveKeys(): string[] {
 export function getMidiNoteKey(midiNote: number): string | null {
   const noteIndex = midiNote % 12;
   const keyMap: Record<number, string> = {
-    11: 'a',  // B
-    0: 'z',   // C
-    1: 's',   // C#
-    2: 'x',   // D
-    3: 'd',   // D#
-    4: 'c',   // E
-    5: 'v',   // F
-    6: 'g',   // F#
-    7: 'b',   // G
-    8: 'h',   // G#
-    9: 'n',   // A
-    10: 'j',  // A#
-    0: 'l',   // C (higher octave)
-    1: ';',   // C# (higher octave)
-    2: '/',   // D (higher octave)
-    3: "'",   // D# (higher octave)
-    4: '\\',  // E (higher octave)
+    0: 'z',  // C
+    1: 's',  // C#
+    2: 'x',  // D
+    3: 'd',  // D#
+    4: 'c',  // E
+    5: 'v',  // F
+    6: 'g',  // F#
+    7: 'b',  // G
+    8: 'h',  // G#
+    9: 'n',  // A
+    10: 'j', // A#
+    11: 'm'  // B
   };
 
   return keyMap[noteIndex] || null;
