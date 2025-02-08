@@ -59,38 +59,20 @@ function findClosestOctave(note: number, target: number): number {
   return bestNote;
 }
 
-// Generate default voicing based on bass note position
+// Generate default voicing with the spread pattern [root, fifth, octave, third, fifth]
 function generateDefaultVoicing(bassNote: number): number[] {
-  const isLowerHalf = bassNote < 60; // Middle C (60) is the dividing point
   const root = bassNote % 12;
   const fifth = (root + 7) % 12;
   const third = (root + 4) % 12;
 
-  // Convert pitch classes to actual MIDI notes
-  const upperRoot = findClosestOctave(root, bassNote + 12);
-  const upperFifth = findClosestOctave(fifth, upperRoot + 7);
-  const upperThird = findClosestOctave(third, upperRoot + 4);
-  const topFifth = findClosestOctave(fifth, upperFifth + 5);
+  // Convert pitch classes to actual MIDI notes with the desired spacing
+  const rootNote = bassNote;  // Bass note is the root
+  const fifthBelow = findClosestOctave(fifth, rootNote + 7);  // First fifth above root
+  const upperRoot = findClosestOctave(root, fifthBelow + 5);  // Octave in middle
+  const thirdAbove = findClosestOctave(third, upperRoot + 4);  // Third above octave
+  const fifthAbove = findClosestOctave(fifth, thirdAbove + 3);  // Top fifth
 
-  if (isLowerHalf) {
-    // Lower keyboard pattern: [root, root, fifth, third, fifth]
-    return [
-      bassNote,
-      upperRoot,
-      upperFifth,
-      upperThird,
-      topFifth
-    ].sort((a, b) => a - b);
-  } else {
-    // Upper keyboard pattern: [root, fifth, root, third, fifth]
-    return [
-      bassNote,
-      findClosestOctave(fifth, bassNote + 7),
-      upperRoot,
-      upperThird,
-      topFifth
-    ].sort((a, b) => a - b);
-  }
+  return [rootNote, fifthBelow, upperRoot, thirdAbove, fifthAbove];
 }
 
 // Generate all possible 5-note voicings for a given set of required notes
@@ -103,9 +85,6 @@ function generatePossibleVoicings(
     { length: MAX_NOTE - MIN_NOTE + 1 },
     (_, i) => MIN_NOTE + i
   ).filter(note => note > bassNote);
-
-  // Add the default voicing first
-  voicings.push(generateDefaultVoicing(bassNote));
 
   // Convert pitch classes to all possible octaves within range
   const possibleNotes = Array.from(requiredPitchClasses).flatMap(pc =>
@@ -152,16 +131,16 @@ export function generateVoicing(
     intervals.map(interval => (desired.root + interval) % 12)
   );
 
-  // Generate all possible 5-note voicings
-  const possibleVoicings = generatePossibleVoicings(requiredPitchClasses, bassNote);
-
   if (!previous) {
-    // If no previous voicing, use the default voicing (first in the array)
+    // If no previous voicing, use the standard spread voicing
     return {
       ...desired,
-      notes: possibleVoicings[0]
+      notes: generateDefaultVoicing(bassNote)
     };
   }
+
+  // Generate all possible 5-note voicings for voice leading
+  const possibleVoicings = generatePossibleVoicings(requiredPitchClasses, bassNote);
 
   // Find the voicing with minimum movement from previous
   let bestVoicing = possibleVoicings[0];
