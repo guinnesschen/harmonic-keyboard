@@ -52,6 +52,12 @@ const defaultSettings: SynthSettings = {
       wet: 0.2,
     },
   },
+  lfo: {
+    frequency: 1,
+    depth: 0.5,
+    target: "none",
+    waveform: "sine"
+  },
   volume: -12,
 };
 

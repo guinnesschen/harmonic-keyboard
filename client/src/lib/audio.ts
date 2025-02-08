@@ -38,6 +38,12 @@ interface SynthSettings {
       wet: number;
     };
   };
+  lfo: {
+    frequency: number;
+    depth: number;
+    target: "volume" | "filter" | "pitch" | "none";
+    waveform: "sine" | "square" | "triangle" | "sawtooth";
+  };
   volume: number;
 }
 
@@ -47,6 +53,8 @@ let chorus: Tone.Chorus;
 let eq: Tone.EQ3;
 let compressor: Tone.Compressor;
 let distortion: Tone.Distortion;
+let lfo: Tone.LFO;
+let filter: Tone.Filter;
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -84,6 +92,12 @@ const defaultSettings: SynthSettings = {
       distortion: 0.4,
       wet: 0.2
     }
+  },
+  lfo: {
+    frequency: 1,
+    depth: 0.5,
+    target: "none",
+    waveform: "sine"
   },
   volume: -12
 };
@@ -123,12 +137,38 @@ export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<
     wet: mergedSettings.effects.distortion.wet
   }).connect(compressor);
 
+  // Create filter for LFO modulation
+  filter = new Tone.Filter({
+    type: "lowpass",
+    frequency: 2000,
+    rolloff: -12
+  }).connect(distortion);
+
+  // Create and configure LFO
+  lfo = new Tone.LFO({
+    frequency: mergedSettings.lfo.frequency,
+    min: -mergedSettings.lfo.depth * 50,
+    max: mergedSettings.lfo.depth * 50,
+    type: mergedSettings.lfo.waveform
+  });
+
+  // Connect LFO based on target
+  if (mergedSettings.lfo.target === "filter") {
+    lfo.connect(filter.frequency);
+  } else if (mergedSettings.lfo.target === "volume") {
+    lfo.connect(synth.volume);
+  }
+
+  if (mergedSettings.lfo.target !== "none") {
+    lfo.start();
+  }
+
   synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       type: mergedSettings.oscillator.type
     },
     envelope: mergedSettings.envelope
-  }).connect(distortion);
+  }).connect(filter);
 
   synth.volume.value = mergedSettings.volume;
 }
@@ -164,6 +204,26 @@ export function updateSynthSettings(settings: Partial<SynthSettings>): void {
     }
     if (distortionSettings) {
       distortion.set(distortionSettings);
+    }
+  }
+  if (settings.lfo) {
+    lfo.stop();
+    lfo.disconnect();
+
+    lfo.frequency.value = settings.lfo.frequency;
+    lfo.min = -settings.lfo.depth * 50;
+    lfo.max = settings.lfo.depth * 50;
+    lfo.type = settings.lfo.waveform;
+
+    // Reconnect LFO based on new target
+    if (settings.lfo.target === "filter") {
+      lfo.connect(filter.frequency);
+    } else if (settings.lfo.target === "volume") {
+      lfo.connect(synth.volume);
+    }
+
+    if (settings.lfo.target !== "none") {
+      lfo.start();
     }
   }
 }

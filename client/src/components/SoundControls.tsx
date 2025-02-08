@@ -82,6 +82,75 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionContent>
       </AccordionItem>
 
+      <AccordionItem value="lfo">
+        <AccordionTrigger className="text-gray-900">LFO</AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-900">Waveform</Label>
+              <Select
+                value={settings.lfo.waveform}
+                onValueChange={(value) =>
+                  updateSettings(["lfo", "waveform"], value)
+                }
+              >
+                <SelectTrigger className="bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sine">Sine</SelectItem>
+                  <SelectItem value="triangle">Triangle</SelectItem>
+                  <SelectItem value="sawtooth">Sawtooth</SelectItem>
+                  <SelectItem value="square">Square</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-gray-900">Target</Label>
+              <Select
+                value={settings.lfo.target}
+                onValueChange={(value) =>
+                  updateSettings(["lfo", "target"], value)
+                }
+              >
+                <SelectTrigger className="bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="filter">Filter</SelectItem>
+                  <SelectItem value="volume">Volume</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-gray-900">Frequency</Label>
+              <Slider
+                value={[settings.lfo.frequency]}
+                min={0.1}
+                max={10}
+                step={0.1}
+                onValueChange={([value]) =>
+                  updateSettings(["lfo", "frequency"], value)
+                }
+              />
+            </div>
+            <div>
+              <Label className="text-gray-900">Depth</Label>
+              <Slider
+                value={[settings.lfo.depth]}
+                min={0}
+                max={1}
+                step={0.01}
+                onValueChange={([value]) =>
+                  updateSettings(["lfo", "depth"], value)
+                }
+              />
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
       <AccordionItem value="envelope">
         <AccordionTrigger className="text-gray-900">Envelope</AccordionTrigger>
         <AccordionContent>

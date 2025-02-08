@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { getKeyboardLayout, getQualityKeyMappings } from "@/lib/keyboardMapping";
+import {
+  getKeyboardLayout,
+  getQualityKeyMappings,
+} from "@/lib/keyboardMapping";
 import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 
 interface KeyboardGuideProps {
@@ -53,64 +56,67 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const getInversionDescription = (position: string): string => {
     return (
       {
-        "0": "Bass = root",
-        "1": "Bass = 3rd",
-        "2": "Bass = 5th",
-        "3": "Bass = 7th",
+        "0": "Root position",
+        "1": "1st inversion",
+        "2": "2nd inversion",
+        "3": "3rd inversion",
       }[position] || ""
     );
   };
 
   // Determine which quality keys are enabled and their descriptions
   const qualityDescriptions = qualityKeys
-    .filter(mapping => mapping.enabled)
-    .reduce((acc, mapping) => {
-      let description;
-      switch (mapping.quality) {
-        case ChordQuality.Major:
-          description = "Major";
-          break;
-        case ChordQuality.Minor:
-          description = "Minor";
-          break;
-        case ChordQuality.Major7:
-          description = "Major 7";
-          break;
-        case ChordQuality.Minor7:
-          description = "Minor 7";
-          break;
-        case ChordQuality.Dominant7:
-          description = "Dom 7";
-          break;
-        case ChordQuality.Diminished7:
-          description = "Dim 7";
-          break;
-        case ChordQuality.HalfDiminished7:
-          description = "Half-dim 7";
-          break;
-        case ChordQuality.DomSus:
-          description = "Dom Sus";
-          break;
-        case ChordQuality.Sus:
-          description = "Sus";
-          break;
-        case ChordQuality.Aug:
-          description = "Aug";
-          break;
-        case ChordQuality.MinMaj7:
-          description = "Min/Maj7";
-          break;
-        case ChordQuality.Add9:
-          description = "Add 9";
-          break;
-        default:
-          description = mapping.quality;
-      }
-      return {
-        ...acc,
-        [mapping.key]: description
-      };
-    }, {} as Record<string, string>);
+    .filter((mapping) => mapping.enabled)
+    .reduce(
+      (acc, mapping) => {
+        let description;
+        switch (mapping.quality) {
+          case ChordQuality.Major:
+            description = "Major";
+            break;
+          case ChordQuality.Minor:
+            description = "Minor";
+            break;
+          case ChordQuality.Major7:
+            description = "Major 7";
+            break;
+          case ChordQuality.Minor7:
+            description = "Minor 7";
+            break;
+          case ChordQuality.Dominant7:
+            description = "Dom 7";
+            break;
+          case ChordQuality.Diminished7:
+            description = "Dim 7";
+            break;
+          case ChordQuality.HalfDiminished7:
+            description = "Half-dim 7";
+            break;
+          case ChordQuality.DomSus:
+            description = "Dom Sus";
+            break;
+          case ChordQuality.Sus:
+            description = "Sus";
+            break;
+          case ChordQuality.Aug:
+            description = "Aug";
+            break;
+          case ChordQuality.MinMaj7:
+            description = "Min/Maj7";
+            break;
+          case ChordQuality.Add9:
+            description = "Add 9";
+            break;
+          default:
+            description = mapping.quality;
+        }
+        return {
+          ...acc,
+          [mapping.key]: description,
+        };
+      },
+      {} as Record<string, string>,
+    );
 
   return (
     <div className="space-y-12">
@@ -138,7 +144,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             ))}
           </div>
         </div>
-        
+
         <div className="w-full h-px bg-stone-200/50 mb-4" />
 
         {/* Chord Qualities */}
@@ -151,7 +157,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 description={qualityDescriptions[key] || ""}
                 isActive={
                   activeVoicing?.quality ===
-                  qualityKeys.find(m => m.key === key && m.enabled)?.quality
+                  qualityKeys.find((m) => m.key === key && m.enabled)?.quality
                 }
               />
             ))}

@@ -42,7 +42,7 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
               </div>
             </Card>
             <Card className="p-4 bg-white/80 backdrop-blur border-stone-500/5">
-              <div className="text-sm text-gray-600">Chord Structure</div>
+              <div className="text-sm text-gray-600">Notes</div>
               <div className="text-xl font-light tracking-wide text-gray-900">
                 {emptyState
                   ? "—"
