@@ -97,9 +97,9 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
         {/* Multi-octave Piano */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Notes Being Played</div>
-          <div className="relative w-full h-96">
+          <div className="relative w-full h-96 border rounded-lg bg-white p-4">
             {/* White keys container */}
-            <div className="flex h-full">
+            <div className="flex h-full relative">
               {octaves.map(octave => (
                 whiteKeys.map(note => {
                   const midiNote = (octave + 1) * 12 + ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
@@ -107,8 +107,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                     <div
                       key={`${note}${octave}`}
                       className={`relative flex-1 flex items-end justify-center border-l last:border-r bg-white hover:bg-gray-50 transition-colors
-                        ${isNoteActive(midiNote) ? 'bg-primary/20' : ''}`}
-                      style={{ height: '100%' }}
+                        ${isNoteActive(midiNote) ? 'bg-primary/40' : ''}`}
                     >
                       <span className="absolute bottom-4 text-sm text-gray-600">
                         {note}{octave}
@@ -120,32 +119,42 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             </div>
 
             {/* Black keys overlay */}
-            <div className="absolute top-0 left-0 w-full">
+            <div className="absolute top-4 left-0 right-0 px-[0.8%]">
               {octaves.map(octave => (
-                <div key={octave} className="absolute" style={{ width: `${100/3}%`, left: `${(octave-3) * (100/3)}%` }}>
+                <div key={octave} className="absolute h-[65%]" style={{ width: `${100/3}%`, left: `${(octave-3) * (100/3)}%` }}>
                   {/* C# */}
-                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[14.3%] rounded-b-lg
-                    ${isNoteActive((octave + 1) * 12 + 1) ? 'bg-primary' : 'bg-gray-900'}`}>
+                  <div 
+                    className={`absolute w-[10%] h-full -ml-[5%] left-[14.3%] z-10 rounded-b-lg shadow-md
+                      ${isNoteActive((octave + 1) * 12 + 1) ? 'bg-primary' : 'bg-gray-900'}`}
+                  >
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">C#{octave}</span>
                   </div>
                   {/* D# */}
-                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[28.6%] rounded-b-lg
-                    ${isNoteActive((octave + 1) * 12 + 3) ? 'bg-primary' : 'bg-gray-900'}`}>
+                  <div 
+                    className={`absolute w-[10%] h-full -ml-[5%] left-[28.6%] z-10 rounded-b-lg shadow-md
+                      ${isNoteActive((octave + 1) * 12 + 3) ? 'bg-primary' : 'bg-gray-900'}`}
+                  >
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">D#{octave}</span>
                   </div>
                   {/* F# */}
-                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[57.2%] rounded-b-lg
-                    ${isNoteActive((octave + 1) * 12 + 6) ? 'bg-primary' : 'bg-gray-900'}`}>
+                  <div 
+                    className={`absolute w-[10%] h-full -ml-[5%] left-[57.2%] z-10 rounded-b-lg shadow-md
+                      ${isNoteActive((octave + 1) * 12 + 6) ? 'bg-primary' : 'bg-gray-900'}`}
+                  >
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">F#{octave}</span>
                   </div>
                   {/* G# */}
-                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[71.5%] rounded-b-lg
-                    ${isNoteActive((octave + 1) * 12 + 8) ? 'bg-primary' : 'bg-gray-900'}`}>
+                  <div 
+                    className={`absolute w-[10%] h-full -ml-[5%] left-[71.5%] z-10 rounded-b-lg shadow-md
+                      ${isNoteActive((octave + 1) * 12 + 8) ? 'bg-primary' : 'bg-gray-900'}`}
+                  >
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">G#{octave}</span>
                   </div>
                   {/* A# */}
-                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[85.8%] rounded-b-lg
-                    ${isNoteActive((octave + 1) * 12 + 10) ? 'bg-primary' : 'bg-gray-900'}`}>
+                  <div 
+                    className={`absolute w-[10%] h-full -ml-[5%] left-[85.8%] z-10 rounded-b-lg shadow-md
+                      ${isNoteActive((octave + 1) * 12 + 10) ? 'bg-primary' : 'bg-gray-900'}`}
+                  >
                     <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">A#{octave}</span>
                   </div>
                 </div>
