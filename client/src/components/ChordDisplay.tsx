@@ -48,9 +48,9 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
             </Card>
           </div>
 
-          <div className="text-sm text-gray-600 text-center font-light tracking-wide">
+          {/* <div className="text-sm text-gray-600 text-center font-light tracking-wide">
             {emptyState ? "—" : voicing.notes.map(note => midiNoteToNoteName(note)).join(" ")}
-          </div>
+          </div> */}
         </>
       )}
     </div>
