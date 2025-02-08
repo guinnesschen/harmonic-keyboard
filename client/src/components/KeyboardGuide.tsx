@@ -115,9 +115,9 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   return (
     <div className="space-y-12">
       {/* Keyboard Controls */}
-      <div className="flex flex-col items-center gap-16">
+      <div className="flex flex-col items-center gap-8">
         {/* Inversions */}
-        <div className="w-full">
+        <div className="w-full mb-4">
           <div className="flex justify-between">
             {[0, 1, 2, 3].map((num) => (
               <KeyHint
@@ -139,7 +139,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
           </div>
         </div>
         
-        <div className="w-full h-px bg-stone-200/50" />
+        <div className="w-full h-px bg-stone-200/50 mb-4" />
 
         {/* Chord Qualities */}
         <div className="w-full">
