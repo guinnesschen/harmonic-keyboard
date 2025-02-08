@@ -27,7 +27,7 @@ export default function SoundControlsModal({
         <Button variant="ghost" size="icon" className="absolute top-4 right-28">
           <Sliders className="h-5 w-5 text-gray-600" />
         </Button>
-      </DialogTrigger>
+      </DialogTrigger  >
       <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-900">Sound Controls</DialogTitle>
