@@ -25,7 +25,13 @@ export const InversionMode = {
   Functional: "functional",  // Bass key is actual bass, inversion determines its function
 } as const;
 
+export const StickyMode = {
+  Off: "off",         // Notes stop when keys are released
+  On: "on",          // Notes persist, individual modifiers update the chord
+} as const;
+
 export type InversionMode = typeof InversionMode[keyof typeof InversionMode];
+export type StickyMode = typeof StickyMode[keyof typeof StickyMode];
 
 export interface ChordVoicing {
   notes: number[];     // MIDI note numbers

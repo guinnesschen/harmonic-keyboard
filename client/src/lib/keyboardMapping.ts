@@ -2,6 +2,7 @@ import {
   ChordQuality,
   ChordPosition,
   InversionMode,
+  StickyMode,
   type ChordVoicing,
 } from "@shared/schema";
 
@@ -12,6 +13,9 @@ const POSITION_KEYS = "12345";  // Number row for inversions
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
+
+// Store the last generated voicing for sticky mode
+let lastGeneratedVoicing: ChordVoicing | null = null;
 
 function getNoteFromKey(key: string, keyMap: string): number {
   const index = keyMap.indexOf(key.toLowerCase());
@@ -87,7 +91,10 @@ function getChordIntervals(quality: ChordQuality): number[] {
   }
 }
 
-export function generateVoicingFromKeyState(inversionMode: InversionMode = InversionMode.Traditional): ChordVoicing | null {
+export function generateVoicingFromKeyState(
+  inversionMode: InversionMode = InversionMode.Traditional,
+  stickyMode: StickyMode = StickyMode.Off
+): ChordVoicing | null {
   // Convert to array and lowercase for consistent comparison
   const currentKeys = Array.from(pressedKeys).map(key => key.toLowerCase());
 
@@ -96,19 +103,49 @@ export function generateVoicingFromKeyState(inversionMode: InversionMode = Inver
   const qualityKey = currentKeys.find(key => QUALITY_KEYS.includes(key));
   const positionKey = currentKeys.find(key => POSITION_KEYS.includes(key));
 
-  // If no bass note is pressed, return null
-  if (!bassKey) {
+  if (stickyMode === StickyMode.On && lastGeneratedVoicing) {
+    // In sticky mode, modify the last voicing based on any new keys
+    const voicing = { ...lastGeneratedVoicing };
+
+    // Update quality if a quality key is pressed
+    if (qualityKey) {
+      voicing.quality = getQualityFromKey(qualityKey);
+    }
+
+    // Update position if a position key is pressed
+    if (positionKey) {
+      voicing.position = getPositionFromKey(positionKey);
+    }
+
+    // Update root/bass if a bass key is pressed
+    if (bassKey) {
+      const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
+      if (inversionMode === InversionMode.Traditional) {
+        voicing.root = bassNote;
+        voicing.bass = -1; // Will be set by voiceLeading.ts
+      } else {
+        voicing.root = calculateRootFromBassAndFunction(bassNote, voicing.position, voicing.quality);
+        voicing.bass = bassNote + 48;
+      }
+    }
+
+    lastGeneratedVoicing = voicing;
+    return voicing;
+  }
+
+  // If no bass note is pressed and we're not in sticky mode, return null
+  if (!bassKey && stickyMode === StickyMode.Off) {
     return null;
   }
 
   // Get the basic parameters
-  const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
+  const bassNote = bassKey ? getNoteFromKey(bassKey, BASS_KEYS) : (lastGeneratedVoicing?.root || 0);
   const quality = qualityKey ? getQualityFromKey(qualityKey) : ChordQuality.Major;
   const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
 
+  let voicing: ChordVoicing;
   if (inversionMode === InversionMode.Traditional) {
-    // In traditional mode, bassKey determines the root note
-    return {
+    voicing = {
       root: bassNote,
       bass: -1, // Will be set by voiceLeading.ts based on position
       quality,
@@ -116,11 +153,8 @@ export function generateVoicingFromKeyState(inversionMode: InversionMode = Inver
       notes: [], // Will be populated by voiceLeading.ts
     };
   } else {
-    // In functional mode, bassKey determines the actual bass note
-    // and position determines what function that note serves in the chord
     const rootNote = calculateRootFromBassAndFunction(bassNote, position, quality);
-
-    return {
+    voicing = {
       root: rootNote,
       bass: bassNote + 48, // Set the actual bass note (in octave 3)
       quality,
@@ -128,15 +162,30 @@ export function generateVoicingFromKeyState(inversionMode: InversionMode = Inver
       notes: [], // Will be populated by voiceLeading.ts
     };
   }
+
+  lastGeneratedVoicing = voicing;
+  return voicing;
 }
 
 export function handleKeyPress(e: KeyboardEvent): void {
   pressedKeys.add(e.key.toLowerCase());
 }
 
-export function handleKeyRelease(e: KeyboardEvent): boolean {
+export function handleKeyRelease(e: KeyboardEvent, stickyMode: StickyMode = StickyMode.Off): boolean {
   pressedKeys.delete(e.key.toLowerCase());
-  return pressedKeys.size === 0;
+
+  if (stickyMode === StickyMode.On) {
+    // In sticky mode, never clear the chord
+    return false;
+  }
+
+  // In normal mode, clear the chord when all keys are released
+  if (pressedKeys.size === 0) {
+    lastGeneratedVoicing = null;
+    return true;
+  }
+
+  return false;
 }
 
 export function getKeyboardLayout() {

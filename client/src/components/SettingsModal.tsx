@@ -16,14 +16,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Settings } from "lucide-react";
-import { InversionMode } from "@shared/schema";
+import { InversionMode, StickyMode } from "@shared/schema";
 
 interface SettingsModalProps {
   inversionMode: InversionMode;
+  stickyMode: StickyMode;
   onInversionModeChange: (mode: InversionMode) => void;
+  onStickyModeChange: (mode: StickyMode) => void;
 }
 
-export default function SettingsModal({ inversionMode, onInversionModeChange }: SettingsModalProps) {
+export default function SettingsModal({ 
+  inversionMode, 
+  stickyMode,
+  onInversionModeChange,
+  onStickyModeChange,
+}: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -40,7 +47,7 @@ export default function SettingsModal({ inversionMode, onInversionModeChange }: 
             Configure your playing experience
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Inversion Mode</label>
@@ -62,6 +69,33 @@ export default function SettingsModal({ inversionMode, onInversionModeChange }: 
                     <div>Functional</div>
                     <div className="text-xs text-muted-foreground">
                       Bass key sets actual bass note, inversion sets its function
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Sticky Mode</label>
+            <Select value={stickyMode} onValueChange={value => onStickyModeChange(value as StickyMode)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={StickyMode.Off}>
+                  <div className="space-y-1">
+                    <div>Off</div>
+                    <div className="text-xs text-muted-foreground">
+                      Notes stop when keys are released
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value={StickyMode.On}>
+                  <div className="space-y-1">
+                    <div>On</div>
+                    <div className="text-xs text-muted-foreground">
+                      Notes persist, modifiers update the current chord
                     </div>
                   </div>
                 </SelectItem>
