@@ -2,60 +2,60 @@ import { ChordQuality, type ChordQualityConfig } from "@shared/schema";
 
 export const defaultChordQualities: ChordQualityConfig = {
   root: {
-    0: ChordQuality.Major, // C
-    1: ChordQuality.Major, // C#/Db
-    2: ChordQuality.Minor, // D
-    3: ChordQuality.Major, // D#/Eb
-    4: ChordQuality.Minor, // E
-    5: ChordQuality.Major, // F
-    6: ChordQuality.Diminished7, // F#/Gb
-    7: ChordQuality.Major, // G
-    8: ChordQuality.Major, // G#/Ab
-    9: ChordQuality.Minor, // A
-    10: ChordQuality.Major, // A#/Bb
-    11: ChordQuality.HalfDiminished7, // B
+    0: ChordQuality.Major,
+    1: ChordQuality.Major,
+    2: ChordQuality.Minor,
+    3: ChordQuality.Major,
+    4: ChordQuality.Minor,
+    5: ChordQuality.Major,
+    6: ChordQuality.Diminished7,
+    7: ChordQuality.Major,
+    8: ChordQuality.Major,
+    9: ChordQuality.Minor,
+    10: ChordQuality.Major,
+    11: ChordQuality.HalfDiminished7,
   },
   first: {
-    0: ChordQuality.Minor, // C
-    1: ChordQuality.Major, // C#
-    2: ChordQuality.Major, // D
-    3: ChordQuality.Minor, // D#
-    4: ChordQuality.Major, // E
-    5: ChordQuality.Minor, // F
-    6: ChordQuality.Major, // F#
-    7: ChordQuality.Minor, // G
-    8: ChordQuality.Minor, // G#
-    9: ChordQuality.Major, // A
-    10: ChordQuality.Minor, // A#
-    11: ChordQuality.Major, // B
+    0: ChordQuality.Minor,
+    1: ChordQuality.Major,
+    2: ChordQuality.Major,
+    3: ChordQuality.Minor,
+    4: ChordQuality.Major,
+    5: ChordQuality.Minor,
+    6: ChordQuality.Major,
+    7: ChordQuality.Minor,
+    8: ChordQuality.Minor,
+    9: ChordQuality.Major,
+    10: ChordQuality.Minor,
+    11: ChordQuality.Major,
   },
   second: {
-    0: ChordQuality.Major, // C
-    1: ChordQuality.Major, // C#
-    2: ChordQuality.Major, // D
-    3: ChordQuality.Major, // D#
-    4: ChordQuality.Minor, // E
-    5: ChordQuality.Major, // F
-    6: ChordQuality.Major, // F#
-    7: ChordQuality.Major, // G
-    8: ChordQuality.Major, // G#
-    9: ChordQuality.Minor, // A
-    10: ChordQuality.Major, // A#
-    11: ChordQuality.Minor, // B
+    0: ChordQuality.Major,
+    1: ChordQuality.Major,
+    2: ChordQuality.Major,
+    3: ChordQuality.Major,
+    4: ChordQuality.Minor,
+    5: ChordQuality.Major,
+    6: ChordQuality.Major,
+    7: ChordQuality.Major,
+    8: ChordQuality.Major,
+    9: ChordQuality.Minor,
+    10: ChordQuality.Major,
+    11: ChordQuality.Minor,
   },
   third: {
-    0: ChordQuality.Minor7, // C
-    1: ChordQuality.Major7, // C#
-    2: ChordQuality.Minor7, // D
-    3: ChordQuality.Major7, // D#
-    4: ChordQuality.Major7, // E
-    5: ChordQuality.Dominant7, // F
-    6: ChordQuality.Major7, // F#
-    7: ChordQuality.Minor7, // G
-    8: ChordQuality.Major7, // G#
-    9: ChordQuality.Minor7, // A
-    10: ChordQuality.Dominant7, // A#
-    11: ChordQuality.Major7, // B
+    0: ChordQuality.Minor7,
+    1: ChordQuality.Major7,
+    2: ChordQuality.Minor7,
+    3: ChordQuality.Major7,
+    4: ChordQuality.Major7,
+    5: ChordQuality.Dominant7,
+    6: ChordQuality.Major7,
+    7: ChordQuality.Minor7,
+    8: ChordQuality.Major7,
+    9: ChordQuality.Minor7,
+    10: ChordQuality.Dominant7,
+    11: ChordQuality.Major7,
   },
 };
 
@@ -84,7 +84,7 @@ export function getChordIntervals(quality: ChordQuality): number[] {
     case ChordQuality.HalfDiminished7:
       return [0, 3, 6, 10];
     case ChordQuality.DomSus:
-      return [0, 5, 7, 10];  // Root, 4th, 5th, b7
+      return [0, 5, 7, 10];  // Root, 4th, 5th, b7 (fixed: added b7)
     case ChordQuality.Sus:
       return [0, 5, 7];      // Root, 4th, 5th
     case ChordQuality.Aug:
