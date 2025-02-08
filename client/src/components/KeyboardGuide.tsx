@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode } from "@shared/schema";
-import { midiNoteToNoteName } from "@/lib/chords";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode, ThemeMode } from "@shared/schema";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
   inversionMode: InversionMode;
+  themeMode: ThemeMode;
 }
 
-export default function KeyboardGuide({ activeVoicing, inversionMode }: KeyboardGuideProps) {
+interface KeyColorConfig {
+  whiteKey: (isActive: boolean) => string;
+  blackKey: (isActive: boolean) => string;
+}
+
+export default function KeyboardGuide({ activeVoicing, inversionMode, themeMode }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
@@ -43,10 +42,6 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
     U: "Half Dim 7",
   };
 
-  // Check if the current chord is a triad
-  const isTriad = activeVoicing?.quality === ChordQuality.Major ||
-                 activeVoicing?.quality === ChordQuality.Minor;
-
   // Black key positions and offsets
   const blackKeyPositions = [
     { note: "C#", left: "15%", midiOffset: 1 },
@@ -67,225 +62,106 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
     { note: "B", midiOffset: 11 },
   ];
 
-  const getInversionDescription = (mode: InversionMode) => {
-    if (mode === InversionMode.Traditional) {
-      return {
-        title: "Inversions (Traditional Mode)",
-        description: "Number keys modify the voicing while keeping the same root note",
-        examples: [
-          { keys: "Z + Q + 0", result: "C (root position)" },
-          { keys: "Z + Q + 1", result: "C/E (first inversion)" },
-          { keys: "Z + Q + 2", result: "C/G (second inversion)" },
-          { keys: "Z + E + 3", result: "C7/Bb (third/seventh position)" },
-        ]
-      };
-    } else {
-      return {
-        title: "Inversions (Functional Mode)",
-        description: "Number keys determine the function of the bass note in the chord",
-        examples: [
-          { keys: "E + Q + 0", result: "C (E is the root)" },
-          { keys: "C + Q + 1", result: "C/E (E is the third)" },
-          { keys: "B + Q + 2", result: "C/G (G is the fifth)" },
-          { keys: "V + E + 3", result: "G7/F (F is the seventh)" },
-        ]
-      };
-    }
-  };
+  const getDarkModeColors = (): KeyColorConfig => ({
+    whiteKey: (isActive: boolean) => isActive ? "bg-slate-500" : "bg-slate-700",
+    blackKey: (isActive: boolean) => isActive ? "bg-slate-900" : "bg-slate-950",
+  });
 
-  const inversionInfo = getInversionDescription(inversionMode);
+  const getLightModeColors = (): KeyColorConfig => ({
+    whiteKey: (isActive: boolean) => isActive ? "bg-primary" : "bg-white",
+    blackKey: (isActive: boolean) => isActive ? "bg-primary" : "bg-gray-900",
+  });
+
+  const colors = themeMode === ThemeMode.Dark ? getDarkModeColors() : getLightModeColors();
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-semibold text-center">Keyboard Controls</h2>
-
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="motivation">
-          <AccordionTrigger className="text-lg font-medium">
-            About This Instrument
-          </AccordionTrigger>
-          <AccordionContent className="text-gray-600 space-y-4">
-            <p>
-              This is a new type of musical instrument that operates at a higher level of abstraction than traditional keyboards. Instead of playing individual notes, you play chord functions and the instrument automatically generates proper voice leading.
-            </p>
-            <p>
-              Think of it as a "harmonic keyboard" - where each key press represents a musical idea rather than a specific note. This allows you to focus on harmonic progression and musical expression without getting caught up in the technical details of voice leading and chord voicing.
-            </p>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="instructions">
-          <AccordionTrigger className="text-lg font-medium">
-            How to Play
-          </AccordionTrigger>
-          <AccordionContent className="text-gray-600">
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-sm">
-              <p>1. Press any bass key (Z-M) to play a chord</p>
-              <p>2. Hold a quality key (Q-U) to change the chord quality:</p>
-              <ul className="list-disc list-inside pl-4">
-                <li>Q - Major</li>
-                <li>W - Major 7</li>
-                <li>E - Dominant 7</li>
-                <li>R - Minor</li>
-                <li>T - Minor 7</li>
-                <li>Y - Diminished 7</li>
-                <li>U - Half Diminished 7</li>
-              </ul>
-              <p>3. {inversionInfo.description}</p>
-              <div className="mt-2 space-y-2">
-                <p className="font-medium">Examples:</p>
-                {inversionInfo.examples.map((example, index) => (
-                  <p key={index} className="pl-4">
-                    <span className="font-mono bg-gray-200 px-1 rounded">{example.keys}</span>
-                    {" → "}
-                    {example.result}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
-      <div className="grid gap-8">
+      {/* Keyboard Controls */}
+      <div className="flex flex-col items-center gap-6">
         {/* Inversions */}
-        <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">
-            Inversions (Number Row)
-          </div>
-          <div className="flex gap-3">
-            {/* Root Position Box */}
-            <div className="flex items-center gap-2">
+        <div className="flex justify-center gap-3">
+          {[0, 1, 2, 3].map((num) => (
+            <div key={num} className="flex items-center gap-2">
               <div
-                className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
+                className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
                   ${
-                    activeVoicing?.position === "root"
+                    activeVoicing?.position === (
+                      num === 0 ? "root" :
+                      num === 1 ? "first" :
+                      num === 2 ? "second" :
+                      "thirdseventh"
+                    )
                       ? "bg-primary text-primary-foreground"
-                      : "bg-white text-gray-700"
+                      : "bg-transparent border border-primary/20 text-foreground"
                   }`}
               >
-                0
+                {num}
               </div>
-              <span className="text-sm text-gray-600">Root</span>
             </div>
-
-            {/* Numbered Inversions */}
-            {[1, 2, 3].map((num) => (
-              <div key={num} className="flex items-center gap-2">
-                <div
-                  className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
-                    ${
-                      activeVoicing?.position ===
-                      (num === 1 ? "first" :
-                        num === 2 ? "second" :
-                          "thirdseventh")
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-white text-gray-700"
-                    }`}
-                >
-                  {num}
-                </div>
-                <span className="text-sm text-gray-600">
-                  {num === 1 ? "First" :
-                    num === 2 ? "Second" :
-                      "Third"}
-                </span>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
 
         {/* Chord Qualities */}
-        <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">
-            Chord Qualities (Letter Keys)
-          </div>
-          <div className="flex gap-3">
-            {layout.qualityKeys.map((key) => (
-              <div key={key} className="flex items-center gap-2">
-                <div
-                  className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
-                    ${
-                      activeVoicing?.quality ===
-                      (key === 'Q' ? ChordQuality.Major :
-                        key === 'W' ? ChordQuality.Major7 :
-                          key === 'E' ? ChordQuality.Dominant7 :
-                            key === 'R' ? ChordQuality.Minor :
-                              key === 'T' ? ChordQuality.Minor7 :
-                                key === 'Y' ? ChordQuality.Diminished7 :
-                                  key === 'U' ? ChordQuality.HalfDiminished7 : null)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-white text-gray-700"
-                    }`}
-                >
-                  {key}
-                </div>
-                <span className="text-sm text-gray-600">
-                  {qualityLabels[key]}
-                </span>
+        <div className="flex justify-center gap-3">
+          {layout.qualityKeys.map((key) => (
+            <div key={key} className="flex items-center gap-2">
+              <div
+                className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
+                  ${
+                    activeVoicing?.quality === (
+                      key === 'Q' ? ChordQuality.Major :
+                      key === 'W' ? ChordQuality.Major7 :
+                      key === 'E' ? ChordQuality.Dominant7 :
+                      key === 'R' ? ChordQuality.Minor :
+                      key === 'T' ? ChordQuality.Minor7 :
+                      key === 'Y' ? ChordQuality.Diminished7 :
+                      key === 'U' ? ChordQuality.HalfDiminished7 : null
+                    )
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-transparent border border-primary/20 text-foreground"
+                  }`}
+              >
+                {key}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         {/* Piano Keyboard */}
-        <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">
-            Notes Being Played
-          </div>
-          <div className="relative w-full h-96 border rounded-lg bg-white p-4">
-            <div className="flex h-full relative">
-              {octaves.map((octave) => (
-                <div key={octave} className="flex-1 relative">
-                  {/* White Keys */}
-                  <div className="flex h-full">
-                    {whiteKeyData.map(({ note, midiOffset }) => {
-                      const midiNote = (octave + 1) * 12 + midiOffset;
-                      return (
-                        <div
-                          key={`${note}${octave}`}
-                          className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-white"}`}
-                        >
-                          <span className="absolute bottom-4 text-sm text-gray-600">
-                            {note}
-                            {octave}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Black Keys */}
-                  <div className="absolute top-0 left-0 h-[65%] w-full">
-                    {blackKeyPositions.map(({ note, left, midiOffset }) => {
-                      const midiNote = (octave + 1) * 12 + midiOffset;
-                      return (
-                        <div
-                          key={`${note}${octave}`}
-                          style={{ left }}
-                          className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10 flex items-end justify-center pb-2
-                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-gray-900"}`}
-                        >
-                          <span className="text-[10px] text-white">
-                            {note}
-                            {octave}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+        <div className="relative w-full max-w-3xl h-48">
+          <div className="flex h-full relative">
+            {octaves.map((octave) => (
+              <div key={octave} className="flex-1 relative">
+                {/* White Keys */}
+                <div className="flex h-full">
+                  {whiteKeyData.map(({ midiOffset }) => {
+                    const midiNote = (octave + 1) * 12 + midiOffset;
+                    return (
+                      <div
+                        key={midiNote}
+                        className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
+                          ${colors.whiteKey(isNoteActive(midiNote))}`}
+                      />
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Active Notes Debug Info */}
-          <div className="text-sm text-gray-500 text-center mt-4">
-            Active notes:{" "}
-            {Array.from(activeNotes)
-              .map((note) => midiNoteToNoteName(note))
-              .join(", ")}
+                {/* Black Keys */}
+                <div className="absolute top-0 left-0 h-[65%] w-full">
+                  {blackKeyPositions.map(({ left, midiOffset }) => {
+                    const midiNote = (octave + 1) * 12 + midiOffset;
+                    return (
+                      <div
+                        key={midiNote}
+                        style={{ left }}
+                        className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
+                          ${colors.blackKey(isNoteActive(midiNote))}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
+import HelpModal from "@/components/HelpModal";
 import SoundControls from "@/components/SoundControls";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
-import { InversionMode, StickyMode } from "@shared/schema";
+import { InversionMode, StickyMode, ThemeMode, BackgroundMode } from "@shared/schema";
 import SettingsModal from "@/components/SettingsModal";
 
 const defaultSettings: SynthSettings = {
@@ -57,6 +57,8 @@ export default function Instrument() {
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [inversionMode, setInversionMode] = useState<InversionMode>(InversionMode.Traditional);
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(ThemeMode.Light);
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(BackgroundMode.Minimal);
 
   const initializeAudio = async () => {
     try {
@@ -109,56 +111,69 @@ export default function Instrument() {
   }, [currentVoicing, isAudioInitialized, inversionMode, stickyMode]);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <BackgroundAnimation voicing={currentVoicing} />
+    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300
+      ${themeMode === ThemeMode.Light ? 'bg-[#fafafa]' : 'bg-[#1a1a1a]'}`}>
+      {backgroundMode === BackgroundMode.Animated && (
+        <BackgroundAnimation voicing={currentVoicing} />
+      )}
 
       <div className="relative z-10">
-        <SettingsModal 
+        <SettingsModal
           inversionMode={inversionMode}
           stickyMode={stickyMode}
+          themeMode={themeMode}
+          backgroundMode={backgroundMode}
           onInversionModeChange={setInversionMode}
           onStickyModeChange={setStickyMode}
+          onThemeModeChange={setThemeMode}
+          onBackgroundModeChange={setBackgroundMode}
         />
+        <HelpModal />
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="text-center space-y-4">
-            <h1 className="text-6xl font-light tracking-tighter bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+            <h1 className={`text-6xl font-light tracking-tight
+              ${themeMode === ThemeMode.Light
+                ? 'text-gray-900'
+                : 'text-white'}`}>
               Harmonova
             </h1>
-            <p className="text-lg text-muted-foreground font-light">
+            <p className={`text-lg font-light
+              ${themeMode === ThemeMode.Light
+                ? 'text-gray-600'
+                : 'text-gray-300'}`}>
               A new dimension of harmonic expression
             </p>
           </div>
 
           {!isAudioInitialized ? (
-            <Card className="p-8 text-center max-w-xl mx-auto bg-background/50 backdrop-blur border-primary/10">
-              <h2 className="text-2xl font-light mb-4">Welcome to Harmonova</h2>
-              <p className="text-muted-foreground mb-6">
+            <div className="text-center max-w-xl mx-auto space-y-6">
+              <h2 className={`text-2xl font-light
+                ${themeMode === ThemeMode.Light ? 'text-gray-900' : 'text-white'}`}>
+                Welcome to Harmonova
+              </h2>
+              <p className={`
+                ${themeMode === ThemeMode.Light ? 'text-gray-600' : 'text-gray-300'}`}>
                 Due to browser security requirements, we need your permission to enable audio.
               </p>
-              <Button 
+              <Button
                 onClick={initializeAudio}
                 className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
               >
                 Begin Your Journey
               </Button>
-            </Card>
+            </div>
           ) : (
-            <div className="space-y-8 max-w-4xl mx-auto">
-              <Card className="p-6 bg-background/50 backdrop-blur border-primary/10">
-                <ChordDisplay voicing={currentVoicing} />
-              </Card>
+            <div className="space-y-12 max-w-4xl mx-auto">
+              <ChordDisplay voicing={currentVoicing} />
 
-              <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
-                <KeyboardGuide 
-                  activeVoicing={currentVoicing} 
-                  inversionMode={inversionMode}
-                />
-              </Card>
+              <KeyboardGuide
+                activeVoicing={currentVoicing}
+                inversionMode={inversionMode}
+                themeMode={themeMode}
+              />
 
-              <Card className="bg-background/50 backdrop-blur border-primary/10">
-                <SoundControls initialSettings={defaultSettings} />
-              </Card>
+              <SoundControls initialSettings={defaultSettings} />
             </div>
           )}
         </div>

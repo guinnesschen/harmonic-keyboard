@@ -16,20 +16,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Settings } from "lucide-react";
-import { InversionMode, StickyMode } from "@shared/schema";
+import { InversionMode, StickyMode, ThemeMode, BackgroundMode } from "@shared/schema";
 
 interface SettingsModalProps {
   inversionMode: InversionMode;
   stickyMode: StickyMode;
+  themeMode: ThemeMode;
+  backgroundMode: BackgroundMode;
   onInversionModeChange: (mode: InversionMode) => void;
   onStickyModeChange: (mode: StickyMode) => void;
+  onThemeModeChange: (mode: ThemeMode) => void;
+  onBackgroundModeChange: (mode: BackgroundMode) => void;
 }
 
 export default function SettingsModal({ 
   inversionMode, 
   stickyMode,
+  themeMode,
+  backgroundMode,
   onInversionModeChange,
   onStickyModeChange,
+  onThemeModeChange,
+  onBackgroundModeChange,
 }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -49,6 +57,60 @@ export default function SettingsModal({
         </DialogHeader>
 
         <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Theme Mode</label>
+            <Select value={themeMode} onValueChange={value => onThemeModeChange(value as ThemeMode)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ThemeMode.Light}>
+                  <div className="space-y-1">
+                    <div>Light</div>
+                    <div className="text-xs text-muted-foreground">
+                      Elegant light theme with musical aesthetics
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value={ThemeMode.Dark}>
+                  <div className="space-y-1">
+                    <div>Dark</div>
+                    <div className="text-xs text-muted-foreground">
+                      Sophisticated dark theme with contrasting elements
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Background Style</label>
+            <Select value={backgroundMode} onValueChange={value => onBackgroundModeChange(value as BackgroundMode)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={BackgroundMode.Minimal}>
+                  <div className="space-y-1">
+                    <div>Minimal</div>
+                    <div className="text-xs text-muted-foreground">
+                      Clean, distraction-free interface
+                    </div>
+                  </div>
+                </SelectItem>
+                <SelectItem value={BackgroundMode.Animated}>
+                  <div className="space-y-1">
+                    <div>Animated</div>
+                    <div className="text-xs text-muted-foreground">
+                      Dynamic space-themed background
+                    </div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Inversion Mode</label>
             <Select value={inversionMode} onValueChange={value => onInversionModeChange(value as InversionMode)}>
