@@ -138,6 +138,8 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             ))}
           </div>
         </div>
+        
+        <div className="w-full h-px bg-stone-200/50" />
 
         {/* Chord Qualities */}
         <div className="w-full">
