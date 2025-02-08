@@ -38,12 +38,15 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
   // Chromatic scale for MIDI note calculation
   const blackKeyPositions = [
-    { note: 'C#', left: '13%', midiOffset: 1 },    // C# (1 semitone up from C)
-    { note: 'D#', left: '27.5%', midiOffset: 3 },  // D# (3 semitones up from C)
-    { note: 'F#', left: '56%', midiOffset: 6 },    // F# (6 semitones up from C)
-    { note: 'G#', left: '70%', midiOffset: 8 },    // G# (8 semitones up from C)
-    { note: 'A#', left: '84%', midiOffset: 10 }    // A# (10 semitones up from C)
+    { note: 'C#', left: '14.5%', midiOffset: 1 },    // C# (1 semitone up from C)
+    { note: 'D#', left: '29%', midiOffset: 3 },      // D# (3 semitones up from C)
+    { note: 'F#', left: '57.5%', midiOffset: 6 },    // F# (6 semitones up from C)
+    { note: 'G#', left: '72%', midiOffset: 8 },      // G# (8 semitones up from C)
+    { note: 'A#', left: '86%', midiOffset: 10 }      // A# (10 semitones up from C)
   ];
+
+  // White key MIDI offsets (C=0, D=2, E=4, F=5, G=7, A=9, B=11)
+  const whiteKeyOffsets = [0, 2, 4, 5, 7, 9, 11];
 
   return (
     <div className="space-y-8">
@@ -104,7 +107,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                   {/* White Keys */}
                   <div className="flex h-full">
                     {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((note, index) => {
-                      const midiNote = (octave + 1) * 12 + [0, 2, 4, 5, 7, 9, 11][index];
+                      const midiNote = (octave + 1) * 12 + whiteKeyOffsets[index];
                       return (
                         <div
                           key={`${note}${octave}`}
