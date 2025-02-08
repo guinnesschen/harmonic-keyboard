@@ -13,6 +13,7 @@ export const ChordQuality = {
   Aug: "aug",
   MinMaj7: "minmaj7",
   Add9: "add9",
+  MinAdd9: "minadd9",
 } as const;
 
 export const ChordPosition = {

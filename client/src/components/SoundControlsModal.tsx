@@ -16,7 +16,9 @@ interface SoundControlsModalProps {
   initialSettings: SynthSettings;
 }
 
-export default function SoundControlsModal({ initialSettings }: SoundControlsModalProps) {
+export default function SoundControlsModal({
+  initialSettings,
+}: SoundControlsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -26,7 +28,7 @@ export default function SoundControlsModal({ initialSettings }: SoundControlsMod
           <Sliders className="h-5 w-5 text-gray-600" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-900">Sound Controls</DialogTitle>
           <DialogDescription className="text-gray-600">
