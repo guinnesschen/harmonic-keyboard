@@ -8,8 +8,8 @@ import {
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
-const QUALITY_KEYS = "qwertyu";  // One key per chord quality, 'u' added for HalfDiminished7
-const POSITION_KEYS = "12345";  // Number row for inversions
+const QUALITY_KEYS = "qwertyu";  // One key per chord quality
+const POSITION_KEYS = "01234";  // Number row for inversions, including root position
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
@@ -17,12 +17,35 @@ const pressedKeys = new Set<string>();
 // Store the last generated voicing for sticky mode
 let lastGeneratedVoicing: ChordVoicing | null = null;
 
+// Track spacebar state for temporary sticky mode
+let isSpacebarPressed = false;
+
 function getNoteFromKey(key: string, keyMap: string): number {
   const index = keyMap.indexOf(key.toLowerCase());
   return index;
 }
 
 function getQualityFromKey(key: string): ChordQuality {
+  // Default chord qualities for white keys (diatonic chords in C major)
+  const whiteKeyQualities: Record<string, ChordQuality> = {
+    "z": ChordQuality.Major,      // C
+    "x": ChordQuality.Minor,      // D
+    "c": ChordQuality.Minor,      // E
+    "v": ChordQuality.Major,      // F
+    "b": ChordQuality.Major,      // G
+    "n": ChordQuality.Minor,      // A
+    "m": ChordQuality.HalfDiminished7, // B
+  };
+
+  // All black keys default to major
+  const blackKeyQualities: Record<string, ChordQuality> = {
+    "s": ChordQuality.Major,      // C#
+    "d": ChordQuality.Major,      // D#
+    "g": ChordQuality.Major,      // F#
+    "h": ChordQuality.Major,      // G#
+    "j": ChordQuality.Major,      // A#
+  };
+
   const qualityMap: Record<string, ChordQuality> = {
     "q": ChordQuality.Major,
     "w": ChordQuality.Major7,
@@ -32,11 +55,25 @@ function getQualityFromKey(key: string): ChordQuality {
     "y": ChordQuality.Diminished7,
     "u": ChordQuality.HalfDiminished7,
   };
-  return qualityMap[key] || ChordQuality.Major;
+
+  // If a quality key is pressed, use that
+  const qualityKey = Array.from(pressedKeys).find(key => QUALITY_KEYS.includes(key.toLowerCase()));
+  if (qualityKey) {
+    return qualityMap[qualityKey] || ChordQuality.Major;
+  }
+
+  // Otherwise, use the default quality based on the bass note
+  const bassKey = Array.from(pressedKeys).find(key => BASS_KEYS.includes(key.toLowerCase()));
+  if (bassKey) {
+    return whiteKeyQualities[bassKey] || blackKeyQualities[bassKey] || ChordQuality.Major;
+  }
+
+  return ChordQuality.Major;
 }
 
 function getPositionFromKey(key: string): ChordPosition {
   const positionMap: Record<string, ChordPosition> = {
+    "0": ChordPosition.Root,
     "1": ChordPosition.First,
     "2": ChordPosition.Second,
     "3": ChordPosition.ThirdSeventh,
@@ -95,15 +132,21 @@ export function generateVoicingFromKeyState(
   inversionMode: InversionMode = InversionMode.Traditional,
   stickyMode: StickyMode = StickyMode.Off
 ): ChordVoicing | null {
-  // Convert to array and lowercase for consistent comparison
   const currentKeys = Array.from(pressedKeys).map(key => key.toLowerCase());
 
-  // Find first matching key of each type
+  // Check if spacebar is pressed
+  if (currentKeys.includes(" ")) {
+    return null;
+  }
+
+  // Determine effective sticky mode (including temporary sticky from spacebar)
+  const effectiveStickyMode = stickyMode === StickyMode.On || isSpacebarPressed;
+
   const bassKey = currentKeys.find(key => BASS_KEYS.includes(key));
   const qualityKey = currentKeys.find(key => QUALITY_KEYS.includes(key));
   const positionKey = currentKeys.find(key => POSITION_KEYS.includes(key));
 
-  if (stickyMode === StickyMode.On && lastGeneratedVoicing) {
+  if (effectiveStickyMode && lastGeneratedVoicing) {
     // In sticky mode, modify the last voicing based on any new keys
     const voicing = { ...lastGeneratedVoicing };
 
@@ -134,13 +177,13 @@ export function generateVoicingFromKeyState(
   }
 
   // If no bass note is pressed and we're not in sticky mode, return null
-  if (!bassKey && stickyMode === StickyMode.Off) {
+  if (!bassKey && !effectiveStickyMode) {
     return null;
   }
 
   // Get the basic parameters
   const bassNote = bassKey ? getNoteFromKey(bassKey, BASS_KEYS) : (lastGeneratedVoicing?.root || 0);
-  const quality = qualityKey ? getQualityFromKey(qualityKey) : ChordQuality.Major;
+  const quality = getQualityFromKey(qualityKey || bassKey || "");
   const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
 
   let voicing: ChordVoicing;
@@ -168,14 +211,29 @@ export function generateVoicingFromKeyState(
 }
 
 export function handleKeyPress(e: KeyboardEvent): void {
-  pressedKeys.add(e.key.toLowerCase());
+  const key = e.key.toLowerCase();
+  pressedKeys.add(key);
+
+  if (key === " ") {
+    isSpacebarPressed = true;
+  }
 }
 
 export function handleKeyRelease(e: KeyboardEvent, stickyMode: StickyMode = StickyMode.Off): boolean {
-  pressedKeys.delete(e.key.toLowerCase());
+  const key = e.key.toLowerCase();
+  pressedKeys.delete(key);
+
+  if (key === " ") {
+    isSpacebarPressed = false;
+    if (stickyMode === StickyMode.On) {
+      // In sticky mode, spacebar release clears the chord
+      lastGeneratedVoicing = null;
+      return true;
+    }
+  }
 
   if (stickyMode === StickyMode.On) {
-    // In sticky mode, never clear the chord
+    // In sticky mode, never clear the chord except for spacebar
     return false;
   }
 
@@ -200,10 +258,8 @@ export function getActiveKeys(): string[] {
   return Array.from(pressedKeys);
 }
 
-// Helper function to convert MIDI notes back to keyboard keys
 export function getMidiNoteKey(midiNote: number): string | null {
   const noteIndex = midiNote % 12;
-  // Map note indices to piano keys (both white and black)
   const keyMap: Record<number, string> = {
     0: 'z',  // C
     1: 's',  // C#

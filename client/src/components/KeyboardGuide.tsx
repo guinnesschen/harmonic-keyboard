@@ -73,6 +73,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
         title: "Inversions (Traditional Mode)",
         description: "Number keys modify the voicing while keeping the same root note",
         examples: [
+          { keys: "Z + Q + 0", result: "C (root position)" },
           { keys: "Z + Q + 1", result: "C/E (first inversion)" },
           { keys: "Z + Q + 2", result: "C/G (second inversion)" },
           { keys: "Z + E + 3", result: "C7/Bb (third/seventh position)" },
@@ -83,6 +84,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
         title: "Inversions (Functional Mode)",
         description: "Number keys determine the function of the bass note in the chord",
         examples: [
+          { keys: "E + Q + 0", result: "C (E is the root)" },
           { keys: "C + Q + 1", result: "C/E (E is the third)" },
           { keys: "B + Q + 2", result: "C/G (G is the fifth)" },
           { keys: "V + E + 3", result: "G7/F (F is the seventh)" },
@@ -162,15 +164,13 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
                       : "bg-white text-gray-700"
                   }`}
               >
-                R
+                0
               </div>
-              <span className="text-sm text-gray-600">
-                Root <span className="text-xs text-gray-400">(default)</span>
-              </span>
+              <span className="text-sm text-gray-600">Root</span>
             </div>
 
             {/* Numbered Inversions */}
-            {[1, 2, 3, 4].map((num) => (
+            {[1, 2, 3].map((num) => (
               <div key={num} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
@@ -178,8 +178,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
                       activeVoicing?.position ===
                       (num === 1 ? "first" :
                         num === 2 ? "second" :
-                          num === 3 ? "thirdseventh" :
-                            num === 4 ? (isTriad ? "root" : "fourth") : null)
+                          "thirdseventh")
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}
@@ -189,13 +188,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
                 <span className="text-sm text-gray-600">
                   {num === 1 ? "First" :
                     num === 2 ? "Second" :
-                      num === 3 ? "Third" :
-                        num === 4 ? (
-                          <span>
-                            Fourth
-                            {isTriad && <span className="text-xs text-gray-400"> (→root)</span>}
-                          </span>
-                        ) : null}
+                      "Third"}
                 </span>
               </div>
             ))}
