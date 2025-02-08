@@ -13,14 +13,11 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
   useEffect(() => {
     const notes = new Set<number>();
-
-    // Add notes from the current voicing
     if (activeVoicing) {
       activeVoicing.notes.forEach(note => {
         notes.add(note);
       });
     }
-
     setActiveNotes(notes);
   }, [activeVoicing]);
 
@@ -38,6 +35,15 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     'Y': 'Diminished 7',
     'U': 'Half Dim 7'
   };
+
+  // Chromatic scale for MIDI note calculation
+  const blackKeyPositions = [
+    { note: 'C#', left: '11.5%', midiOffset: 1 },  // C# (1 semitone up from C)
+    { note: 'D#', left: '25.5%', midiOffset: 3 },  // D# (3 semitones up from C)
+    { note: 'F#', left: '54%', midiOffset: 6 },    // F# (6 semitones up from C)
+    { note: 'G#', left: '68%', midiOffset: 8 },    // G# (8 semitones up from C)
+    { note: 'A#', left: '82%', midiOffset: 10 }    // A# (10 semitones up from C)
+  ];
 
   return (
     <div className="space-y-8">
@@ -98,7 +104,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                   {/* White Keys */}
                   <div className="flex h-full">
                     {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((note, index) => {
-                      const midiNote = (octave + 1) * 12 + index * 2;
+                      const midiNote = (octave + 1) * 12 + [0, 2, 4, 5, 7, 9, 11][index];
                       return (
                         <div
                           key={`${note}${octave}`}
@@ -115,14 +121,8 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
                   {/* Black Keys */}
                   <div className="absolute top-0 left-0 h-[65%] w-full">
-                    {[
-                      { note: 'C#', left: '10%' },
-                      { note: 'D#', left: '24%' },
-                      { note: 'F#', left: '52%' },
-                      { note: 'G#', left: '67%' },
-                      { note: 'A#', left: '81%' }
-                    ].map(({ note, left }) => {
-                      const midiNote = (octave + 1) * 12 + ['C#', 'D#', 'F#', 'G#', 'A#'].indexOf(note) * 2 + 1;
+                    {blackKeyPositions.map(({ note, left, midiOffset }) => {
+                      const midiNote = (octave + 1) * 12 + midiOffset;
                       return (
                         <div
                           key={`${note}${octave}`}
