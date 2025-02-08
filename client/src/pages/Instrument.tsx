@@ -11,7 +11,6 @@ import {
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
-import { StickyMode } from "@shared/schema";
 import SettingsModal from "@/components/SettingsModal";
 import { defaultChordQualities } from "@/lib/chordConfig";
 
@@ -59,7 +58,6 @@ export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [prevVoicing, setPrevVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
-  const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
   const [chordQualities, setChordQualities] = useState(defaultChordQualities);
 
   const initializeAudio = async () => {
@@ -79,7 +77,7 @@ export default function Instrument() {
 
   useEffect(() => {
     const updateVoicing = () => {
-      const newBasicVoicing = generateVoicingFromKeyState(stickyMode);
+      const newBasicVoicing = generateVoicingFromKeyState();
       if (newBasicVoicing) {
         const fullVoicing = generateVoicing(newBasicVoicing, prevVoicing);
         setPrevVoicing(currentVoicing);
@@ -106,8 +104,7 @@ export default function Instrument() {
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
-      const allKeysReleased = handleKeyRelease(e, stickyMode);
-      if (allKeysReleased) {
+      if (handleKeyRelease(e)) {
         playChord(null);
         setCurrentVoicing(null);
       } else {
@@ -122,15 +119,13 @@ export default function Instrument() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [currentVoicing, isAudioInitialized, stickyMode]);
+  }, [currentVoicing, isAudioInitialized]);
 
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       <div className="relative z-10 [&:fullscreen]:pt-0 pt-8">
         <SettingsModal
-          stickyMode={stickyMode}
           chordQualities={chordQualities}
-          onStickyModeChange={setStickyMode}
           onChordQualitiesChange={setChordQualities}
         />
         <HelpModal />

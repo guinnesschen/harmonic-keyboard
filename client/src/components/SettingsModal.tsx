@@ -24,7 +24,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Settings } from "lucide-react";
 import {
-  StickyMode,
   ChordQuality,
   type ChordQualityConfig,
   type QualityKeyMapping,
@@ -35,9 +34,7 @@ import { midiNoteToNoteName } from "@/lib/chords";
 import { getQualityKeyMappings, updateQualityKeyMappings } from "@/lib/keyboardMapping";
 
 interface SettingsModalProps {
-  stickyMode: StickyMode;
   chordQualities: ChordQualityConfig;
-  onStickyModeChange: (mode: StickyMode) => void;
   onChordQualitiesChange: (config: ChordQualityConfig) => void;
 }
 
@@ -115,9 +112,7 @@ function QualityKeyMappingItem({
 }
 
 export default function SettingsModal({
-  stickyMode,
   chordQualities,
-  onStickyModeChange,
   onChordQualitiesChange,
 }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -172,38 +167,6 @@ export default function SettingsModal({
         </DialogHeader>
 
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900">
-              Sticky Mode
-            </label>
-            <Select
-              value={stickyMode}
-              onValueChange={(value) => onStickyModeChange(value as StickyMode)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={StickyMode.Off}>
-                  <div className="space-y-1">
-                    <div>Off</div>
-                    <div className="text-xs text-gray-600">
-                      Notes stop when keys are released
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value={StickyMode.On}>
-                  <div className="space-y-1">
-                    <div>On</div>
-                    <div className="text-xs text-gray-600">
-                      Notes persist, modifiers update the current chord
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="keyMappings">
               <AccordionTrigger className="text-sm font-medium text-gray-900">

@@ -1,7 +1,6 @@
 import {
   ChordQuality,
   ChordPosition,
-  StickyMode,
   type ChordVoicing,
   type QualityKeyMapping,
 } from "@shared/schema";
@@ -30,12 +29,6 @@ let qualityKeyMappings: QualityKeyMapping[] = [
 
 // Single source of truth for pressed keys
 const pressedKeys = new Set<string>();
-
-// Store the last generated voicing for sticky mode
-let lastGeneratedVoicing: ChordVoicing | null = null;
-
-// Track spacebar state for temporary sticky mode
-let isSpacebarPressed = false;
 
 export function updateQualityKeyMappings(newMappings: QualityKeyMapping[]) {
   qualityKeyMappings = newMappings;
@@ -136,18 +129,12 @@ function calculateRootFromBassAndFunction(
   return (bassNote + offset + 12) % 12;
 }
 
-export function generateVoicingFromKeyState(
-  stickyMode: StickyMode = StickyMode.Off,
-): ChordVoicing | null {
+export function generateVoicingFromKeyState(): ChordVoicing | null {
   const currentKeys = Array.from(pressedKeys).map((key) => key.toLowerCase());
 
-  // Check if spacebar is pressed
   if (currentKeys.includes(" ")) {
     return null;
   }
-
-  // Determine effective sticky mode (including temporary sticky from spacebar)
-  const effectiveStickyMode = stickyMode === StickyMode.On || isSpacebarPressed;
 
   const bassKey = currentKeys.find((key) => BASS_KEYS.includes(key));
   const qualityKey = currentKeys.find((key) =>
@@ -155,55 +142,19 @@ export function generateVoicingFromKeyState(
   );
   const positionKey = currentKeys.find((key) => POSITION_KEYS.includes(key));
 
-  if (effectiveStickyMode && lastGeneratedVoicing) {
-    // In sticky mode, modify the last voicing based on any new keys
-    const voicing = { ...lastGeneratedVoicing };
-
-    // Update quality if a quality key is pressed
-    if (qualityKey) {
-      voicing.quality = getQualityFromKey(qualityKey, voicing.position);
-    }
-
-    // Update position if a position key is pressed
-    if (positionKey) {
-      const newPosition = getPositionFromKey(positionKey);
-      voicing.position = newPosition;
-      // Update quality based on new position if no quality key is pressed
-      if (!qualityKey && bassKey) {
-        voicing.quality = getQualityFromKey(bassKey, newPosition);
-      }
-    }
-
-    // Update root/bass if a bass key is pressed
-    if (bassKey) {
-      const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
-      voicing.root = calculateRootFromBassAndFunction(
-        bassNote,
-        voicing.position,
-        voicing.quality,
-      );
-      voicing.bass = bassNote + 48;
-    }
-
-    lastGeneratedVoicing = voicing;
-    return voicing;
-  }
-
-  // If no bass note is pressed and we're not in sticky mode, return null
-  if (!bassKey && !effectiveStickyMode) {
+  // If no bass note is pressed, return null
+  if (!bassKey) {
     return null;
   }
 
   // Get the basic parameters
-  const bassNote = bassKey
-    ? getNoteFromKey(bassKey, BASS_KEYS)
-    : lastGeneratedVoicing?.root || 0;
+  const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
   const position = positionKey
     ? getPositionFromKey(positionKey)
     : ChordPosition.Root;
   const quality = qualityKey
     ? getQualityFromKey(qualityKey, position)
-    : getQualityFromKey(bassKey || "", position);
+    : getQualityFromKey(bassKey, position);
 
   const rootNote = calculateRootFromBassAndFunction(
     bassNote,
@@ -211,55 +162,25 @@ export function generateVoicingFromKeyState(
     quality,
   );
 
-  const voicing: ChordVoicing = {
+  return {
     root: rootNote,
     bass: bassNote + 48,
     quality,
     position,
     notes: [], // Will be populated by voiceLeading.ts
   };
-
-  lastGeneratedVoicing = voicing;
-  return voicing;
 }
 
 export function handleKeyPress(e: KeyboardEvent): void {
   const key = e.key.toLowerCase();
   pressedKeys.add(key);
-
-  if (key === " ") {
-    isSpacebarPressed = true;
-  }
 }
 
-export function handleKeyRelease(
-  e: KeyboardEvent,
-  stickyMode: StickyMode = StickyMode.Off,
-): boolean {
+export function handleKeyRelease(e: KeyboardEvent): boolean {
   const key = e.key.toLowerCase();
   pressedKeys.delete(key);
 
-  if (key === " ") {
-    isSpacebarPressed = false;
-    if (stickyMode === StickyMode.On) {
-      // In sticky mode, spacebar release clears the chord
-      lastGeneratedVoicing = null;
-      return true;
-    }
-  }
-
-  if (stickyMode === StickyMode.On) {
-    // In sticky mode, never clear the chord except for spacebar
-    return false;
-  }
-
-  // In normal mode, clear the chord when all keys are released
-  if (pressedKeys.size === 0) {
-    lastGeneratedVoicing = null;
-    return true;
-  }
-
-  return false;
+  return pressedKeys.size === 0;
 }
 
 export function getKeyboardLayout() {

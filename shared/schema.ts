@@ -23,14 +23,8 @@ export const ChordPosition = {
   Third: "third",
 } as const;
 
-export const StickyMode = {
-  Off: "off",
-  On: "on",
-} as const;
-
 export type ChordQuality = typeof ChordQuality[keyof typeof ChordQuality];
 export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
-export type StickyMode = typeof StickyMode[keyof typeof StickyMode];
 
 // Type for chord quality configuration
 export type ChordQualityConfig = {

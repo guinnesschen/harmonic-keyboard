@@ -35,6 +35,8 @@ export function getChordIntervals(quality: ChordQuality): number[] {
       return [0, 3, 7, 11];
     case ChordQuality.Aug:
       return [0, 4, 8]; // Root, major third, augmented fifth
+    case ChordQuality.Sus:
+      return [0, 5, 7]; // Root, perfect fourth, perfect fifth
     case ChordQuality.Add9:
       return [0, 2, 4, 7];
     case ChordQuality.MinAdd9:
