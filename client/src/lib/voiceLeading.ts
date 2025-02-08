@@ -29,7 +29,7 @@ function calculateVoiceMovementCost(voices1: number[], voices2: number[]): numbe
 
     // Calculate cost for upper voices
     for (let j = 1; j < n; j++) {
-      cost += Math.abs(voices1[j] - rotatedVoices[j - 1]);
+      cost += Math.abs(voices1[j] - rotatedVoices[j-1]);
     }
 
     minCost = Math.min(minCost, cost);
@@ -59,22 +59,6 @@ function findClosestOctave(note: number, target: number): number {
   return bestNote;
 }
 
-// Generate default voicing with the spread pattern [root, fifth, octave, third, fifth]
-function generateDefaultVoicing(bassNote: number): number[] {
-  const root = bassNote % 12;
-  const fifth = (root + 7) % 12;
-  const third = (root + 4) % 12;
-
-  // Convert pitch classes to actual MIDI notes with the desired spacing
-  const rootNote = bassNote;  // Bass note is the root
-  const fifthBelow = findClosestOctave(fifth, rootNote + 7);  // First fifth above root
-  const upperRoot = findClosestOctave(root, fifthBelow + 5);  // Octave in middle
-  const thirdAbove = findClosestOctave(third, upperRoot + 4);  // Third above octave
-  const fifthAbove = findClosestOctave(fifth, thirdAbove + 3);  // Top fifth
-
-  return [rootNote, fifthBelow, upperRoot, thirdAbove, fifthAbove];
-}
-
 // Generate all possible 5-note voicings for a given set of required notes
 function generatePossibleVoicings(
   requiredPitchClasses: Set<number>,
@@ -87,7 +71,7 @@ function generatePossibleVoicings(
   ).filter(note => note > bassNote);
 
   // Convert pitch classes to all possible octaves within range
-  const possibleNotes = Array.from(requiredPitchClasses).flatMap(pc =>
+  const possibleNotes = Array.from(requiredPitchClasses).flatMap(pc => 
     upperVoiceRange.filter(note => note % 12 === pc)
   );
 
@@ -131,28 +115,62 @@ export function generateVoicing(
     intervals.map(interval => (desired.root + interval) % 12)
   );
 
-  if (!previous) {
-    // If no previous voicing, use the standard spread voicing
+  // Generate all possible 5-note voicings
+  const possibleVoicings = generatePossibleVoicings(requiredPitchClasses, bassNote);
+
+  if (possibleVoicings.length === 0) {
+    // If no valid voicings found, create a basic one
+    const notes = [bassNote];
+    let currentNote = bassNote;
+
+    // Add remaining required notes in higher octaves
+    Array.from(requiredPitchClasses).forEach(pitchClass => {
+      currentNote = findClosestOctave(pitchClass, currentNote + 4);
+      notes.push(currentNote);
+    });
+
+    // Double a note if needed to reach 5 voices
+    while (notes.length < 5) {
+      const noteToDouble = notes[1]; // Double the first upper voice
+      notes.push(findClosestOctave(noteToDouble, notes[notes.length - 1] + 4));
+    }
+
     return {
       ...desired,
-      notes: generateDefaultVoicing(bassNote)
+      notes: notes.sort((a, b) => a - b)
     };
   }
-
-  // Generate all possible 5-note voicings for voice leading
-  const possibleVoicings = generatePossibleVoicings(requiredPitchClasses, bassNote);
 
   // Find the voicing with minimum movement from previous
   let bestVoicing = possibleVoicings[0];
   let minMovement = Infinity;
 
-  possibleVoicings.forEach(voicing => {
-    const movement = calculateVoiceMovementCost(previous.notes, voicing);
-    if (movement < minMovement) {
-      minMovement = movement;
-      bestVoicing = voicing;
-    }
-  });
+  if (previous) {
+    possibleVoicings.forEach(voicing => {
+      const movement = calculateVoiceMovementCost(previous.notes, voicing);
+      if (movement < minMovement) {
+        minMovement = movement;
+        bestVoicing = voicing;
+      }
+    });
+  } else {
+    // If no previous voicing, prefer more evenly spaced voices
+    possibleVoicings.forEach(voicing => {
+      let spacing = 0;
+      for (let i = 1; i < voicing.length; i++) {
+        spacing += voicing[i] - voicing[i - 1];
+      }
+      const avgSpacing = spacing / (voicing.length - 1);
+      let variance = 0;
+      for (let i = 1; i < voicing.length; i++) {
+        variance += Math.pow((voicing[i] - voicing[i - 1]) - avgSpacing, 2);
+      }
+      if (variance < minMovement) {
+        minMovement = variance;
+        bestVoicing = voicing;
+      }
+    });
+  }
 
   return {
     ...desired,
