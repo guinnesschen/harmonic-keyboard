@@ -16,24 +16,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Settings } from "lucide-react";
-import { InversionMode, StickyMode, BackgroundMode } from "@shared/schema";
+import { InversionMode, StickyMode } from "@shared/schema";
 
 interface SettingsModalProps {
   inversionMode: InversionMode;
   stickyMode: StickyMode;
-  backgroundMode: BackgroundMode;
   onInversionModeChange: (mode: InversionMode) => void;
   onStickyModeChange: (mode: StickyMode) => void;
-  onBackgroundModeChange: (mode: BackgroundMode) => void;
 }
 
 export default function SettingsModal({ 
   inversionMode, 
   stickyMode,
-  backgroundMode,
   onInversionModeChange,
   onStickyModeChange,
-  onBackgroundModeChange,
 }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,33 +49,6 @@ export default function SettingsModal({
         </DialogHeader>
 
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900">Background Style</label>
-            <Select value={backgroundMode} onValueChange={value => onBackgroundModeChange(value as BackgroundMode)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={BackgroundMode.Minimal}>
-                  <div className="space-y-1">
-                    <div>Minimal</div>
-                    <div className="text-xs text-gray-600">
-                      Clean, distraction-free interface
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value={BackgroundMode.Animated}>
-                  <div className="space-y-1">
-                    <div>Animated</div>
-                    <div className="text-xs text-gray-600">
-                      Dynamic space-themed background
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-900">Inversion Mode</label>
             <Select value={inversionMode} onValueChange={value => onInversionModeChange(value as InversionMode)}>

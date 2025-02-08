@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import HelpModal from "@/components/HelpModal";
 import SoundControlsModal from "@/components/SoundControlsModal";
-import BackgroundAnimation from "@/components/BackgroundAnimation";
 import {
   generateVoicingFromKeyState,
   handleKeyPress,
@@ -13,7 +11,7 @@ import {
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
-import { InversionMode, StickyMode, BackgroundMode } from "@shared/schema";
+import { InversionMode, StickyMode } from "@shared/schema";
 import SettingsModal from "@/components/SettingsModal";
 
 const defaultSettings: SynthSettings = {
@@ -57,30 +55,25 @@ const defaultSettings: SynthSettings = {
 };
 
 export default function Instrument() {
-  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(
-    null,
-  );
+  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [inversionMode, setInversionMode] = useState<InversionMode>(
     InversionMode.Traditional,
   );
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
-  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(
-    BackgroundMode.Minimal,
-  );
-
-  const initializeAudio = async () => {
-    try {
-      await initAudio(defaultSettings);
-      setIsAudioInitialized(true);
-      console.log("Audio initialized successfully");
-    } catch (error) {
-      console.error("Failed to initialize audio:", error);
-    }
-  };
 
   useEffect(() => {
-    initializeAudio();
+    const initAudioContext = async () => {
+      try {
+        await initAudio(defaultSettings);
+        setIsAudioInitialized(true);
+        console.log("Audio initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize audio:", error);
+      }
+    };
+
+    initAudioContext();
   }, []);
 
   useEffect(() => {
@@ -128,18 +121,12 @@ export default function Instrument() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
-      {backgroundMode === BackgroundMode.Animated && (
-        <BackgroundAnimation voicing={currentVoicing} />
-      )}
-
       <div className="relative z-10">
         <SettingsModal
           inversionMode={inversionMode}
           stickyMode={stickyMode}
-          backgroundMode={backgroundMode}
           onInversionModeChange={setInversionMode}
           onStickyModeChange={setStickyMode}
-          onBackgroundModeChange={setBackgroundMode}
         />
         <HelpModal />
         <SoundControlsModal initialSettings={defaultSettings} />
