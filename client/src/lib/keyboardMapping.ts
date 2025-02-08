@@ -1,6 +1,7 @@
 import {
   ChordQuality,
   ChordPosition,
+  InversionMode,
   type ChordVoicing,
 } from "@shared/schema";
 
@@ -39,7 +40,54 @@ function getPositionFromKey(key: string): ChordPosition {
   return positionMap[key] || ChordPosition.Root;
 }
 
-export function generateVoicingFromKeyState(): ChordVoicing | null {
+// Helper function to calculate root note in functional mode
+function calculateRootFromBassAndFunction(bassNote: number, position: ChordPosition, quality: ChordQuality): number {
+  // Get intervals for the current chord quality
+  const intervals = getChordIntervals(quality);
+
+  // In functional mode, we need to work backwards from the bass note and its function
+  // to determine the root note
+  let offset = 0;
+  switch (position) {
+    case ChordPosition.First: // Bass is the third
+      offset = -intervals[1]; // Subtract the third interval
+      break;
+    case ChordPosition.Second: // Bass is the fifth
+      offset = -intervals[2]; // Subtract the fifth interval
+      break;
+    case ChordPosition.ThirdSeventh: // Bass is the seventh
+      offset = -intervals[3]; // Subtract the seventh interval
+      break;
+    default: // Root position
+      offset = 0;
+  }
+
+  // Calculate root note and normalize to 0-11 range
+  return ((bassNote + offset) + 12) % 12;
+}
+
+function getChordIntervals(quality: ChordQuality): number[] {
+  switch (quality) {
+    case ChordQuality.Major:
+      return [0, 4, 7];
+    case ChordQuality.Minor:
+      return [0, 3, 7];
+    case ChordQuality.Major7:
+      return [0, 4, 7, 11];
+    case ChordQuality.Dominant7:
+      return [0, 4, 7, 10];
+    case ChordQuality.Minor7:
+      return [0, 3, 7, 10];
+    case ChordQuality.Diminished7:
+      return [0, 3, 6, 9];
+    case ChordQuality.HalfDiminished7:
+      return [0, 3, 6, 10];
+    default:
+      return [0, 4, 7];
+  }
+}
+
+export function generateVoicingFromKeyState(inversionMode: InversionMode = InversionMode.Traditional): ChordVoicing | null {
   // Convert to array and lowercase for consistent comparison
   const currentKeys = Array.from(pressedKeys).map(key => key.toLowerCase());
 
@@ -53,18 +101,33 @@ export function generateVoicingFromKeyState(): ChordVoicing | null {
     return null;
   }
 
-  // The root note comes from the bass key
-  const rootIndex = getNoteFromKey(bassKey, BASS_KEYS);
+  // Get the basic parameters
+  const bassNote = getNoteFromKey(bassKey, BASS_KEYS);
+  const quality = qualityKey ? getQualityFromKey(qualityKey) : ChordQuality.Major;
+  const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
 
-  const voicing: ChordVoicing = {
-    root: rootIndex,
-    bass: -1, // Will be set by voiceLeading.ts based on position
-    quality: qualityKey ? getQualityFromKey(qualityKey) : ChordQuality.Major,
-    position: positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root,
-    notes: [], // Will be populated by voiceLeading.ts
-  };
+  if (inversionMode === InversionMode.Traditional) {
+    // In traditional mode, bassKey determines the root note
+    return {
+      root: bassNote,
+      bass: -1, // Will be set by voiceLeading.ts based on position
+      quality,
+      position,
+      notes: [], // Will be populated by voiceLeading.ts
+    };
+  } else {
+    // In functional mode, bassKey determines the actual bass note
+    // and position determines what function that note serves in the chord
+    const rootNote = calculateRootFromBassAndFunction(bassNote, position, quality);
 
-  return voicing;
+    return {
+      root: rootNote,
+      bass: bassNote + 48, // Set the actual bass note (in octave 3)
+      quality,
+      position,
+      notes: [], // Will be populated by voiceLeading.ts
+    };
+  }
 }
 
 export function handleKeyPress(e: KeyboardEvent): void {

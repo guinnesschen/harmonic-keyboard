@@ -20,6 +20,13 @@ export const ChordPosition = {
 export type ChordQuality = typeof ChordQuality[keyof typeof ChordQuality];
 export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
 
+export const InversionMode = {
+  Traditional: "traditional", // Bass key is root, inversion modifies voicing
+  Functional: "functional",  // Bass key is actual bass, inversion determines its function
+} as const;
+
+export type InversionMode = typeof InversionMode[keyof typeof InversionMode];
+
 export interface ChordVoicing {
   notes: number[];     // MIDI note numbers
   bass: number;        // The actual bass note being played

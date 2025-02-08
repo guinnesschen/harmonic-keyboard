@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
+import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode } from "@shared/schema";
 import { midiNoteToNoteName } from "@/lib/chords";
 import {
   Accordion,
@@ -11,9 +11,10 @@ import {
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
+  inversionMode: InversionMode;
 }
 
-export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
+export default function KeyboardGuide({ activeVoicing, inversionMode }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
@@ -43,7 +44,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   };
 
   // Check if the current chord is a triad
-  const isTriad = activeVoicing?.quality === ChordQuality.Major || 
+  const isTriad = activeVoicing?.quality === ChordQuality.Major ||
                  activeVoicing?.quality === ChordQuality.Minor;
 
   // Black key positions and offsets
@@ -65,6 +66,32 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     { note: "A", midiOffset: 9 },
     { note: "B", midiOffset: 11 },
   ];
+
+  const getInversionDescription = (mode: InversionMode) => {
+    if (mode === InversionMode.Traditional) {
+      return {
+        title: "Inversions (Traditional Mode)",
+        description: "Number keys modify the voicing while keeping the same root note",
+        examples: [
+          { keys: "Z + Q + 1", result: "C/E (first inversion)" },
+          { keys: "Z + Q + 2", result: "C/G (second inversion)" },
+          { keys: "Z + E + 3", result: "C7/Bb (third/seventh position)" },
+        ]
+      };
+    } else {
+      return {
+        title: "Inversions (Functional Mode)",
+        description: "Number keys determine the function of the bass note in the chord",
+        examples: [
+          { keys: "C + Q + 1", result: "C/E (E is the third)" },
+          { keys: "B + Q + 2", result: "C/G (G is the fifth)" },
+          { keys: "V + E + 3", result: "G7/F (F is the seventh)" },
+        ]
+      };
+    }
+  };
+
+  const inversionInfo = getInversionDescription(inversionMode);
 
   return (
     <div className="space-y-8">
@@ -102,14 +129,17 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 <li>Y - Diminished 7</li>
                 <li>U - Half Diminished 7</li>
               </ul>
-              <p>3. Use number keys (1-4) for inversions:</p>
-              <ul className="list-disc list-inside pl-4">
-                <li>Root position is default (no key needed)</li>
-                <li>1 - First inversion</li>
-                <li>2 - Second inversion</li>
-                <li>3 - Third/Seventh (for seventh chords)</li>
-                <li>4 - Fourth inversion (falls back to root for triads)</li>
-              </ul>
+              <p>3. {inversionInfo.description}</p>
+              <div className="mt-2 space-y-2">
+                <p className="font-medium">Examples:</p>
+                {inversionInfo.examples.map((example, index) => (
+                  <p key={index} className="pl-4">
+                    <span className="font-mono bg-gray-200 px-1 rounded">{example.keys}</span>
+                    {" → "}
+                    {example.result}
+                  </p>
+                ))}
+              </div>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -145,11 +175,11 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${
-                      activeVoicing?.position === 
-                      (num === 1 ? "first" : 
-                       num === 2 ? "second" : 
-                       num === 3 ? "thirdseventh" :
-                       num === 4 ? (isTriad ? "root" : "fourth") : null)
+                      activeVoicing?.position ===
+                      (num === 1 ? "first" :
+                        num === 2 ? "second" :
+                          num === 3 ? "thirdseventh" :
+                            num === 4 ? (isTriad ? "root" : "fourth") : null)
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}
@@ -157,15 +187,15 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                   {num}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {num === 1 ? "First" : 
-                   num === 2 ? "Second" : 
-                   num === 3 ? "Third" :
-                   num === 4 ? (
-                     <span>
-                       Fourth
-                       {isTriad && <span className="text-xs text-gray-400"> (→root)</span>}
-                     </span>
-                   ) : null}
+                  {num === 1 ? "First" :
+                    num === 2 ? "Second" :
+                      num === 3 ? "Third" :
+                        num === 4 ? (
+                          <span>
+                            Fourth
+                            {isTriad && <span className="text-xs text-gray-400"> (→root)</span>}
+                          </span>
+                        ) : null}
                 </span>
               </div>
             ))}
@@ -183,14 +213,14 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${
-                      activeVoicing?.quality === 
+                      activeVoicing?.quality ===
                       (key === 'Q' ? ChordQuality.Major :
-                       key === 'W' ? ChordQuality.Major7 :
-                       key === 'E' ? ChordQuality.Dominant7 :
-                       key === 'R' ? ChordQuality.Minor :
-                       key === 'T' ? ChordQuality.Minor7 :
-                       key === 'Y' ? ChordQuality.Diminished7 :
-                       key === 'U' ? ChordQuality.HalfDiminished7 : null)
+                        key === 'W' ? ChordQuality.Major7 :
+                          key === 'E' ? ChordQuality.Dominant7 :
+                            key === 'R' ? ChordQuality.Minor :
+                              key === 'T' ? ChordQuality.Minor7 :
+                                key === 'Y' ? ChordQuality.Diminished7 :
+                                  key === 'U' ? ChordQuality.HalfDiminished7 : null)
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}

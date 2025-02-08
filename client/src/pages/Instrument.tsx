@@ -9,6 +9,8 @@ import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
+import { InversionMode } from "@shared/schema";
+import SettingsModal from "@/components/SettingsModal";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -53,6 +55,7 @@ const defaultSettings: SynthSettings = {
 export default function Instrument() {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
+  const [inversionMode, setInversionMode] = useState<InversionMode>(InversionMode.Traditional);
 
   const initializeAudio = async () => {
     try {
@@ -68,7 +71,7 @@ export default function Instrument() {
     if (!isAudioInitialized) return;
 
     const updateVoicing = () => {
-      const newBasicVoicing = generateVoicingFromKeyState();
+      const newBasicVoicing = generateVoicingFromKeyState(inversionMode);
       if (newBasicVoicing) {
         const fullVoicing = generateVoicing(newBasicVoicing, currentVoicing);
         setCurrentVoicing(fullVoicing);
@@ -102,13 +105,18 @@ export default function Instrument() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [currentVoicing, isAudioInitialized]);
+  }, [currentVoicing, isAudioInitialized, inversionMode]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <BackgroundAnimation voicing={currentVoicing} />
 
       <div className="relative z-10">
+        <SettingsModal 
+          inversionMode={inversionMode}
+          onInversionModeChange={setInversionMode}
+        />
+
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="text-center space-y-4">
             <h1 className="text-6xl font-light tracking-tighter bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
@@ -139,7 +147,10 @@ export default function Instrument() {
               </Card>
 
               <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
-                <KeyboardGuide activeVoicing={currentVoicing} />
+                <KeyboardGuide 
+                  activeVoicing={currentVoicing} 
+                  inversionMode={inversionMode}
+                />
               </Card>
 
               <Card className="bg-background/50 backdrop-blur border-primary/10">
