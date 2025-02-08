@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys, getMidiNoteKey } from "@/lib/keyboardMapping";
 import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
+import { midiNoteToNoteName } from "@/lib/chords";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
@@ -8,47 +9,31 @@ interface KeyboardGuideProps {
 
 export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
-  const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+  const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    const updateActiveKeys = () => {
-      // Get currently pressed keys
-      const pressedKeys = new Set(getActiveKeys());
+    const updateActiveNotes = () => {
+      const notes = new Set<number>();
 
-      // Add keys from the current voicing
+      // Add notes from the current voicing
       if (activeVoicing) {
         activeVoicing.notes.forEach(note => {
-          const key = getMidiNoteKey(note % 12);
-          if (key) pressedKeys.add(key);
+          notes.add(note);
         });
       }
 
-      setActiveKeys(pressedKeys);
+      setActiveNotes(notes);
     };
 
-    window.addEventListener("keydown", updateActiveKeys);
-    window.addEventListener("keyup", updateActiveKeys);
-    updateActiveKeys(); // Initial update
-
-    return () => {
-      window.removeEventListener("keydown", updateActiveKeys);
-      window.removeEventListener("keyup", updateActiveKeys);
-    };
+    updateActiveNotes();
   }, [activeVoicing]);
 
-  const isKeyActive = (key: string) => activeKeys.has(key.toLowerCase());
+  const isNoteActive = (midiNote: number) => activeNotes.has(midiNote);
 
-  const bassWhiteKeys = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
-  const bassBlackKeys = ['S', 'D', 'G', 'H', 'J'];
-
-  // Adjust black key positions relative to white keys
-  const blackKeyOffsets = {
-    'S': 10,  // C#
-    'D': 25,  // D#
-    'G': 55,  // F#
-    'H': 70,  // G#
-    'J': 85   // A#
-  };
+  // Define octaves to display (3 octaves starting from C3)
+  const octaves = [3, 4, 5];
+  const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  const blackKeys = ['C#', 'D#', null, 'F#', 'G#', 'A#', null];
 
   const qualityLabels: Record<string, string> = {
     'Q': 'Major',
@@ -65,6 +50,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
       <h2 className="text-2xl font-semibold text-center">Keyboard Controls</h2>
 
       <div className="grid gap-8">
+        {/* Inversions */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Inversions (Number Row)</div>
           <div className="flex gap-3">
@@ -72,7 +58,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
               <div key={key} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
-                    ${isKeyActive(key)
+                    ${getActiveKeys().includes(key.toLowerCase())
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-white text-gray-700'}`}
                 >
@@ -86,6 +72,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
           </div>
         </div>
 
+        {/* Chord Qualities */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Chord Qualities (Letter Keys)</div>
           <div className="flex gap-3">
@@ -93,7 +80,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
               <div key={key} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
-                    ${isKeyActive(key)
+                    ${getActiveKeys().includes(key.toLowerCase())
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-white text-gray-700'}`}
                 >
@@ -107,47 +94,76 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
           </div>
         </div>
 
+        {/* Multi-octave Piano */}
         <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">Root Notes (Piano Layout)</div>
-          <div className="relative w-full max-w-4xl mx-auto h-72">
+          <div className="text-sm font-medium text-gray-500">Notes Being Played</div>
+          <div className="relative w-full max-w-6xl mx-auto h-72">
             {/* White keys */}
             <div className="flex h-72 w-full relative">
-              {bassWhiteKeys.map((key, index) => (
-                <div
-                  key={key}
-                  className={`flex-1 flex items-end pb-4 justify-center border-l last:border-r rounded-b-xl shadow-md transition-colors
-                    ${isKeyActive(key)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-white text-gray-700'}`}
-                >
-                  <span className="text-xl">{key}</span>
-                </div>
+              {octaves.map(octave => (
+                whiteKeys.map(note => {
+                  const midiNote = (octave + 1) * 12 + ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
+                  return (
+                    <div
+                      key={`${note}${octave}`}
+                      className={`flex-1 flex items-end pb-4 justify-center border-l last:border-r rounded-b-xl shadow-md transition-colors
+                        ${isNoteActive(midiNote)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-white text-gray-700'}`}
+                    >
+                      <span className="text-sm">
+                        {note}{octave}
+                      </span>
+                    </div>
+                  );
+                })
               ))}
             </div>
 
             {/* Black keys */}
             <div className="absolute top-0 left-0 w-full">
-              {bassBlackKeys.map((key) => (
-                <div
-                  key={key}
-                  style={{
-                    position: 'absolute',
-                    left: `${blackKeyOffsets[key]}%`,
-                    width: '8%',
-                    height: '60%',
-                  }}
-                  className={`flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
-                    ${isKeyActive(key)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-gray-800 text-white'}`}
-                >
-                  <span className="text-lg">{key}</span>
-                </div>
+              {octaves.map((octave, octaveIndex) => (
+                blackKeys.map((note, index) => {
+                  if (!note) return null;
+                  const midiNote = (octave + 1) * 12 + index;
+                  const offset = [
+                    7,   // C#
+                    20,  // D#
+                    null,
+                    47,  // F#
+                    60,  // G#
+                    73   // A#
+                  ][index % 7];
+
+                  if (!offset) return null;
+
+                  return (
+                    <div
+                      key={`${note}${octave}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${offset + (octaveIndex * 100)}%`,
+                        width: '4%',
+                        height: '60%',
+                      }}
+                      className={`flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
+                        ${isNoteActive(midiNote)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-gray-800 text-white'}`}
+                    >
+                      <span className="text-xs">
+                        {note}{octave}
+                      </span>
+                    </div>
+                  );
+                })
               ))}
             </div>
           </div>
+
+          {/* Show active notes for debugging */}
           <div className="text-sm text-gray-500 text-center mt-4">
-            White keys (Z-M): C D E F G A B | Black keys (S-J): C# D# F# G# A#
+            Active notes: {Array.from(activeNotes).map(note => midiNoteToNoteName(note)).join(', ')}
           </div>
         </div>
       </div>
