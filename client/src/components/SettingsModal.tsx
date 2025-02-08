@@ -22,7 +22,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Settings } from "lucide-react";
-import { StickyMode, ChordQuality, type ChordQualityConfig } from "@shared/schema";
+import {
+  StickyMode,
+  ChordQuality,
+  type ChordQualityConfig,
+} from "@shared/schema";
 import { defaultChordQualities } from "@/lib/chordConfig";
 import { midiNoteToNoteName } from "@/lib/chords";
 
@@ -33,8 +37,12 @@ interface SettingsModalProps {
   onChordQualitiesChange: (config: ChordQualityConfig) => void;
 }
 
-function QualitySelect({ value, onChange, noteIndex }: { 
-  value: ChordQuality; 
+function QualitySelect({
+  value,
+  onChange,
+  noteIndex,
+}: {
+  value: ChordQuality;
   onChange: (value: ChordQuality) => void;
   noteIndex: number;
 }) {
@@ -54,29 +62,36 @@ function QualitySelect({ value, onChange, noteIndex }: {
           <SelectItem value={ChordQuality.Minor7}>Minor 7</SelectItem>
           <SelectItem value={ChordQuality.Dominant7}>Dominant 7</SelectItem>
           <SelectItem value={ChordQuality.Diminished7}>Diminished 7</SelectItem>
-          <SelectItem value={ChordQuality.HalfDiminished7}>Half-dim 7</SelectItem>
+          <SelectItem value={ChordQuality.HalfDiminished7}>
+            Half-dim 7
+          </SelectItem>
         </SelectContent>
       </Select>
     </div>
   );
 }
 
-export default function SettingsModal({ 
+export default function SettingsModal({
   stickyMode,
   chordQualities,
   onStickyModeChange,
   onChordQualitiesChange,
 }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [localChordQualities, setLocalChordQualities] = useState<ChordQualityConfig>(chordQualities);
+  const [localChordQualities, setLocalChordQualities] =
+    useState<ChordQualityConfig>(chordQualities);
 
-  const updateChordQuality = (position: keyof ChordQualityConfig, noteIndex: number, quality: ChordQuality) => {
+  const updateChordQuality = (
+    position: keyof ChordQualityConfig,
+    noteIndex: number,
+    quality: ChordQuality,
+  ) => {
     const newConfig = {
       ...localChordQualities,
       [position]: {
         ...localChordQualities[position],
-        [noteIndex]: quality
-      }
+        [noteIndex]: quality,
+      },
     };
     setLocalChordQualities(newConfig);
     onChordQualitiesChange(newConfig);
@@ -104,8 +119,13 @@ export default function SettingsModal({
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-900">Sticky Mode</label>
-            <Select value={stickyMode} onValueChange={value => onStickyModeChange(value as StickyMode)}>
+            <label className="text-sm font-medium text-gray-900">
+              Sticky Mode
+            </label>
+            <Select
+              value={stickyMode}
+              onValueChange={(value) => onStickyModeChange(value as StickyMode)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -132,68 +152,82 @@ export default function SettingsModal({
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-900">Default Chord Qualities</label>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={resetToDefaults}
-              >
+              <label className="text-sm font-medium text-gray-900">
+                Default Chord Qualities
+              </label>
+              <Button variant="outline" size="sm" onClick={resetToDefaults}>
                 Reset to Defaults
               </Button>
             </div>
 
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="root">
-                <AccordionTrigger className="text-sm">Root Position</AccordionTrigger>
+                <AccordionTrigger className="text-sm text-gray-900">
+                  Root Position
+                </AccordionTrigger>
                 <AccordionContent className="space-y-2">
                   {Array.from({ length: 12 }, (_, i) => (
                     <QualitySelect
                       key={i}
                       noteIndex={i}
                       value={localChordQualities.root[i]}
-                      onChange={(quality) => updateChordQuality("root", i, quality)}
+                      onChange={(quality) =>
+                        updateChordQuality("root", i, quality)
+                      }
                     />
                   ))}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="first">
-                <AccordionTrigger className="text-sm">First Inversion</AccordionTrigger>
+                <AccordionTrigger className="text-sm text-gray-900">
+                  First Inversion
+                </AccordionTrigger>
                 <AccordionContent className="space-y-2">
                   {Array.from({ length: 12 }, (_, i) => (
                     <QualitySelect
                       key={i}
                       noteIndex={i}
                       value={localChordQualities.first[i]}
-                      onChange={(quality) => updateChordQuality("first", i, quality)}
+                      onChange={(quality) =>
+                        updateChordQuality("first", i, quality)
+                      }
                     />
                   ))}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="second">
-                <AccordionTrigger className="text-sm">Second Inversion</AccordionTrigger>
+                <AccordionTrigger className="text-sm text-gray-900">
+                  Second Inversion
+                </AccordionTrigger>
                 <AccordionContent className="space-y-2">
                   {Array.from({ length: 12 }, (_, i) => (
                     <QualitySelect
                       key={i}
                       noteIndex={i}
                       value={localChordQualities.second[i]}
-                      onChange={(quality) => updateChordQuality("second", i, quality)}
+                      onChange={(quality) =>
+                        updateChordQuality("second", i, quality)
+                      }
                     />
                   ))}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="third">
-                <AccordionTrigger className="text-sm">Third/Seventh in Bass</AccordionTrigger>
+                <AccordionTrigger className="text-sm text-gray-900">
+                  Third/Seventh in Bass
+                </AccordionTrigger>
                 <AccordionContent className="space-y-2">
                   {Array.from({ length: 12 }, (_, i) => (
                     <QualitySelect
                       key={i}
                       noteIndex={i}
                       value={localChordQualities.third[i]}
-                      onChange={(quality) => updateChordQuality("third", i, quality)}
+                      onChange={(quality) =>
+                        updateChordQuality("third", i, quality)
+                      }
                     />
                   ))}
                 </AccordionContent>

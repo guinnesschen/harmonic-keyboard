@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import {
-  ChordQuality,
-  ChordPosition,
-  type ChordVoicing,
-} from "@shared/schema";
+import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
@@ -34,9 +30,7 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
   );
 }
 
-export default function KeyboardGuide({
-  activeVoicing,
-}: KeyboardGuideProps) {
+export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
@@ -66,12 +60,14 @@ export default function KeyboardGuide({
   };
 
   const getInversionDescription = (position: string): string => {
-    return {
-      "0": "Bass = root",
-      "1": "Bass = 3rd",
-      "2": "Bass = 5th",
-      "3": "Bass = 7th"
-    }[position] || "";
+    return (
+      {
+        "0": "Bass = root",
+        "1": "Bass = 3rd",
+        "2": "Bass = 5th",
+        "3": "Bass = 7th",
+      }[position] || ""
+    );
   };
 
   // Black key positions and offsets
@@ -99,41 +95,54 @@ export default function KeyboardGuide({
       {/* Keyboard Controls */}
       <div className="flex flex-col items-center gap-16">
         {/* Inversions */}
-        <div className="w-full max-w-xl">
+        <div className="w-full">
           <div className="flex justify-between">
             {[0, 1, 2, 3].map((num) => (
               <KeyHint
                 key={num}
                 keyLabel={num.toString()}
                 description={getInversionDescription(num.toString())}
-                isActive={activeVoicing?.position === (
-                  num === 0 ? "root" :
-                  num === 1 ? "first" :
-                  num === 2 ? "second" :
-                  "thirdseventh"
-                )}
+                isActive={
+                  activeVoicing?.position ===
+                  (num === 0
+                    ? "root"
+                    : num === 1
+                      ? "first"
+                      : num === 2
+                        ? "second"
+                        : "thirdseventh")
+                }
               />
             ))}
           </div>
         </div>
 
         {/* Chord Qualities */}
-        <div className="w-full max-w-xl">
+        <div className="w-full">
           <div className="flex justify-between">
             {layout.qualityKeys.map((key) => (
               <KeyHint
                 key={key}
                 keyLabel={key}
                 description={qualityDescriptions[key]}
-                isActive={activeVoicing?.quality === (
-                  key === 'Q' ? ChordQuality.Major :
-                  key === 'W' ? ChordQuality.Major7 :
-                  key === 'E' ? ChordQuality.Dominant7 :
-                  key === 'R' ? ChordQuality.Minor :
-                  key === 'T' ? ChordQuality.Minor7 :
-                  key === 'Y' ? ChordQuality.Diminished7 :
-                  key === 'U' ? ChordQuality.HalfDiminished7 : null
-                )}
+                isActive={
+                  activeVoicing?.quality ===
+                  (key === "Q"
+                    ? ChordQuality.Major
+                    : key === "W"
+                      ? ChordQuality.Major7
+                      : key === "E"
+                        ? ChordQuality.Dominant7
+                        : key === "R"
+                          ? ChordQuality.Minor
+                          : key === "T"
+                            ? ChordQuality.Minor7
+                            : key === "Y"
+                              ? ChordQuality.Diminished7
+                              : key === "U"
+                                ? ChordQuality.HalfDiminished7
+                                : null)
+                }
               />
             ))}
           </div>
