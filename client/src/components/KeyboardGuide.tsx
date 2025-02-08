@@ -20,14 +20,14 @@ interface KeyHintProps {
 
 function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
   return (
-    <div className="flex-1 flex flex-col justify-center items-center gap-2 min-w-[80px]">
+    <div className="flex-1 flex flex-col justify-center items-center gap-2 min-w-[100px]">
       <span className="text-sm text-gray-600">{description}</span>
       <div
         className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
           ${
             isActive
-              ? "bg-red-600/90 text-white"
-              : "bg-transparent border border-red-600/20 text-gray-900"
+              ? "bg-rose-600/80 text-white"
+              : "bg-transparent border border-rose-600/20 text-gray-900"
           }`}
       >
         {keyLabel}
@@ -109,10 +109,9 @@ export default function KeyboardGuide({
   return (
     <div className="space-y-12">
       {/* Keyboard Controls */}
-      <div className="flex flex-col items-center gap-10">
+      <div className="flex flex-col items-center gap-16">
         {/* Inversions */}
-        <div className="space-y-3 w-full max-w-xl">
-          <h3 className="text-sm font-medium text-gray-900 text-center">Inversions (0-3)</h3>
+        <div className="w-full max-w-xl">
           <div className="flex justify-between">
             {[0, 1, 2, 3].map((num) => (
               <KeyHint
@@ -131,8 +130,7 @@ export default function KeyboardGuide({
         </div>
 
         {/* Chord Qualities */}
-        <div className="space-y-3 w-full max-w-xl">
-          <h3 className="text-sm font-medium text-gray-900 text-center">Chord Qualities (Q-U)</h3>
+        <div className="w-full max-w-xl">
           <div className="flex justify-between">
             {layout.qualityKeys.map((key) => (
               <KeyHint
@@ -154,8 +152,7 @@ export default function KeyboardGuide({
         </div>
 
         {/* Piano Keyboard */}
-        <div className="space-y-3 w-full">
-          <h3 className="text-sm font-medium text-gray-900 text-center">Bass Notes (Z-M)</h3>
+        <div className="w-full">
           <div className="relative w-full max-w-3xl h-48 mx-auto">
             <div className="flex h-full relative">
               {octaves.map((octave) => (
@@ -168,7 +165,7 @@ export default function KeyboardGuide({
                         <div
                           key={midiNote}
                           className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                            ${isNoteActive(midiNote) ? "bg-slate-500" : "bg-white"}`}
+                            ${isNoteActive(midiNote) ? "bg-stone-500" : "bg-white"}`}
                         />
                       );
                     })}
@@ -183,7 +180,7 @@ export default function KeyboardGuide({
                           key={midiNote}
                           style={{ left }}
                           className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
-                            ${isNoteActive(midiNote) ? "bg-slate-500" : "bg-gray-900"}`}
+                            ${isNoteActive(midiNote) ? "bg-stone-500" : "bg-gray-900"}`}
                         />
                       );
                     })}
