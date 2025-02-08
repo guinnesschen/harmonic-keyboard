@@ -1,11 +1,6 @@
 import type { ChordVoicing } from "@shared/schema";
 import { getChordIntervals } from "./chords";
 
-function generateBasicChord(rootNote: number, intervals: number[]): number[] {
-  const baseOctave = 60; // Middle C
-  return intervals.map(interval => baseOctave + rootNote + interval);
-}
-
 function rotateArray<T>(arr: T[], positions: number): T[] {
   const pos = positions % arr.length;
   return [...arr.slice(pos), ...arr.slice(0, pos)];
@@ -16,12 +11,81 @@ function isCompleteChord(voicing: ChordVoicing): boolean {
 }
 
 function getBassNoteForPosition(rootNote: number, intervals: number[], position: string): number {
-  // For root position, bass note is the root note
   if (position === "root") return rootNote;
-
-  // Get the interval for the desired bass note based on position
   const index = position === "first" ? 1 : position === "second" ? 2 : 3;
   return (rootNote + intervals[index % intervals.length]) % 12;
+}
+
+// Expand a set of notes to 5 voices by duplicating appropriate notes
+function expandToFiveVoices(notes: number[], bassNote: number): number[] {
+  // Keep bass note separate
+  const upperVoices = notes.filter(n => n !== bassNote).sort((a, b) => a - b);
+
+  while (upperVoices.length < 4) {
+    // Find best note to duplicate (prefer root and fifth)
+    const noteToDouble = upperVoices.find(note => 
+      (note - bassNote) % 12 === 0 || // Root
+      (note - bassNote) % 12 === 7    // Fifth
+    ) || upperVoices[0];  // Fallback to first note
+
+    // Add the doubled note an octave higher
+    upperVoices.push(noteToDouble + 12);
+  }
+
+  return [bassNote, ...upperVoices.sort((a, b) => a - b)];
+}
+
+// Generate all possible octave transpositions for a note
+function generateOctaveTranspositions(note: number, prevNote: number): number[] {
+  const baseNote = note % 12;
+  const prevOctave = Math.floor(prevNote / 12);
+  return [
+    baseNote + (prevOctave - 1) * 12,
+    baseNote + prevOctave * 12,
+    baseNote + (prevOctave + 1) * 12
+  ].filter(n => Math.abs(n - prevNote) <= 7); // Limit movement to within a fifth
+}
+
+// Find optimal voice assignments to minimize total movement
+function findOptimalVoiceAssignment(
+  currentNotes: number[],
+  previousNotes: number[]
+): number[] {
+  let bestAssignment = currentNotes;
+  let minTotalDistance = Infinity;
+
+  // Generate all possible combinations of octave transpositions
+  const possibleAssignments: number[][] = [];
+
+  function generateCombinations(current: number[], index: number) {
+    if (index === currentNotes.length) {
+      possibleAssignments.push([...current]);
+      return;
+    }
+
+    const possibleNotes = generateOctaveTranspositions(currentNotes[index], previousNotes[index]);
+    for (const note of possibleNotes) {
+      current[index] = note;
+      generateCombinations(current, index + 1);
+    }
+  }
+
+  generateCombinations([...currentNotes], 0);
+
+  // Find the combination with minimum total movement
+  for (const assignment of possibleAssignments) {
+    const totalDistance = assignment.reduce(
+      (sum, note, i) => sum + Math.abs(note - previousNotes[i]),
+      0
+    );
+
+    if (totalDistance < minTotalDistance) {
+      minTotalDistance = totalDistance;
+      bestAssignment = assignment;
+    }
+  }
+
+  return bestAssignment;
 }
 
 export function generateVoicing(
@@ -29,7 +93,6 @@ export function generateVoicing(
   previous: ChordVoicing | null
 ): ChordVoicing {
   const voicing = { ...desired };
-  let notes: number[] = [];
 
   // Get intervals for the chord quality
   const intervals = getChordIntervals(desired.quality);
@@ -37,10 +100,9 @@ export function generateVoicing(
   // Calculate the bass note based on position
   const bassNote = getBassNoteForPosition(desired.root, intervals, desired.position);
   voicing.bass = bassNote + 48; // Put in bass octave
-  notes.push(voicing.bass);
 
   // Generate basic chord tones starting from root
-  let chordTones = generateBasicChord(desired.root, intervals);
+  let chordTones = intervals.map(interval => desired.root + interval + 60); // Middle C octave
 
   // Apply the chord position by rotating the intervals
   let rotationAmount = 0;
@@ -54,54 +116,38 @@ export function generateVoicing(
     case "thirdseventh":
       rotationAmount = 3;
       break;
-    default: // root position
-      rotationAmount = 0;
   }
   chordTones = rotateArray(chordTones, rotationAmount);
 
-  // Apply voice leading logic if we have a previous chord
-  if (previous && previous.notes.length > 0) {
-    const isCurrentComplete = isCompleteChord(desired);
-    const wasPreviousComplete = isCompleteChord(previous);
+  // Initial set of notes including bass
+  let notes = [voicing.bass, ...chordTones];
 
-    if (isCurrentComplete && wasPreviousComplete) {
-      // Full voice leading between complete chords
-      const prevChordTones = previous.notes.filter(
-        note => note !== previous.bass
-      );
+  // Expand to 5 voices
+  notes = expandToFiveVoices(notes, voicing.bass);
 
-      chordTones = chordTones.map(note => {
-        const closestPrevNote = prevChordTones.reduce((closest, prevNote) => {
-          return Math.abs(note - prevNote) < Math.abs(note - closest) ? prevNote : closest;
-        }, prevChordTones[0]);
+  // Apply voice leading if we have a previous chord
+  if (previous && previous.notes.length === 5) {
+    // Keep bass separate and apply voice leading to upper voices
+    const upperVoices = notes.slice(1);
+    const previousUpperVoices = previous.notes.slice(1);
 
-        // Try to keep the note within an octave of the closest previous note
-        const octaveAdjustment = Math.round((closestPrevNote - note) / 12) * 12;
-        if (Math.abs(octaveAdjustment) <= 12) {
-          return note + octaveAdjustment;
-        }
-        return note;
-      });
-    }
+    // Find optimal voice assignment for upper voices
+    const optimalUpperVoices = findOptimalVoiceAssignment(
+      upperVoices,
+      previousUpperVoices
+    );
+
+    // Combine bass with optimal upper voices
+    notes = [voicing.bass, ...optimalUpperVoices];
   }
-
-  // Add the chord tones
-  notes.push(...chordTones);
-
-  // Sort notes but ensure bass note stays at the bottom
-  if (voicing.bass !== -1) {
-    notes = notes.filter(note => note !== voicing.bass);
-    notes.sort((a, b) => a - b);
-    notes.unshift(voicing.bass);
-  } else {
-    notes.sort((a, b) => a - b);
-  }
-
-  // Remove duplicates while maintaining order
-  notes = Array.from(new Set(notes));
 
   return {
     ...voicing,
     notes
   };
+}
+
+function generateBasicChord(rootNote: number, intervals: number[]): number[] {
+  const baseOctave = 60; // Middle C
+  return intervals.map(interval => baseOctave + rootNote + interval);
 }
