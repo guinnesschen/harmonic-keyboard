@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getKeyboardLayout, getActiveKeys, getMidiNoteKey } from "@/lib/keyboardMapping";
+import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
 import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 import { midiNoteToNoteName } from "@/lib/chords";
 
@@ -97,21 +97,20 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
         {/* Multi-octave Piano */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Notes Being Played</div>
-          <div className="relative w-full max-w-6xl mx-auto h-72">
-            {/* White keys */}
-            <div className="flex h-72 w-full relative">
+          <div className="relative w-full h-96">
+            {/* White keys container */}
+            <div className="flex h-full">
               {octaves.map(octave => (
                 whiteKeys.map(note => {
                   const midiNote = (octave + 1) * 12 + ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
                   return (
                     <div
                       key={`${note}${octave}`}
-                      className={`flex-1 flex items-end pb-4 justify-center border-l last:border-r rounded-b-xl shadow-md transition-colors
-                        ${isNoteActive(midiNote)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-white text-gray-700'}`}
+                      className={`relative flex-1 flex items-end justify-center border-l last:border-r bg-white hover:bg-gray-50 transition-colors
+                        ${isNoteActive(midiNote) ? 'bg-primary/20' : ''}`}
+                      style={{ height: '100%' }}
                     >
-                      <span className="text-sm">
+                      <span className="absolute bottom-4 text-sm text-gray-600">
                         {note}{octave}
                       </span>
                     </div>
@@ -120,43 +119,36 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
               ))}
             </div>
 
-            {/* Black keys */}
+            {/* Black keys overlay */}
             <div className="absolute top-0 left-0 w-full">
-              {octaves.map((octave, octaveIndex) => (
-                blackKeys.map((note, index) => {
-                  if (!note) return null;
-                  const midiNote = (octave + 1) * 12 + index;
-                  const offset = [
-                    7,   // C#
-                    20,  // D#
-                    null,
-                    47,  // F#
-                    60,  // G#
-                    73   // A#
-                  ][index % 7];
-
-                  if (!offset) return null;
-
-                  return (
-                    <div
-                      key={`${note}${octave}`}
-                      style={{
-                        position: 'absolute',
-                        left: `${offset + (octaveIndex * 100)}%`,
-                        width: '4%',
-                        height: '60%',
-                      }}
-                      className={`flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
-                        ${isNoteActive(midiNote)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-gray-800 text-white'}`}
-                    >
-                      <span className="text-xs">
-                        {note}{octave}
-                      </span>
-                    </div>
-                  );
-                })
+              {octaves.map(octave => (
+                <div key={octave} className="absolute" style={{ width: `${100/3}%`, left: `${(octave-3) * (100/3)}%` }}>
+                  {/* C# */}
+                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[14.3%] rounded-b-lg
+                    ${isNoteActive((octave + 1) * 12 + 1) ? 'bg-primary' : 'bg-gray-900'}`}>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">C#{octave}</span>
+                  </div>
+                  {/* D# */}
+                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[28.6%] rounded-b-lg
+                    ${isNoteActive((octave + 1) * 12 + 3) ? 'bg-primary' : 'bg-gray-900'}`}>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">D#{octave}</span>
+                  </div>
+                  {/* F# */}
+                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[57.2%] rounded-b-lg
+                    ${isNoteActive((octave + 1) * 12 + 6) ? 'bg-primary' : 'bg-gray-900'}`}>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">F#{octave}</span>
+                  </div>
+                  {/* G# */}
+                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[71.5%] rounded-b-lg
+                    ${isNoteActive((octave + 1) * 12 + 8) ? 'bg-primary' : 'bg-gray-900'}`}>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">G#{octave}</span>
+                  </div>
+                  {/* A# */}
+                  <div className={`absolute w-[7%] h-[65%] -ml-[3.5%] left-[85.8%] rounded-b-lg
+                    ${isNoteActive((octave + 1) * 12 + 10) ? 'bg-primary' : 'bg-gray-900'}`}>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">A#{octave}</span>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
