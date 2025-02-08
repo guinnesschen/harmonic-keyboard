@@ -30,12 +30,15 @@ export default function HelpModal() {
 
         <div className="space-y-6">
           <section className="space-y-3">
-            <h3 className="text-lg font-medium text-gray-900">About This Instrument</h3>
+            <h3 className="text-lg font-medium text-gray-900">A New Way to Think About Music</h3>
             <p className="text-gray-600">
-              This is a new type of musical instrument that operates at a higher level of abstraction than traditional keyboards. Instead of playing individual notes, you play chord functions and the instrument automatically generates proper voice leading.
+              This is a radical reimagining of what a musical instrument can be. Instead of thinking in terms of individual notes, you think directly in harmonic ideas - the building blocks of musical progression and emotion.
             </p>
             <p className="text-gray-600">
-              Think of it as a "harmonic keyboard" - where each key press represents a musical idea rather than a specific note. This allows you to focus on harmonic progression and musical expression without getting caught up in the technical details of voice leading and chord voicing.
+              Each key press represents a complete harmonic concept - a major chord, a dominant seventh, a half-diminished chord in first inversion. The instrument handles all the complexity of turning these musical intentions into properly voiced notes, letting you focus purely on harmonic expression.
+            </p>
+            <p className="text-gray-600">
+              Think of it as conducting harmony itself, rather than individual notes. It's an instrument that bridges the gap between musical thinking and musical playing.
             </p>
           </section>
 
