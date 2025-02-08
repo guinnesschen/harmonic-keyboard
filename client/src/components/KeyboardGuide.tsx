@@ -42,6 +42,10 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     U: "Half Dim 7",
   };
 
+  // Check if the current chord is a triad
+  const isTriad = activeVoicing?.quality === ChordQuality.Major || 
+                 activeVoicing?.quality === ChordQuality.Minor;
+
   // Black key positions and offsets
   const blackKeyPositions = [
     { note: "C#", left: "15%", midiOffset: 1 },
@@ -80,6 +84,35 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             </p>
           </AccordionContent>
         </AccordionItem>
+
+        <AccordionItem value="instructions">
+          <AccordionTrigger className="text-lg font-medium">
+            How to Play
+          </AccordionTrigger>
+          <AccordionContent className="text-gray-600">
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-sm">
+              <p>1. Press any bass key (Z-M) to play a chord</p>
+              <p>2. Hold a quality key (Q-U) to change the chord quality:</p>
+              <ul className="list-disc list-inside pl-4">
+                <li>Q - Major</li>
+                <li>W - Major 7</li>
+                <li>E - Dominant 7</li>
+                <li>R - Minor</li>
+                <li>T - Minor 7</li>
+                <li>Y - Diminished 7</li>
+                <li>U - Half Diminished 7</li>
+              </ul>
+              <p>3. Use number keys (1-4) for inversions:</p>
+              <ul className="list-disc list-inside pl-4">
+                <li>Root position is default (no key needed)</li>
+                <li>1 - First inversion</li>
+                <li>2 - Second inversion</li>
+                <li>3 - Third/Seventh (for seventh chords)</li>
+                <li>4 - Fourth inversion (falls back to root for triads)</li>
+              </ul>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
 
       <div className="grid gap-8">
@@ -89,13 +122,34 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             Inversions (Number Row)
           </div>
           <div className="flex gap-3">
-            {[1, 2, 3].map((num) => (
+            {/* Root Position Box */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
+                  ${
+                    activeVoicing?.position === "root"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-white text-gray-700"
+                  }`}
+              >
+                R
+              </div>
+              <span className="text-sm text-gray-600">
+                Root <span className="text-xs text-gray-400">(default)</span>
+              </span>
+            </div>
+
+            {/* Numbered Inversions */}
+            {[1, 2, 3, 4].map((num) => (
               <div key={num} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${
                       activeVoicing?.position === 
-                      (num === 1 ? "first" : num === 2 ? "second" : "thirdseventh")
+                      (num === 1 ? "first" : 
+                       num === 2 ? "second" : 
+                       num === 3 ? "thirdseventh" :
+                       num === 4 ? (isTriad ? "root" : "fourth") : null)
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}
@@ -103,7 +157,15 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                   {num}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {num === 1 ? "First" : num === 2 ? "Second" : "Third"}
+                  {num === 1 ? "First" : 
+                   num === 2 ? "Second" : 
+                   num === 3 ? "Third" :
+                   num === 4 ? (
+                     <span>
+                       Fourth
+                       {isTriad && <span className="text-xs text-gray-400"> (→root)</span>}
+                     </span>
+                   ) : null}
                 </span>
               </div>
             ))}
@@ -140,30 +202,6 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 </span>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Instructions */}
-        <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-500">How to Play</div>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-sm text-gray-600">
-            <p>1. Press any bass key (Z-M) to play a chord</p>
-            <p>2. Hold a quality key (Q-U) to change the chord quality:</p>
-            <ul className="list-disc list-inside pl-4">
-              <li>Q - Major</li>
-              <li>W - Major 7</li>
-              <li>E - Dominant 7</li>
-              <li>R - Minor</li>
-              <li>T - Minor 7</li>
-              <li>Y - Diminished 7</li>
-              <li>U - Half Diminished 7</li>
-            </ul>
-            <p>3. Use number keys (1-3) for inversions:</p>
-            <ul className="list-disc list-inside pl-4">
-              <li>1 - First inversion</li>
-              <li>2 - Second inversion</li>
-              <li>3 - Third/Seventh (for seventh chords)</li>
-            </ul>
           </div>
         </div>
 
