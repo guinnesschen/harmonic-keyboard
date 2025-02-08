@@ -86,3 +86,25 @@ export function getKeyboardLayout() {
 export function getActiveKeys(): string[] {
   return Array.from(pressedKeys);
 }
+
+// Add this helper function to convert MIDI notes back to keyboard keys
+export function getMidiNoteKey(midiNote: number): string | null {
+  const noteIndex = midiNote % 12;
+  // Map note indices to piano keys (both white and black)
+  const keyMap = {
+    0: 'z',  // C
+    1: 's',  // C#
+    2: 'x',  // D
+    3: 'd',  // D#
+    4: 'c',  // E
+    5: 'v',  // F
+    6: 'g',  // F#
+    7: 'b',  // G
+    8: 'h',  // G#
+    9: 'n',  // A
+    10: 'j', // A#
+    11: 'm'  // B
+  };
+
+  return keyMap[noteIndex] || null;
+}

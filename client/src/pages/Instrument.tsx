@@ -64,20 +64,25 @@ export default function Instrument() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          Harmonic Instrument
-        </h1>
+      <div className="max-w-6xl mx-auto space-y-12">
+        <div className="text-center space-y-4">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Harmonic Instrument
+          </h1>
+          <p className="text-lg text-gray-600">
+            Create beautiful chord progressions with your keyboard
+          </p>
+        </div>
 
         {!isAudioInitialized ? (
-          <Card className="p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Welcome to the Harmonic Instrument!</h2>
-            <p className="text-gray-600 mb-4">
+          <Card className="p-8 text-center max-w-xl mx-auto">
+            <h2 className="text-2xl font-semibold mb-4">Welcome!</h2>
+            <p className="text-gray-600 mb-6">
               Due to browser security requirements, we need your permission to enable audio.
             </p>
             <Button 
               onClick={initializeAudio}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+              className="text-lg py-6 px-8 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
             >
               Click here to start
             </Button>
@@ -88,8 +93,8 @@ export default function Instrument() {
               <ChordDisplay voicing={currentVoicing} />
             </Card>
 
-            <Card className="p-6">
-              <KeyboardGuide />
+            <Card className="p-8 bg-white/80 backdrop-blur-sm">
+              <KeyboardGuide activeVoicing={currentVoicing} />
             </Card>
           </>
         )}

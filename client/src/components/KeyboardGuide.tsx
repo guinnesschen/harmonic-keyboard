@@ -1,49 +1,81 @@
 import { useEffect, useState } from "react";
-import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordPosition } from "@shared/schema";
+import { getKeyboardLayout, getActiveKeys, getMidiNoteKey } from "@/lib/keyboardMapping";
+import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 
-export default function KeyboardGuide() {
+interface KeyboardGuideProps {
+  activeVoicing: ChordVoicing | null;
+}
+
+export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const updateActiveKeys = () => {
-      setActiveKeys(new Set(getActiveKeys()));
+      // Get currently pressed keys
+      const pressedKeys = new Set(getActiveKeys());
+
+      // Add keys from the current voicing
+      if (activeVoicing) {
+        activeVoicing.notes.forEach(note => {
+          const key = getMidiNoteKey(note % 12);
+          if (key) pressedKeys.add(key);
+        });
+      }
+
+      setActiveKeys(pressedKeys);
     };
 
     window.addEventListener("keydown", updateActiveKeys);
     window.addEventListener("keyup", updateActiveKeys);
+    updateActiveKeys(); // Initial update
 
     return () => {
       window.removeEventListener("keydown", updateActiveKeys);
       window.removeEventListener("keyup", updateActiveKeys);
     };
-  }, []);
+  }, [activeVoicing]);
 
   const isKeyActive = (key: string) => activeKeys.has(key.toLowerCase());
 
   const bassWhiteKeys = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
   const bassBlackKeys = ['S', 'D', 'G', 'H', 'J'];
+  const blackKeyOffsets = {
+    'S': 0.75, // C#
+    'D': 0.75, // D#
+    'G': 0.75, // F#
+    'H': 0.75, // G#
+    'J': 0.75  // A#
+  };
+
+  const qualityLabels = {
+    'Q': 'Major',
+    'W': 'Major 7',
+    'E': 'Dominant 7',
+    'R': 'Minor',
+    'T': 'Minor 7',
+    'Y': 'Diminished 7'
+  };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-center">Keyboard Controls</h2>
+    <div className="space-y-8">
+      <h2 className="text-2xl font-semibold text-center">Keyboard Controls</h2>
 
-      <div className="grid gap-6">
-        <div className="space-y-2">
+      <div className="grid gap-8">
+        <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Inversions (Number Row)</div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {layout.positionKeys.map((key, i) => (
               <div key={key} className="flex items-center gap-2">
-                <div 
-                  className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
-                    ${isKeyActive(key) 
-                      ? 'bg-primary text-primary-foreground' 
+                <div
+                  className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
+                    ${isKeyActive(key)
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-white text-gray-700'}`}
                 >
                   {key}
                 </div>
-                <span className="text-xs text-gray-600">
+                <span className="text-sm text-gray-600">
                   {Object.values(ChordPosition)[i]}
                 </span>
               </div>
@@ -51,63 +83,65 @@ export default function KeyboardGuide() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500">Chord Qualities</div>
-          <div className="flex gap-2">
-            {layout.qualityKeys.map((key, i) => (
+        <div className="space-y-3">
+          <div className="text-sm font-medium text-gray-500">Chord Qualities (Letter Keys)</div>
+          <div className="flex gap-3">
+            {layout.qualityKeys.map((key) => (
               <div key={key} className="flex items-center gap-2">
-                <div 
-                  className={`w-10 h-10 flex items-center justify-center border rounded shadow-sm transition-colors
-                    ${isKeyActive(key) 
-                      ? 'bg-primary text-primary-foreground' 
+                <div
+                  className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
+                    ${isKeyActive(key)
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-white text-gray-700'}`}
                 >
                   {key}
                 </div>
-                <span className="text-xs text-gray-600">
-                  {Object.values(ChordQuality)[i]}
+                <span className="text-sm text-gray-600">
+                  {qualityLabels[key]}
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Root Notes (Piano Layout)</div>
-          <div className="relative">
+          <div className="relative w-full max-w-4xl mx-auto h-72">
             {/* Black keys */}
-            <div className="absolute top-0 left-0 flex gap-2 pl-7 z-10">
+            <div className="absolute top-0 left-0 flex h-48 z-10">
               {bassBlackKeys.map((key, index) => (
-                <div 
+                <div
                   key={key}
                   style={{
-                    marginLeft: index === 2 ? '2.5rem' : undefined // Extra space after F#
+                    position: 'absolute',
+                    left: `${(index * 14.28) + blackKeyOffsets[key]}%`,
+                    width: '8%'
                   }}
-                  className={`w-8 h-24 flex items-end pb-2 justify-center border rounded-b shadow-sm transition-colors
+                  className={`h-full flex items-end pb-4 justify-center rounded-b-xl shadow-lg transition-colors
                     ${isKeyActive(key)
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-gray-800 text-white'}`}
                 >
-                  {key}
+                  <span className="text-lg">{key}</span>
                 </div>
               ))}
             </div>
             {/* White keys */}
-            <div className="flex gap-0.5">
+            <div className="flex h-72 w-full">
               {bassWhiteKeys.map((key) => (
-                <div 
-                  key={key} 
-                  className={`w-12 h-36 flex items-end pb-2 justify-center border rounded-b shadow-sm transition-colors
+                <div
+                  key={key}
+                  className={`flex-1 flex items-end pb-4 justify-center border-l last:border-r rounded-b-xl shadow-md transition-colors
                     ${isKeyActive(key)
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-white text-gray-700'}`}
                 >
-                  {key}
+                  <span className="text-xl">{key}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="text-xs text-gray-500 text-center mt-2">
+          <div className="text-sm text-gray-500 text-center mt-4">
             White keys (Z-M): C D E F G A B | Black keys (S-J): C# D# F# G# A#
           </div>
         </div>
