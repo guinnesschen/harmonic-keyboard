@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import HelpModal from "@/components/HelpModal";
-import SoundControls from "@/components/SoundControls";
+import SoundControlsModal from "@/components/SoundControlsModal";
 import BackgroundAnimation from "@/components/BackgroundAnimation";
 import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
@@ -125,6 +125,7 @@ export default function Instrument() {
           onBackgroundModeChange={setBackgroundMode}
         />
         <HelpModal />
+        <SoundControlsModal initialSettings={defaultSettings} />
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="text-center space-y-4">
@@ -154,13 +155,10 @@ export default function Instrument() {
           ) : (
             <div className="space-y-12 max-w-4xl mx-auto">
               <ChordDisplay voicing={currentVoicing} />
-
               <KeyboardGuide
                 activeVoicing={currentVoicing}
                 inversionMode={inversionMode}
               />
-
-              <SoundControls initialSettings={defaultSettings} />
             </div>
           )}
         </div>
