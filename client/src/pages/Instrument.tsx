@@ -128,39 +128,24 @@ export default function Instrument() {
         <SoundControlsModal initialSettings={defaultSettings} />
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
-          <div className="text-center space-y-4">
-            <h1 className="text-6xl font-light tracking-tight text-gray-900">
-              Harmonova
-            </h1>
-            <p className="text-lg font-light text-gray-600">
-              A new dimension of harmonic expression
-            </p>
-          </div>
-
           {!isAudioInitialized ? (
-            <div className="text-center max-w-xl mx-auto space-y-6">
-              <h2 className="text-2xl font-light text-gray-900">
-                Welcome to Harmonova
-              </h2>
-              <p className="text-gray-600">
-                Due to browser security requirements, we need your permission to enable audio.
-              </p>
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-20">
               <Button
                 onClick={initializeAudio}
                 className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
               >
-                Begin Your Journey
+                Enable Audio
               </Button>
             </div>
-          ) : (
-            <div className="space-y-12 max-w-4xl mx-auto">
-              <ChordDisplay voicing={currentVoicing} />
-              <KeyboardGuide
-                activeVoicing={currentVoicing}
-                inversionMode={inversionMode}
-              />
-            </div>
-          )}
+          ) : null}
+          
+          <div className="space-y-12 max-w-4xl mx-auto pt-8">
+            <ChordDisplay voicing={currentVoicing} />
+            <KeyboardGuide
+              activeVoicing={currentVoicing}
+              inversionMode={inversionMode}
+            />
+          </div>
         </div>
       </div>
     </div>
