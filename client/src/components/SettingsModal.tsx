@@ -60,7 +60,7 @@ export default function SettingsModal({
                   <div className="space-y-1">
                     <div>Traditional</div>
                     <div className="text-xs text-gray-600">
-                      Bass key sets the root note, inversion modifies voicing
+                      Bass key sets root, number keys set inversion
                     </div>
                   </div>
                 </SelectItem>
@@ -68,7 +68,7 @@ export default function SettingsModal({
                   <div className="space-y-1">
                     <div>Functional</div>
                     <div className="text-xs text-gray-600">
-                      Bass key sets actual bass note, inversion sets its function
+                      Bass key sets actual bass note, number keys set function
                     </div>
                   </div>
                 </SelectItem>

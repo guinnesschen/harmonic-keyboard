@@ -50,29 +50,29 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
   const octaves = [3, 4, 5];
 
   const qualityDescriptions: Record<string, string> = {
-    Q: "Major triad (1-3-5)",
-    W: "Major 7th (1-3-5-7)",
-    E: "Dominant 7th (1-3-5-♭7)",
-    R: "Minor triad (1-♭3-5)",
-    T: "Minor 7th (1-♭3-5-♭7)",
-    Y: "Diminished 7th (1-♭3-♭5-♭♭7)",
-    U: "Half-diminished 7th (1-♭3-♭5-7)",
+    Q: "Maj",
+    W: "Maj7",
+    E: "Dom7",
+    R: "Min",
+    T: "Min7",
+    Y: "Dim7",
+    U: "Half-dim7",
   };
 
   const getInversionDescription = (position: string): string => {
     if (inversionMode === InversionMode.Traditional) {
       return {
-        "0": "Root position (1-3-5)",
-        "1": "First inversion (3-5-1)",
-        "2": "Second inversion (5-1-3)",
-        "3": "Third/Seventh in bass"
+        "0": "Root position",
+        "1": "1st inversion",
+        "2": "2nd inversion",
+        "3": "3rd inversion"
       }[position] || "";
     } else {
       return {
-        "0": "Bass is root",
-        "1": "Bass is third",
-        "2": "Bass is fifth",
-        "3": "Bass is seventh"
+        "0": "Bass = root",
+        "1": "Bass = 3rd",
+        "2": "Bass = 5th",
+        "3": "Bass = 7th"
       }[position] || "";
     }
   };
@@ -98,81 +98,90 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Keyboard Controls */}
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-10">
         {/* Inversions */}
-        <div className="flex justify-center gap-4">
-          {[0, 1, 2, 3].map((num) => (
-            <KeyHint
-              key={num}
-              keyLabel={num.toString()}
-              description={getInversionDescription(num.toString())}
-              isActive={activeVoicing?.position === (
-                num === 0 ? "root" :
-                num === 1 ? "first" :
-                num === 2 ? "second" :
-                "thirdseventh"
-              )}
-            />
-          ))}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-gray-900 text-center">Inversions (0-3)</h3>
+          <div className="flex justify-center gap-4">
+            {[0, 1, 2, 3].map((num) => (
+              <KeyHint
+                key={num}
+                keyLabel={num.toString()}
+                description={getInversionDescription(num.toString())}
+                isActive={activeVoicing?.position === (
+                  num === 0 ? "root" :
+                  num === 1 ? "first" :
+                  num === 2 ? "second" :
+                  "thirdseventh"
+                )}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Chord Qualities */}
-        <div className="flex justify-center gap-4">
-          {layout.qualityKeys.map((key) => (
-            <KeyHint
-              key={key}
-              keyLabel={key}
-              description={qualityDescriptions[key]}
-              isActive={activeVoicing?.quality === (
-                key === 'Q' ? ChordQuality.Major :
-                key === 'W' ? ChordQuality.Major7 :
-                key === 'E' ? ChordQuality.Dominant7 :
-                key === 'R' ? ChordQuality.Minor :
-                key === 'T' ? ChordQuality.Minor7 :
-                key === 'Y' ? ChordQuality.Diminished7 :
-                key === 'U' ? ChordQuality.HalfDiminished7 : null
-              )}
-            />
-          ))}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-gray-900 text-center">Chord Qualities (Q-U)</h3>
+          <div className="flex justify-center gap-4">
+            {layout.qualityKeys.map((key) => (
+              <KeyHint
+                key={key}
+                keyLabel={key}
+                description={qualityDescriptions[key]}
+                isActive={activeVoicing?.quality === (
+                  key === 'Q' ? ChordQuality.Major :
+                  key === 'W' ? ChordQuality.Major7 :
+                  key === 'E' ? ChordQuality.Dominant7 :
+                  key === 'R' ? ChordQuality.Minor :
+                  key === 'T' ? ChordQuality.Minor7 :
+                  key === 'Y' ? ChordQuality.Diminished7 :
+                  key === 'U' ? ChordQuality.HalfDiminished7 : null
+                )}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Piano Keyboard */}
-        <div className="relative w-full max-w-3xl h-48">
-          <div className="flex h-full relative">
-            {octaves.map((octave) => (
-              <div key={octave} className="flex-1 relative">
-                {/* White Keys */}
-                <div className="flex h-full">
-                  {whiteKeyData.map(({ midiOffset }) => {
-                    const midiNote = (octave + 1) * 12 + midiOffset;
-                    return (
-                      <div
-                        key={midiNote}
-                        className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                          ${isNoteActive(midiNote) ? "bg-primary" : "bg-white"}`}
-                      />
-                    );
-                  })}
-                </div>
+        <div className="space-y-3 w-full">
+          <h3 className="text-sm font-medium text-gray-900 text-center">Bass Notes (Z-M)</h3>
+          <div className="relative w-full max-w-3xl h-48 mx-auto">
+            <div className="flex h-full relative">
+              {octaves.map((octave) => (
+                <div key={octave} className="flex-1 relative">
+                  {/* White Keys */}
+                  <div className="flex h-full">
+                    {whiteKeyData.map(({ midiOffset }) => {
+                      const midiNote = (octave + 1) * 12 + midiOffset;
+                      return (
+                        <div
+                          key={midiNote}
+                          className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
+                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-white"}`}
+                        />
+                      );
+                    })}
+                  </div>
 
-                {/* Black Keys */}
-                <div className="absolute top-0 left-0 h-[65%] w-full">
-                  {blackKeyPositions.map(({ left, midiOffset }) => {
-                    const midiNote = (octave + 1) * 12 + midiOffset;
-                    return (
-                      <div
-                        key={midiNote}
-                        style={{ left }}
-                        className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
-                          ${isNoteActive(midiNote) ? "bg-primary" : "bg-gray-900"}`}
-                      />
-                    );
-                  })}
+                  {/* Black Keys */}
+                  <div className="absolute top-0 left-0 h-[65%] w-full">
+                    {blackKeyPositions.map(({ left, midiOffset }) => {
+                      const midiNote = (octave + 1) * 12 + midiOffset;
+                      return (
+                        <div
+                          key={midiNote}
+                          style={{ left }}
+                          className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
+                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-gray-900"}`}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
