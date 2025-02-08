@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode } from "@shared/schema";
+import {
+  ChordQuality,
+  ChordPosition,
+  type ChordVoicing,
+  InversionMode,
+} from "@shared/schema";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
@@ -15,22 +20,26 @@ interface KeyHintProps {
 
 function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex-1 flex flex-col justify-center items-center gap-2 min-w-[80px]">
+      <span className="text-sm text-gray-600">{description}</span>
       <div
         className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
-          ${isActive
-            ? "bg-primary text-primary-foreground"
-            : "bg-transparent border border-primary/20 text-gray-900"
+          ${
+            isActive
+              ? "bg-red-600/90 text-white"
+              : "bg-transparent border border-red-600/20 text-gray-900"
           }`}
       >
         {keyLabel}
       </div>
-      <span className="text-sm text-gray-600">{description}</span>
     </div>
   );
 }
 
-export default function KeyboardGuide({ activeVoicing, inversionMode }: KeyboardGuideProps) {
+export default function KeyboardGuide({
+  activeVoicing,
+  inversionMode,
+}: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
@@ -102,9 +111,9 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
       {/* Keyboard Controls */}
       <div className="flex flex-col items-center gap-10">
         {/* Inversions */}
-        <div className="space-y-3">
+        <div className="space-y-3 w-full max-w-xl">
           <h3 className="text-sm font-medium text-gray-900 text-center">Inversions (0-3)</h3>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-between">
             {[0, 1, 2, 3].map((num) => (
               <KeyHint
                 key={num}
@@ -122,9 +131,9 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
         </div>
 
         {/* Chord Qualities */}
-        <div className="space-y-3">
+        <div className="space-y-3 w-full max-w-xl">
           <h3 className="text-sm font-medium text-gray-900 text-center">Chord Qualities (Q-U)</h3>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-between">
             {layout.qualityKeys.map((key) => (
               <KeyHint
                 key={key}
@@ -159,7 +168,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
                         <div
                           key={midiNote}
                           className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-white"}`}
+                            ${isNoteActive(midiNote) ? "bg-slate-500" : "bg-white"}`}
                         />
                       );
                     })}
@@ -174,7 +183,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode }: Keyboard
                           key={midiNote}
                           style={{ left }}
                           className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
-                            ${isNoteActive(midiNote) ? "bg-primary" : "bg-gray-900"}`}
+                            ${isNoteActive(midiNote) ? "bg-slate-500" : "bg-gray-900"}`}
                         />
                       );
                     })}
