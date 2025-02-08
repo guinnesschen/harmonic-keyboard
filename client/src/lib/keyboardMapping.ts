@@ -5,6 +5,7 @@ import {
   StickyMode,
   type ChordVoicing,
 } from "@shared/schema";
+import { getDefaultQuality } from "./chordConfig";
 
 // Define keyboard mappings (all lowercase for consistent comparison)
 const BASS_KEYS = "zsxdcvgbhnjm";
@@ -29,65 +30,19 @@ function getDefaultQualityForFunctionalMode(bassKey: string, position: ChordPosi
   // Convert key to note index (0 = C, 1 = C#, etc.)
   const noteIndex = getNoteFromKey(bassKey, BASS_KEYS);
 
-  if (position === ChordPosition.First) {
-    // First inversion defaults
-    const firstInversionDefaults: Record<number, ChordQuality> = {
-      0: ChordQuality.Minor,    // C
-      1: ChordQuality.Major,    // C#
-      2: ChordQuality.Major,    // D
-      3: ChordQuality.Minor,    // D#
-      4: ChordQuality.Major,    // E
-      5: ChordQuality.Minor,    // F
-      6: ChordQuality.Major,    // F#
-      7: ChordQuality.Minor,    // G
-      8: ChordQuality.Minor,    // G#
-      9: ChordQuality.Major,    // A
-      10: ChordQuality.Minor,   // A#
-      11: ChordQuality.Major,   // B
-    };
-    return firstInversionDefaults[noteIndex] || ChordQuality.Major;
+  // Use the new configuration based on position
+  switch (position) {
+    case ChordPosition.Root:
+      return getDefaultQuality("root", noteIndex);
+    case ChordPosition.First:
+      return getDefaultQuality("first", noteIndex);
+    case ChordPosition.Second:
+      return getDefaultQuality("second", noteIndex);
+    case ChordPosition.ThirdSeventh:
+      return getDefaultQuality("thirdseventh", noteIndex);
+    default:
+      return ChordQuality.Major;
   }
-
-  if (position === ChordPosition.Second) {
-    // Second inversion defaults
-    const secondInversionDefaults: Record<number, ChordQuality> = {
-      0: ChordQuality.Major,    // C
-      1: ChordQuality.Major,    // C#
-      2: ChordQuality.Major,    // D
-      3: ChordQuality.Major,    // D#
-      4: ChordQuality.Minor,    // E
-      5: ChordQuality.Major,    // F
-      6: ChordQuality.Major,    // F#
-      7: ChordQuality.Major,    // G
-      8: ChordQuality.Major,    // G#
-      9: ChordQuality.Minor,    // A
-      10: ChordQuality.Major,   // A#
-      11: ChordQuality.Minor,   // B
-    };
-    return secondInversionDefaults[noteIndex] || ChordQuality.Major;
-  }
-
-  if (position === ChordPosition.ThirdSeventh) {
-    // Third inversion defaults
-    const thirdInversionDefaults: Record<number, ChordQuality> = {
-      0: ChordQuality.Minor7,     // C
-      1: ChordQuality.Major7,     // C#
-      2: ChordQuality.Minor7,     // D
-      3: ChordQuality.Major7,     // D#
-      4: ChordQuality.Major7,     // E
-      5: ChordQuality.Dominant7,  // F
-      6: ChordQuality.Major7,     // F#
-      7: ChordQuality.Minor7,     // G
-      8: ChordQuality.Major7,     // G#
-      9: ChordQuality.Minor7,     // A
-      10: ChordQuality.Dominant7, // A#
-      11: ChordQuality.Major7,    // B
-    };
-    return thirdInversionDefaults[noteIndex] || ChordQuality.Major7;
-  }
-
-  // Root position - keep original defaults
-  return ChordQuality.Major;
 }
 
 function getQualityFromKey(key: string, position: ChordPosition = ChordPosition.Root, inversionMode: InversionMode = InversionMode.Traditional): ChordQuality {
@@ -261,7 +216,7 @@ export function generateVoicingFromKeyState(
   const bassNote = bassKey ? getNoteFromKey(bassKey, BASS_KEYS) : (lastGeneratedVoicing?.root || 0);
   const position = positionKey ? getPositionFromKey(positionKey) : ChordPosition.Root;
   // Get quality considering both the quality key and the position/bass note in functional mode
-  const quality = qualityKey 
+  const quality = qualityKey
     ? getQualityFromKey(qualityKey, position, inversionMode)
     : getQualityFromKey(bassKey || "", position, inversionMode);
 

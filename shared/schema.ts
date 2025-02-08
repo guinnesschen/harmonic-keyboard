@@ -32,6 +32,14 @@ export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
 export type InversionMode = typeof InversionMode[keyof typeof InversionMode];
 export type StickyMode = typeof StickyMode[keyof typeof StickyMode];
 
+// New type for chord quality configuration
+export type ChordQualityConfig = {
+  root: Record<number, ChordQuality>;
+  first: Record<number, ChordQuality>;
+  second: Record<number, ChordQuality>;
+  thirdseventh: Record<number, ChordQuality>;
+};
+
 export interface ChordVoicing {
   notes: number[];
   bass: number;
