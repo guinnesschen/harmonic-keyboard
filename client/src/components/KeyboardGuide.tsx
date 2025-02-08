@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
 import { ChordQuality, ChordPosition, type ChordVoicing } from "@shared/schema";
 import { midiNoteToNoteName } from "@/lib/chords";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
@@ -38,11 +44,11 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
 
   // Black key positions and offsets
   const blackKeyPositions = [
-    { note: "C#", left: "15%", midiOffset: 1 }, // C# (1 semitone up from C)
-    { note: "D#", left: "30%", midiOffset: 3 }, // D# (3 semitones up from C)
-    { note: "F#", left: "58.5%", midiOffset: 6 }, // F# (6 semitones up from C)
-    { note: "G#", left: "73%", midiOffset: 8 }, // G# (8 semitones up from C)
-    { note: "A#", left: "87%", midiOffset: 10 }, // A# (10 semitones up from C)
+    { note: "C#", left: "15%", midiOffset: 1 },
+    { note: "D#", left: "30%", midiOffset: 3 },
+    { note: "F#", left: "58.5%", midiOffset: 6 },
+    { note: "G#", left: "73%", midiOffset: 8 },
+    { note: "A#", left: "87%", midiOffset: 10 },
   ];
 
   // White key data with MIDI offsets
@@ -56,11 +62,25 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
     { note: "B", midiOffset: 11 },
   ];
 
-  console.log(activeNotes);
-
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-semibold text-center">Keyboard Controls</h2>
+
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="motivation">
+          <AccordionTrigger className="text-lg font-medium">
+            About This Instrument
+          </AccordionTrigger>
+          <AccordionContent className="text-gray-600 space-y-4">
+            <p>
+              This is a new type of musical instrument that operates at a higher level of abstraction than traditional keyboards. Instead of playing individual notes, you play chord functions and the instrument automatically generates proper voice leading.
+            </p>
+            <p>
+              Think of it as a "harmonic keyboard" - where each key press represents a musical idea rather than a specific note. This allows you to focus on harmonic progression and musical expression without getting caught up in the technical details of voice leading and chord voicing.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <div className="grid gap-8">
         {/* Inversions */}
@@ -69,20 +89,21 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             Inversions (Number Row)
           </div>
           <div className="flex gap-3">
-            {layout.positionKeys.map((key, i) => (
-              <div key={key} className="flex items-center gap-2">
+            {[1, 2, 3].map((num) => (
+              <div key={num} className="flex items-center gap-2">
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${
-                      getActiveKeys().includes(key.toLowerCase())
+                      activeVoicing?.position === 
+                      (num === 1 ? "first" : num === 2 ? "second" : "thirdseventh")
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}
                 >
-                  {key}
+                  {num}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {Object.values(ChordPosition)[i]}
+                  {num === 1 ? "First" : num === 2 ? "Second" : "Third"}
                 </span>
               </div>
             ))}
@@ -100,7 +121,14 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 <div
                   className={`w-12 h-12 flex items-center justify-center border rounded-lg shadow-sm transition-colors text-lg
                     ${
-                      getActiveKeys().includes(key.toLowerCase())
+                      activeVoicing?.quality === 
+                      (key === 'Q' ? ChordQuality.Major :
+                       key === 'W' ? ChordQuality.Major7 :
+                       key === 'E' ? ChordQuality.Dominant7 :
+                       key === 'R' ? ChordQuality.Minor :
+                       key === 'T' ? ChordQuality.Minor7 :
+                       key === 'Y' ? ChordQuality.Diminished7 :
+                       key === 'U' ? ChordQuality.HalfDiminished7 : null)
                         ? "bg-primary text-primary-foreground"
                         : "bg-white text-gray-700"
                     }`}
@@ -112,6 +140,30 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="space-y-3">
+          <div className="text-sm font-medium text-gray-500">How to Play</div>
+          <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-sm text-gray-600">
+            <p>1. Press any bass key (Z-M) to play a chord</p>
+            <p>2. Hold a quality key (Q-U) to change the chord quality:</p>
+            <ul className="list-disc list-inside pl-4">
+              <li>Q - Major</li>
+              <li>W - Major 7</li>
+              <li>E - Dominant 7</li>
+              <li>R - Minor</li>
+              <li>T - Minor 7</li>
+              <li>Y - Diminished 7</li>
+              <li>U - Half Diminished 7</li>
+            </ul>
+            <p>3. Use number keys (1-3) for inversions:</p>
+            <ul className="list-disc list-inside pl-4">
+              <li>1 - First inversion</li>
+              <li>2 - Second inversion</li>
+              <li>3 - Third/Seventh (for seventh chords)</li>
+            </ul>
           </div>
         </div>
 
