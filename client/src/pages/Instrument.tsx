@@ -52,12 +52,7 @@ const defaultSettings: SynthSettings = {
       wet: 0.2,
     },
   },
-  lfo: {
-    frequency: 1,
-    depth: 0.5,
-    target: "none",
-    waveform: "sine"
-  },
+  lfos: [], // Initialize with empty array for multiple LFOs
   volume: -12,
 };
 

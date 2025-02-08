@@ -1,6 +1,15 @@
 import * as Tone from "tone";
 import type { ChordVoicing } from "@shared/schema";
 
+interface LFOConfig {
+  id: string;
+  frequency: number;
+  depth: number;
+  target: string;
+  waveform: "sine" | "square" | "triangle" | "sawtooth";
+  enabled: boolean;
+}
+
 interface SynthSettings {
   oscillator: {
     type: "sine" | "square" | "triangle" | "sawtooth";
@@ -38,12 +47,7 @@ interface SynthSettings {
       wet: number;
     };
   };
-  lfo: {
-    frequency: number;
-    depth: number;
-    target: "volume" | "filter" | "pitch" | "none";
-    waveform: "sine" | "square" | "triangle" | "sawtooth";
-  };
+  lfos: LFOConfig[];
   volume: number;
 }
 
@@ -53,8 +57,8 @@ let chorus: Tone.Chorus;
 let eq: Tone.EQ3;
 let compressor: Tone.Compressor;
 let distortion: Tone.Distortion;
-let lfo: Tone.LFO;
 let filter: Tone.Filter;
+let activeModulators = new Map<string, Tone.LFO>();
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -93,14 +97,26 @@ const defaultSettings: SynthSettings = {
       wet: 0.2
     }
   },
-  lfo: {
-    frequency: 1,
-    depth: 0.5,
-    target: "none",
-    waveform: "sine"
-  },
+  lfos: [],
   volume: -12
 };
+
+function getTargetParameter(target: string): Tone.Param<any> | null {
+  switch (target) {
+    case "volume":
+      return synth.volume;
+    case "filter.frequency":
+      return filter.frequency;
+    case "chorus.frequency":
+      return chorus.frequency;
+    case "reverb.decay":
+      return reverb.decay;
+    case "distortion.distortion":
+      return distortion.distortion;
+    default:
+      return null;
+  }
+}
 
 export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<void> {
   await Tone.start();
@@ -137,31 +153,11 @@ export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<
     wet: mergedSettings.effects.distortion.wet
   }).connect(compressor);
 
-  // Create filter for LFO modulation
   filter = new Tone.Filter({
     type: "lowpass",
     frequency: 2000,
     rolloff: -12
   }).connect(distortion);
-
-  // Create and configure LFO
-  lfo = new Tone.LFO({
-    frequency: mergedSettings.lfo.frequency,
-    min: -mergedSettings.lfo.depth * 50,
-    max: mergedSettings.lfo.depth * 50,
-    type: mergedSettings.lfo.waveform
-  });
-
-  // Connect LFO based on target
-  if (mergedSettings.lfo.target === "filter") {
-    lfo.connect(filter.frequency);
-  } else if (mergedSettings.lfo.target === "volume") {
-    lfo.connect(synth.volume);
-  }
-
-  if (mergedSettings.lfo.target !== "none") {
-    lfo.start();
-  }
 
   synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
@@ -171,6 +167,39 @@ export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<
   }).connect(filter);
 
   synth.volume.value = mergedSettings.volume;
+
+  // Initialize LFOs
+  mergedSettings.lfos.forEach(lfoConfig => {
+    if (lfoConfig.enabled) {
+      createLFO(lfoConfig);
+    }
+  });
+}
+
+function createLFO(config: LFOConfig): void {
+  // Clean up existing LFO if it exists
+  if (activeModulators.has(config.id)) {
+    const existing = activeModulators.get(config.id)!;
+    existing.stop();
+    existing.disconnect();
+    activeModulators.delete(config.id);
+  }
+
+  if (!config.enabled) return;
+
+  const targetParam = getTargetParameter(config.target);
+  if (!targetParam) return;
+
+  const lfo = new Tone.LFO({
+    frequency: config.frequency,
+    min: -config.depth * 50,
+    max: config.depth * 50,
+    type: config.waveform
+  });
+
+  lfo.connect(targetParam);
+  lfo.start();
+  activeModulators.set(config.id, lfo);
 }
 
 export function updateSynthSettings(settings: Partial<SynthSettings>): void {
@@ -206,25 +235,8 @@ export function updateSynthSettings(settings: Partial<SynthSettings>): void {
       distortion.set(distortionSettings);
     }
   }
-  if (settings.lfo) {
-    lfo.stop();
-    lfo.disconnect();
-
-    lfo.frequency.value = settings.lfo.frequency;
-    lfo.min = -settings.lfo.depth * 50;
-    lfo.max = settings.lfo.depth * 50;
-    lfo.type = settings.lfo.waveform;
-
-    // Reconnect LFO based on new target
-    if (settings.lfo.target === "filter") {
-      lfo.connect(filter.frequency);
-    } else if (settings.lfo.target === "volume") {
-      lfo.connect(synth.volume);
-    }
-
-    if (settings.lfo.target !== "none") {
-      lfo.start();
-    }
+  if (settings.lfos) {
+    settings.lfos.forEach(createLFO);
   }
 }
 
@@ -248,4 +260,4 @@ export function playChord(voicing: ChordVoicing | null) {
   synth.triggerAttack(frequencies);
 }
 
-export type { SynthSettings };
+export type { SynthSettings, LFOConfig };
