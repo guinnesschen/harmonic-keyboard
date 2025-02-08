@@ -15,9 +15,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import type { SynthSettings, LFOConfig } from "@/lib/audio";
+import type { SynthSettings } from "@/lib/audio";
 import { updateSynthSettings } from "@/lib/audio";
-import LFOTable from "./LFOTable";
 
 interface SoundControlsProps {
   initialSettings: SynthSettings;
@@ -26,7 +25,7 @@ interface SoundControlsProps {
 export default function SoundControls({ initialSettings }: SoundControlsProps) {
   const [settings, setSettings] = useState<SynthSettings>(initialSettings);
 
-  const updateSettings = (path: string[], value: number | string | LFOConfig[]) => {
+  const updateSettings = (path: string[], value: number | string) => {
     const newSettings = { ...settings };
     let current: any = newSettings;
 
@@ -80,18 +79,6 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
               />
             </div>
           </div>
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="modulation">
-        <AccordionTrigger className="text-gray-900">
-          Modulation
-        </AccordionTrigger>
-        <AccordionContent>
-          <LFOTable
-            lfos={settings.lfos}
-            onLFOsChange={(lfos) => updateSettings(["lfos"], lfos)}
-          />
         </AccordionContent>
       </AccordionItem>
 

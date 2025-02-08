@@ -52,7 +52,6 @@ const defaultSettings: SynthSettings = {
       wet: 0.2,
     },
   },
-  lfos: [], // Initialize with empty array for multiple LFOs
   volume: -12,
 };
 
