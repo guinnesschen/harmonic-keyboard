@@ -12,28 +12,22 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    const updateActiveNotes = () => {
-      const notes = new Set<number>();
+    const notes = new Set<number>();
 
-      // Add notes from the current voicing
-      if (activeVoicing) {
-        activeVoicing.notes.forEach(note => {
-          notes.add(note);
-        });
-      }
+    // Add notes from the current voicing
+    if (activeVoicing) {
+      activeVoicing.notes.forEach(note => {
+        notes.add(note);
+      });
+    }
 
-      setActiveNotes(notes);
-    };
-
-    updateActiveNotes();
+    setActiveNotes(notes);
   }, [activeVoicing]);
 
   const isNoteActive = (midiNote: number) => activeNotes.has(midiNote);
 
   // Define octaves to display (3 octaves starting from C3)
   const octaves = [3, 4, 5];
-  const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-  const blackKeys = ['C#', 'D#', null, 'F#', 'G#', 'A#', null];
 
   const qualityLabels: Record<string, string> = {
     'Q': 'Major',
@@ -94,75 +88,59 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
           </div>
         </div>
 
-        {/* Multi-octave Piano */}
+        {/* Piano Keyboard */}
         <div className="space-y-3">
           <div className="text-sm font-medium text-gray-500">Notes Being Played</div>
           <div className="relative w-full h-96 border rounded-lg bg-white p-4">
-            {/* White keys container */}
             <div className="flex h-full relative">
               {octaves.map(octave => (
-                whiteKeys.map(note => {
-                  const midiNote = (octave + 1) * 12 + ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
-                  return (
-                    <div
-                      key={`${note}${octave}`}
-                      className={`relative flex-1 flex items-end justify-center border-l last:border-r bg-white hover:bg-gray-50 transition-colors
-                        ${isNoteActive(midiNote) ? 'bg-primary/40' : ''}`}
-                    >
-                      <span className="absolute bottom-4 text-sm text-gray-600">
-                        {note}{octave}
-                      </span>
-                    </div>
-                  );
-                })
-              ))}
-            </div>
+                <div key={octave} className="flex-1 relative">
+                  {/* White Keys */}
+                  <div className="flex h-full">
+                    {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((note, index) => {
+                      const midiNote = (octave + 1) * 12 + index * 2;
+                      return (
+                        <div
+                          key={`${note}${octave}`}
+                          className={`flex-1 flex items-end justify-center border-l last:border-r bg-white transition-colors
+                            ${isNoteActive(midiNote) ? 'bg-primary/40' : 'hover:bg-gray-50'}`}
+                        >
+                          <span className="absolute bottom-4 text-sm text-gray-600">
+                            {note}{octave}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-            {/* Black keys overlay */}
-            <div className="absolute top-4 left-0 right-0 px-[0.8%]">
-              {octaves.map(octave => (
-                <div key={octave} className="absolute h-[65%]" style={{ width: `${100/3}%`, left: `${(octave-3) * (100/3)}%` }}>
-                  {/* C# */}
-                  <div 
-                    className={`absolute w-[10%] h-full -ml-[5%] left-[14.3%] z-10 rounded-b-lg shadow-md
-                      ${isNoteActive((octave + 1) * 12 + 1) ? 'bg-primary' : 'bg-gray-900'}`}
-                  >
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">C#{octave}</span>
-                  </div>
-                  {/* D# */}
-                  <div 
-                    className={`absolute w-[10%] h-full -ml-[5%] left-[28.6%] z-10 rounded-b-lg shadow-md
-                      ${isNoteActive((octave + 1) * 12 + 3) ? 'bg-primary' : 'bg-gray-900'}`}
-                  >
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">D#{octave}</span>
-                  </div>
-                  {/* F# */}
-                  <div 
-                    className={`absolute w-[10%] h-full -ml-[5%] left-[57.2%] z-10 rounded-b-lg shadow-md
-                      ${isNoteActive((octave + 1) * 12 + 6) ? 'bg-primary' : 'bg-gray-900'}`}
-                  >
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">F#{octave}</span>
-                  </div>
-                  {/* G# */}
-                  <div 
-                    className={`absolute w-[10%] h-full -ml-[5%] left-[71.5%] z-10 rounded-b-lg shadow-md
-                      ${isNoteActive((octave + 1) * 12 + 8) ? 'bg-primary' : 'bg-gray-900'}`}
-                  >
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">G#{octave}</span>
-                  </div>
-                  {/* A# */}
-                  <div 
-                    className={`absolute w-[10%] h-full -ml-[5%] left-[85.8%] z-10 rounded-b-lg shadow-md
-                      ${isNoteActive((octave + 1) * 12 + 10) ? 'bg-primary' : 'bg-gray-900'}`}
-                  >
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-white">A#{octave}</span>
+                  {/* Black Keys */}
+                  <div className="absolute top-0 left-0 h-[65%] w-full">
+                    {[
+                      { note: 'C#', left: '10%' },
+                      { note: 'D#', left: '24%' },
+                      { note: 'F#', left: '52%' },
+                      { note: 'G#', left: '67%' },
+                      { note: 'A#', left: '81%' }
+                    ].map(({ note, left }) => {
+                      const midiNote = (octave + 1) * 12 + ['C#', 'D#', 'F#', 'G#', 'A#'].indexOf(note) * 2 + 1;
+                      return (
+                        <div
+                          key={`${note}${octave}`}
+                          style={{ left }}
+                          className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10 flex items-end justify-center pb-2
+                            ${isNoteActive(midiNote) ? 'bg-primary' : 'bg-gray-900'}`}
+                        >
+                          <span className="text-[10px] text-white">{note}{octave}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Show active notes for debugging */}
+          {/* Active Notes Debug Info */}
           <div className="text-sm text-gray-500 text-center mt-4">
             Active notes: {Array.from(activeNotes).map(note => midiNoteToNoteName(note)).join(', ')}
           </div>
