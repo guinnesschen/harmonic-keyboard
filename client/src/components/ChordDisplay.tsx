@@ -9,7 +9,7 @@ interface ChordDisplayProps {
 export default function ChordDisplay({ voicing }: ChordDisplayProps) {
   if (!voicing) {
     return (
-      <div className="text-center text-muted-foreground/80">
+      <div className="text-center text-gray-600">
         Press any bass key (Z-M) to start playing
       </div>
     );
@@ -24,29 +24,29 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
     <div className="space-y-6">
       <div className="text-3xl font-light text-center tracking-wide">
         <span className="text-primary">{rootNoteName}</span>
-        <span className="text-foreground/90">{voicing.quality}</span>
+        <span className="text-gray-900">{voicing.quality}</span>
         {voicing.position !== "root" && (
-          <span className="text-muted-foreground">
+          <span className="text-gray-600">
             {" "}({voicing.position} inversion)
           </span>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Card className="p-4 bg-background/40 backdrop-blur border-primary/5">
-          <div className="text-sm text-muted-foreground">Bass Note</div>
-          <div className="text-xl font-light tracking-wide">{bassNoteName}</div>
+        <Card className="p-4 bg-white/80 backdrop-blur border-primary/5">
+          <div className="text-sm text-gray-600">Bass Note</div>
+          <div className="text-xl font-light tracking-wide text-gray-900">{bassNoteName}</div>
         </Card>
-        <Card className="p-4 bg-background/40 backdrop-blur border-primary/5">
-          <div className="text-sm text-muted-foreground">Chord Structure</div>
-          <div className="text-xl font-light tracking-wide">
+        <Card className="p-4 bg-white/80 backdrop-blur border-primary/5">
+          <div className="text-sm text-gray-600">Chord Structure</div>
+          <div className="text-xl font-light tracking-wide text-gray-900">
             {voicing.notes.map(note => midiNoteToNoteName(note).replace(/\d+/, "")).join(" ")}
           </div>
         </Card>
       </div>
 
-      <div className="text-sm text-muted-foreground text-center font-light tracking-wide">
-        Notes: {voicing.notes.map(note => midiNoteToNoteName(note)).join(" ")}
+      <div className="text-sm text-gray-600 text-center font-light tracking-wide">
+        {voicing.notes.map(note => midiNoteToNoteName(note)).join(" ")}
       </div>
     </div>
   );
