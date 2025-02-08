@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
 import SoundControls from "@/components/SoundControls";
+import BackgroundAnimation from "@/components/BackgroundAnimation";
 import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@/lib/keyboardMapping";
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
@@ -104,45 +105,49 @@ export default function Instrument() {
   }, [currentVoicing, isAudioInitialized]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background/95 to-background">
-      <div className="max-w-6xl mx-auto p-8 space-y-12">
-        <div className="text-center space-y-4">
-          <h1 className="text-6xl font-light tracking-tighter bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-            Harmonova
-          </h1>
-          <p className="text-lg text-muted-foreground font-light">
-            A new dimension of harmonic expression
-          </p>
-        </div>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <BackgroundAnimation voicing={currentVoicing} />
 
-        {!isAudioInitialized ? (
-          <Card className="p-8 text-center max-w-xl mx-auto bg-background/50 backdrop-blur border-primary/10">
-            <h2 className="text-2xl font-light mb-4">Welcome to Harmonova</h2>
-            <p className="text-muted-foreground mb-6">
-              Due to browser security requirements, we need your permission to enable audio.
+      <div className="relative z-10">
+        <div className="max-w-6xl mx-auto p-8 space-y-12">
+          <div className="text-center space-y-4">
+            <h1 className="text-6xl font-light tracking-tighter bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+              Harmonova
+            </h1>
+            <p className="text-lg text-muted-foreground font-light">
+              A new dimension of harmonic expression
             </p>
-            <Button 
-              onClick={initializeAudio}
-              className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
-            >
-              Begin Your Journey
-            </Button>
-          </Card>
-        ) : (
-          <div className="space-y-8 max-w-4xl mx-auto">
-            <Card className="p-6 bg-background/50 backdrop-blur border-primary/10">
-              <ChordDisplay voicing={currentVoicing} />
-            </Card>
-
-            <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
-              <KeyboardGuide activeVoicing={currentVoicing} />
-            </Card>
-
-            <Card className="bg-background/50 backdrop-blur border-primary/10">
-              <SoundControls initialSettings={defaultSettings} />
-            </Card>
           </div>
-        )}
+
+          {!isAudioInitialized ? (
+            <Card className="p-8 text-center max-w-xl mx-auto bg-background/50 backdrop-blur border-primary/10">
+              <h2 className="text-2xl font-light mb-4">Welcome to Harmonova</h2>
+              <p className="text-muted-foreground mb-6">
+                Due to browser security requirements, we need your permission to enable audio.
+              </p>
+              <Button 
+                onClick={initializeAudio}
+                className="text-lg py-6 px-8 bg-primary/90 hover:bg-primary transition-colors duration-300"
+              >
+                Begin Your Journey
+              </Button>
+            </Card>
+          ) : (
+            <div className="space-y-8 max-w-4xl mx-auto">
+              <Card className="p-6 bg-background/50 backdrop-blur border-primary/10">
+                <ChordDisplay voicing={currentVoicing} />
+              </Card>
+
+              <Card className="p-8 bg-background/50 backdrop-blur border-primary/10">
+                <KeyboardGuide activeVoicing={currentVoicing} />
+              </Card>
+
+              <Card className="bg-background/50 backdrop-blur border-primary/10">
+                <SoundControls initialSettings={defaultSettings} />
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
