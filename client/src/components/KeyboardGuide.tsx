@@ -1,19 +1,36 @@
 import { useEffect, useState } from "react";
 import { getKeyboardLayout, getActiveKeys } from "@/lib/keyboardMapping";
-import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode, ThemeMode } from "@shared/schema";
+import { ChordQuality, ChordPosition, type ChordVoicing, InversionMode } from "@shared/schema";
 
 interface KeyboardGuideProps {
   activeVoicing: ChordVoicing | null;
   inversionMode: InversionMode;
-  themeMode: ThemeMode;
 }
 
-interface KeyColorConfig {
-  whiteKey: (isActive: boolean) => string;
-  blackKey: (isActive: boolean) => string;
+interface KeyHintProps {
+  keyLabel: string;
+  description: string;
+  isActive: boolean;
 }
 
-export default function KeyboardGuide({ activeVoicing, inversionMode, themeMode }: KeyboardGuideProps) {
+function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
+          ${isActive
+            ? "bg-primary text-primary-foreground"
+            : "bg-transparent border border-primary/20 text-gray-900"
+          }`}
+      >
+        {keyLabel}
+      </div>
+      <span className="text-sm text-gray-600">{description}</span>
+    </div>
+  );
+}
+
+export default function KeyboardGuide({ activeVoicing, inversionMode }: KeyboardGuideProps) {
   const layout = getKeyboardLayout();
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
 
@@ -32,98 +49,92 @@ export default function KeyboardGuide({ activeVoicing, inversionMode, themeMode 
   // Define octaves to display (3 octaves starting from C3)
   const octaves = [3, 4, 5];
 
-  const qualityLabels: Record<string, string> = {
-    Q: "Major",
-    W: "Major 7",
-    E: "Dominant 7",
-    R: "Minor",
-    T: "Minor 7",
-    Y: "Diminished 7",
-    U: "Half Dim 7",
+  const qualityDescriptions: Record<string, string> = {
+    Q: "Major triad (1-3-5)",
+    W: "Major 7th (1-3-5-7)",
+    E: "Dominant 7th (1-3-5-♭7)",
+    R: "Minor triad (1-♭3-5)",
+    T: "Minor 7th (1-♭3-5-♭7)",
+    Y: "Diminished 7th (1-♭3-♭5-♭♭7)",
+    U: "Half-diminished 7th (1-♭3-♭5-7)",
+  };
+
+  const getInversionDescription = (position: string): string => {
+    if (inversionMode === InversionMode.Traditional) {
+      return {
+        "0": "Root position (1-3-5)",
+        "1": "First inversion (3-5-1)",
+        "2": "Second inversion (5-1-3)",
+        "3": "Third/Seventh in bass"
+      }[position] || "";
+    } else {
+      return {
+        "0": "Bass is root",
+        "1": "Bass is third",
+        "2": "Bass is fifth",
+        "3": "Bass is seventh"
+      }[position] || "";
+    }
   };
 
   // Black key positions and offsets
   const blackKeyPositions = [
-    { note: "C#", left: "15%", midiOffset: 1 },
-    { note: "D#", left: "30%", midiOffset: 3 },
-    { note: "F#", left: "58.5%", midiOffset: 6 },
-    { note: "G#", left: "73%", midiOffset: 8 },
-    { note: "A#", left: "87%", midiOffset: 10 },
+    { left: "15%", midiOffset: 1 },
+    { left: "30%", midiOffset: 3 },
+    { left: "58.5%", midiOffset: 6 },
+    { left: "73%", midiOffset: 8 },
+    { left: "87%", midiOffset: 10 },
   ];
 
   // White key data with MIDI offsets
   const whiteKeyData = [
-    { note: "C", midiOffset: 0 },
-    { note: "D", midiOffset: 2 },
-    { note: "E", midiOffset: 4 },
-    { note: "F", midiOffset: 5 },
-    { note: "G", midiOffset: 7 },
-    { note: "A", midiOffset: 9 },
-    { note: "B", midiOffset: 11 },
+    { midiOffset: 0 },
+    { midiOffset: 2 },
+    { midiOffset: 4 },
+    { midiOffset: 5 },
+    { midiOffset: 7 },
+    { midiOffset: 9 },
+    { midiOffset: 11 },
   ];
-
-  const getDarkModeColors = (): KeyColorConfig => ({
-    whiteKey: (isActive: boolean) => isActive ? "bg-slate-500" : "bg-slate-700",
-    blackKey: (isActive: boolean) => isActive ? "bg-slate-900" : "bg-slate-950",
-  });
-
-  const getLightModeColors = (): KeyColorConfig => ({
-    whiteKey: (isActive: boolean) => isActive ? "bg-primary" : "bg-white",
-    blackKey: (isActive: boolean) => isActive ? "bg-primary" : "bg-gray-900",
-  });
-
-  const colors = themeMode === ThemeMode.Dark ? getDarkModeColors() : getLightModeColors();
 
   return (
     <div className="space-y-8">
       {/* Keyboard Controls */}
       <div className="flex flex-col items-center gap-6">
         {/* Inversions */}
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-4">
           {[0, 1, 2, 3].map((num) => (
-            <div key={num} className="flex items-center gap-2">
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
-                  ${
-                    activeVoicing?.position === (
-                      num === 0 ? "root" :
-                      num === 1 ? "first" :
-                      num === 2 ? "second" :
-                      "thirdseventh"
-                    )
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-transparent border border-primary/20 text-foreground"
-                  }`}
-              >
-                {num}
-              </div>
-            </div>
+            <KeyHint
+              key={num}
+              keyLabel={num.toString()}
+              description={getInversionDescription(num.toString())}
+              isActive={activeVoicing?.position === (
+                num === 0 ? "root" :
+                num === 1 ? "first" :
+                num === 2 ? "second" :
+                "thirdseventh"
+              )}
+            />
           ))}
         </div>
 
         {/* Chord Qualities */}
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-4">
           {layout.qualityKeys.map((key) => (
-            <div key={key} className="flex items-center gap-2">
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
-                  ${
-                    activeVoicing?.quality === (
-                      key === 'Q' ? ChordQuality.Major :
-                      key === 'W' ? ChordQuality.Major7 :
-                      key === 'E' ? ChordQuality.Dominant7 :
-                      key === 'R' ? ChordQuality.Minor :
-                      key === 'T' ? ChordQuality.Minor7 :
-                      key === 'Y' ? ChordQuality.Diminished7 :
-                      key === 'U' ? ChordQuality.HalfDiminished7 : null
-                    )
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-transparent border border-primary/20 text-foreground"
-                  }`}
-              >
-                {key}
-              </div>
-            </div>
+            <KeyHint
+              key={key}
+              keyLabel={key}
+              description={qualityDescriptions[key]}
+              isActive={activeVoicing?.quality === (
+                key === 'Q' ? ChordQuality.Major :
+                key === 'W' ? ChordQuality.Major7 :
+                key === 'E' ? ChordQuality.Dominant7 :
+                key === 'R' ? ChordQuality.Minor :
+                key === 'T' ? ChordQuality.Minor7 :
+                key === 'Y' ? ChordQuality.Diminished7 :
+                key === 'U' ? ChordQuality.HalfDiminished7 : null
+              )}
+            />
           ))}
         </div>
 
@@ -140,7 +151,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode, themeMode 
                       <div
                         key={midiNote}
                         className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                          ${colors.whiteKey(isNoteActive(midiNote))}`}
+                          ${isNoteActive(midiNote) ? "bg-primary" : "bg-white"}`}
                       />
                     );
                   })}
@@ -155,7 +166,7 @@ export default function KeyboardGuide({ activeVoicing, inversionMode, themeMode 
                         key={midiNote}
                         style={{ left }}
                         className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
-                          ${colors.blackKey(isNoteActive(midiNote))}`}
+                          ${isNoteActive(midiNote) ? "bg-primary" : "bg-gray-900"}`}
                       />
                     );
                   })}

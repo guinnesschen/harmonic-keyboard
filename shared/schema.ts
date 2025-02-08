@@ -27,11 +27,6 @@ export const StickyMode = {
   On: "on",
 } as const;
 
-export const ThemeMode = {
-  Light: "light",
-  Dark: "dark",
-} as const;
-
 export const BackgroundMode = {
   Animated: "animated",
   Minimal: "minimal",
@@ -41,7 +36,6 @@ export type ChordQuality = typeof ChordQuality[keyof typeof ChordQuality];
 export type ChordPosition = typeof ChordPosition[keyof typeof ChordPosition];
 export type InversionMode = typeof InversionMode[keyof typeof InversionMode];
 export type StickyMode = typeof StickyMode[keyof typeof StickyMode];
-export type ThemeMode = typeof ThemeMode[keyof typeof ThemeMode];
 export type BackgroundMode = typeof BackgroundMode[keyof typeof BackgroundMode];
 
 export interface ChordVoicing {

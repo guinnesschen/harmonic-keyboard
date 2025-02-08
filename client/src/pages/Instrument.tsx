@@ -9,7 +9,7 @@ import { generateVoicingFromKeyState, handleKeyPress, handleKeyRelease } from "@
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
-import { InversionMode, StickyMode, ThemeMode, BackgroundMode } from "@shared/schema";
+import { InversionMode, StickyMode, BackgroundMode } from "@shared/schema";
 import SettingsModal from "@/components/SettingsModal";
 
 const defaultSettings: SynthSettings = {
@@ -57,7 +57,6 @@ export default function Instrument() {
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [inversionMode, setInversionMode] = useState<InversionMode>(InversionMode.Traditional);
   const [stickyMode, setStickyMode] = useState<StickyMode>(StickyMode.Off);
-  const [themeMode, setThemeMode] = useState<ThemeMode>(ThemeMode.Light);
   const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>(BackgroundMode.Minimal);
 
   const initializeAudio = async () => {
@@ -111,8 +110,7 @@ export default function Instrument() {
   }, [currentVoicing, isAudioInitialized, inversionMode, stickyMode]);
 
   return (
-    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300
-      ${themeMode === ThemeMode.Light ? 'bg-[#fafafa]' : 'bg-[#1a1a1a]'}`}>
+    <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       {backgroundMode === BackgroundMode.Animated && (
         <BackgroundAnimation voicing={currentVoicing} />
       )}
@@ -121,39 +119,29 @@ export default function Instrument() {
         <SettingsModal
           inversionMode={inversionMode}
           stickyMode={stickyMode}
-          themeMode={themeMode}
           backgroundMode={backgroundMode}
           onInversionModeChange={setInversionMode}
           onStickyModeChange={setStickyMode}
-          onThemeModeChange={setThemeMode}
           onBackgroundModeChange={setBackgroundMode}
         />
         <HelpModal />
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="text-center space-y-4">
-            <h1 className={`text-6xl font-light tracking-tight
-              ${themeMode === ThemeMode.Light
-                ? 'text-gray-900'
-                : 'text-white'}`}>
+            <h1 className="text-6xl font-light tracking-tight text-gray-900">
               Harmonova
             </h1>
-            <p className={`text-lg font-light
-              ${themeMode === ThemeMode.Light
-                ? 'text-gray-600'
-                : 'text-gray-300'}`}>
+            <p className="text-lg font-light text-gray-600">
               A new dimension of harmonic expression
             </p>
           </div>
 
           {!isAudioInitialized ? (
             <div className="text-center max-w-xl mx-auto space-y-6">
-              <h2 className={`text-2xl font-light
-                ${themeMode === ThemeMode.Light ? 'text-gray-900' : 'text-white'}`}>
+              <h2 className="text-2xl font-light text-gray-900">
                 Welcome to Harmonova
               </h2>
-              <p className={`
-                ${themeMode === ThemeMode.Light ? 'text-gray-600' : 'text-gray-300'}`}>
+              <p className="text-gray-600">
                 Due to browser security requirements, we need your permission to enable audio.
               </p>
               <Button
@@ -170,7 +158,6 @@ export default function Instrument() {
               <KeyboardGuide
                 activeVoicing={currentVoicing}
                 inversionMode={inversionMode}
-                themeMode={themeMode}
               />
 
               <SoundControls initialSettings={defaultSettings} />
