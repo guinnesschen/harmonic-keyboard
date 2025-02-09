@@ -1,138 +1,105 @@
 import { getChordIntervals } from "./chords";
 import type { ChordVoicing } from "@shared/schema";
 
-// Constants for voice range limits
 const MIN_NOTE = 48; // C3
 const MAX_NOTE = 84; // C6
 const VOICE_COUNT = 5;
 
 /**
- * Get all possible notes for a pitch class within range
+ * Generate all possible voicings for the given chord
  */
-function getPitchClassNotesInRange(pitchClass: number, min: number, max: number): number[] {
-  const notes: number[] = [];
-  const startOctave = Math.floor(min / 12);
-  const endOctave = Math.floor(max / 12);
-
-  for (let octave = startOctave; octave <= endOctave; octave++) {
-    const note = (octave * 12) + (pitchClass % 12);
-    if (note >= min && note <= max) {
-      notes.push(note);
-    }
-  }
-  return notes;
-}
-
-/**
- * Generate all possible 5-note voicings for given chord tones
- */
-function generatePossibleVoicings(bassNote: number, chordTones: number[]): number[][] {
+function generateAllVoicings(bassNote: number, chordTones: number[]): number[][] {
   const voicings: number[][] = [];
-  const bassOctaves = getPitchClassNotesInRange(bassNote % 12, MIN_NOTE, MAX_NOTE - 12);
+  const bassPC = bassNote % 12;
 
-  // Start with the lowest possible bass note that allows room for upper voices
-  const bass = bassOctaves[0];
-  if (!bass) return [];
+  // Find the lowest valid bass note for this chord
+  let bass = MIN_NOTE + bassPC;
+  while (bass < MIN_NOTE) bass += 12;
+  if (bass > MAX_NOTE - 12) return []; // No room for upper voices
 
-  // Get all possible notes for each chord tone above the bass
-  const upperVoiceOptions = chordTones
-    .map(tone => getPitchClassNotesInRange(tone, bass + 1, MAX_NOTE))
-    .filter(notes => notes.length > 0);
-
-  if (upperVoiceOptions.length === 0) return [[bass]];
-
-  // Generate combinations for upper voices
-  function generateCombinations(
-    position: number,
-    currentVoicing: number[],
-    remainingCount: number
-  ) {
-    if (currentVoicing.length === VOICE_COUNT) {
-      voicings.push([...currentVoicing]);
+  // Generate all possible combinations of upper voices
+  function generateUpperVoices(position: number, current: number[], lastNote: number) {
+    if (current.length === VOICE_COUNT) {
+      voicings.push([...current]);
       return;
     }
 
-    // If we need more notes than available chord tones, reuse tones
-    const availableNotes = upperVoiceOptions[position % upperVoiceOptions.length];
-
-    for (const note of availableNotes) {
-      if (currentVoicing.length === 0 || note > currentVoicing[currentVoicing.length - 1]) {
-        generateCombinations(
-          (position + 1) % upperVoiceOptions.length,
-          [...currentVoicing, note],
-          remainingCount - 1
-        );
+    // For each chord tone, try all possible octaves above the last note
+    for (const tone of chordTones) {
+      let note = lastNote + 1 + ((12 - ((lastNote + 1) % 12) + tone) % 12);
+      while (note <= MAX_NOTE) {
+        generateUpperVoices(position + 1, [...current, note], note);
+        note += 12;
       }
     }
   }
 
-  generateCombinations(0, [bass], VOICE_COUNT - 1);
+  generateUpperVoices(1, [bass], bass);
   return voicings;
 }
 
 /**
- * Calculate total voice movement cost between two voicings
+ * Calculate voice movement cost between two voicings
  */
-function calculateVoiceMovementCost(prev: number[], next: number[]): number {
-  let minCost = Infinity;
+function calculateMovementCost(prev: number[], next: number[]): number {
+  // Bass notes are fixed, start with their movement cost
+  let cost = Math.abs(prev[0] - next[0]);
 
-  // Try all possible permutations of matching voices (except bass)
-  function permute(arr: number[], start: number): void {
-    if (start === arr.length - 1) {
-      // Calculate cost for this permutation
-      let cost = Math.abs(prev[0] - next[0]); // Bass movement
-      for (let i = 1; i < arr.length; i++) {
-        cost += Math.abs(prev[i] - arr[i]);
-      }
-      minCost = Math.min(minCost, cost);
+  // For upper voices, try all permutations to find minimal movement
+  const prevUpper = prev.slice(1);
+  const nextUpper = next.slice(1);
+
+  function* permutations(arr: number[]): Generator<number[]> {
+    if (arr.length <= 1) {
+      yield arr;
       return;
     }
 
-    for (let i = start; i < arr.length; i++) {
-      // Swap elements to generate permutation
-      [arr[start], arr[i]] = [arr[i], arr[start]];
-      permute(arr, start + 1);
-      // Restore original order
-      [arr[start], arr[i]] = [arr[i], arr[start]];
+    for (let i = 0; i < arr.length; i++) {
+      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+      for (const perm of permutations(rest)) {
+        yield [arr[i], ...perm];
+      }
     }
   }
 
-  // Start permutations from index 1 (after bass)
-  const upperVoices = next.slice(1);
-  permute(upperVoices, 0);
-  return minCost;
+  let minUpperCost = Infinity;
+  for (const perm of permutations(nextUpper)) {
+    let upperCost = 0;
+    for (let i = 0; i < prevUpper.length; i++) {
+      upperCost += Math.abs(prevUpper[i] - perm[i]);
+    }
+    minUpperCost = Math.min(minUpperCost, upperCost);
+  }
+
+  return cost + minUpperCost;
 }
 
 /**
- * Create an initial evenly-spaced voicing when there's no previous chord
+ * Create initial evenly-spaced voicing
  */
 function createInitialVoicing(bassNote: number, chordTones: number[]): number[] {
-  const bass = getPitchClassNotesInRange(bassNote % 12, MIN_NOTE, MAX_NOTE - 12)[0];
-  if (!bass) return [];
+  const bassPC = bassNote % 12;
+  let bass = MIN_NOTE + bassPC;
+  while (bass < MIN_NOTE) bass += 12;
 
   const voicing = [bass];
   let lastNote = bass;
 
-  // Add remaining voices with roughly equal spacing
-  const toneCount = chordTones.length;
+  // Add remaining voices with roughly equal spacing (major third)
   for (let i = 1; i < VOICE_COUNT; i++) {
-    const targetPitch = lastNote + 4; // Aim for roughly a major third spacing
-    const tone = chordTones[i % toneCount];
-    const possibleNotes = getPitchClassNotesInRange(tone, lastNote + 1, Math.min(targetPitch + 5, MAX_NOTE));
+    const targetInterval = 4; // Major third spacing
+    const tone = chordTones[i % chordTones.length];
+    const targetNote = lastNote + targetInterval;
 
-    if (possibleNotes.length > 0) {
-      // Find the note closest to our target pitch
-      const note = possibleNotes.reduce((closest, current) => 
-        Math.abs(current - targetPitch) < Math.abs(closest - targetPitch) ? current : closest
-      );
-      voicing.push(note);
-      lastNote = note;
-    } else {
-      // If we can't find a note in the desired range, just move up by 3 semitones
-      const fallbackNote = Math.min(lastNote + 3, MAX_NOTE);
-      voicing.push(fallbackNote);
-      lastNote = fallbackNote;
-    }
+    // Find the closest note of the right pitch class above the last note
+    let note = lastNote + ((12 - (lastNote % 12) + tone) % 12);
+    while (note < targetNote) note += 12;
+    while (note > targetNote + 6) note -= 12;
+
+    if (note > MAX_NOTE) note -= 12;
+    voicing.push(note);
+    lastNote = note;
   }
 
   return voicing;
@@ -142,54 +109,38 @@ export function generateVoicing(
   desired: ChordVoicing,
   previous: ChordVoicing | null
 ): ChordVoicing {
-  // Get all chord tones as pitch classes (0-11)
+  // Get chord tones as pitch classes (0-11)
   const intervals = getChordIntervals(desired.quality);
-  const chordTones = Array.from(new Set(
-    intervals.map(interval => (desired.root + interval) % 12)
-  ));
+  const chordTones = [...new Set(intervals.map(interval => 
+    (desired.root + interval) % 12
+  ))];
 
-  let chosenVoicing: number[];
+  // If this is the first chord, create an evenly-spaced voicing
+  if (!previous?.notes?.length) {
+    const notes = createInitialVoicing(desired.bass, chordTones);
+    return { ...desired, notes };
+  }
 
-  if (!previous?.notes || previous.notes.length === 0) {
-    // No previous chord - create an initial voicing
-    chosenVoicing = createInitialVoicing(desired.bass, chordTones);
-  } else {
-    // Generate all possible voicings
-    const possibleVoicings = generatePossibleVoicings(desired.bass, chordTones);
+  // Generate all possible voicings
+  const allVoicings = generateAllVoicings(desired.bass, chordTones);
 
-    if (possibleVoicings.length === 0) {
-      // Fallback to initial voicing if we couldn't generate any valid options
-      chosenVoicing = createInitialVoicing(desired.bass, chordTones);
-    } else {
-      // Find the voicing with minimal movement from previous
-      let minCost = Infinity;
-      let bestVoicing = possibleVoicings[0];
+  // If no valid voicings found, fallback to initial voicing
+  if (!allVoicings.length) {
+    const notes = createInitialVoicing(desired.bass, chordTones);
+    return { ...desired, notes };
+  }
 
-      for (const voicing of possibleVoicings) {
-        const cost = calculateVoiceMovementCost(previous.notes, voicing);
-        if (cost < minCost) {
-          minCost = cost;
-          bestVoicing = voicing;
-        }
-      }
+  // Find the voicing with minimal movement from previous
+  let bestVoicing = allVoicings[0];
+  let minCost = calculateMovementCost(previous.notes, bestVoicing);
 
-      chosenVoicing = bestVoicing;
+  for (const voicing of allVoicings) {
+    const cost = calculateMovementCost(previous.notes, voicing);
+    if (cost < minCost) {
+      minCost = cost;
+      bestVoicing = voicing;
     }
   }
 
-  // Ensure we have a valid voicing
-  if (!chosenVoicing || chosenVoicing.length === 0) {
-    chosenVoicing = [desired.bass];
-  }
-
-  // Fill to VOICE_COUNT if needed (failsafe)
-  while (chosenVoicing.length < VOICE_COUNT) {
-    const lastNote = chosenVoicing[chosenVoicing.length - 1];
-    chosenVoicing.push(Math.min(lastNote + 4, MAX_NOTE));
-  }
-
-  return {
-    ...desired,
-    notes: chosenVoicing,
-  };
+  return { ...desired, notes: bestVoicing };
 }
