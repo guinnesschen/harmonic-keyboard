@@ -106,21 +106,19 @@ export default function HelpModal() {
                 </h4>
                 <p className="text-gray-600">
                   Inversions determine the relationship between the bass note
-                  and the root of the chord. This creates different voicing
-                  positions while maintaining the same harmonic function:
+                  and the root of the chord. While commonly explained in terms of fixed intervals,
+                  the actual relationship depends on the chord's close position voicing:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-gray-600 mt-2">
                   <li>0 - Root position: The bass note is the root</li>
                   <li>
-                    1 - First inversion: The bass note is the third of the chord
+                    1 - First inversion: The bass note is typically the third, but for extended chords like add9, it could be the 2nd/9th
                   </li>
                   <li>
-                    2 - Second inversion: The bass note is the fifth of the
-                    chord
+                    2 - Second inversion: Usually the fifth in the bass, but varies with chord structure
                   </li>
                   <li>
-                    3 - Third inversion: The bass note is the seventh (for
-                    seventh chords)
+                    3 - Third inversion: Commonly the seventh in the bass for seventh chords
                   </li>
                 </ul>
                 <p className="text-gray-600 mt-2">
