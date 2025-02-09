@@ -6,6 +6,9 @@ const MIN_NOTE = 48; // C3
 const MAX_NOTE = 84; // C6
 const VOICE_COUNT = 5; // Always use 5 voices (bass + 4 upper voices)
 
+// G3 is the threshold for different voicing styles
+const OPEN_VOICING_THRESHOLD = 55; // G3 in MIDI
+
 /**
  * Calculates the total voice movement cost between two voicings.
  * A deterministic measure of total voice movement.
@@ -72,40 +75,52 @@ function generatePossibleVoicings(
 }
 
 /**
- * Creates a default spread voicing pattern based on chord type.
- * Returns a deterministic voicing following [1,5,1,3,5] for triads
- * and [1,5,7,3,5] for seventh chords.
+ * Score a voicing based on its spacing characteristics
  */
-function createDefaultSpreadPattern(
-  bassNote: number,
-  intervals: number[],
-  candidates: number[][]
+function scoreVoicing(voicing: number[], bassNote: number): number {
+  let score = 0;
+  const intervals = [];
+
+  // Calculate intervals between adjacent voices
+  for (let i = 1; i < voicing.length; i++) {
+    intervals.push(voicing[i] - voicing[i-1]);
+  }
+
+  if (bassNote <= OPEN_VOICING_THRESHOLD) {
+    // For lower bass notes (C3-G3), prefer open voicing
+    // Want ~7 semitones (perfect 5th) between bass and next note
+    score -= Math.abs(intervals[0] - 7) * 2;
+
+    // Want remaining voices to be closer together (2-4 semitones apart)
+    for (let i = 1; i < intervals.length; i++) {
+      score -= Math.abs(intervals[i] - 3) * 1.5;
+    }
+  } else {
+    // For higher bass notes (>G3), prefer close position
+    // Want all voices relatively close together (2-4 semitones)
+    for (let interval of intervals) {
+      score -= Math.abs(interval - 3) * 1.5;
+    }
+  }
+
+  return score;
+}
+
+/**
+ * Select the best default voicing based on the bass note range
+ */
+function selectDefaultVoicing(
+  candidates: number[][],
+  bassNote: number
 ): number[] {
   if (candidates.length === 0) return [];
 
-  const isSeventhChord = intervals.length >= 4;
-  const targetIntervals = isSeventhChord
-    ? [0, 7, 10, 4, 7] // Seventh chord: 1-5-7-3-5
-    : [0, 7, 12, 4, 7]; // Triad: 1-5-1-3-5
-
-  // Select most compact voicing matching target intervals
-  return candidates.reduce((best: number[], current: number[]) => {
-    let currentScore = 0;
-    let bestScore = 0;
-
-    // Compare each voice's interval from the bass
-    for (let i = 1; i < current.length; i++) {
-      const currentInterval = ((current[i] - current[0]) + 12) % 12;
-      const bestInterval = ((best[i] - best[0]) + 12) % 12;
-      const targetInterval = targetIntervals[i];
-
-      // Calculate how well each interval matches the target
-      currentScore += Math.abs(currentInterval - targetInterval);
-      bestScore += Math.abs(bestInterval - targetInterval);
-    }
-
-    return currentScore < bestScore ? current : best;
-  });
+  // Find voicing with best spacing characteristics
+  return candidates.reduce((best, current) => {
+    const currentScore = scoreVoicing(current, bassNote);
+    const bestScore = scoreVoicing(best, bassNote);
+    return currentScore > bestScore ? current : best;
+  }, candidates[0]);
 }
 
 export function generateVoicing(
@@ -120,7 +135,7 @@ export function generateVoicing(
     (desired.root + interval) % 12
   ));
 
-  // For triads, prefer doubling the root or fifth
+  // For triads, allow doubling of root or fifth
   let doubledTones: number[] = [];
   if (intervals.length < 4) {
     doubledTones = [
@@ -148,10 +163,10 @@ export function generateVoicing(
       const currentCost = calculateVoiceMovementCost(previous.notes, current);
       const bestCost = calculateVoiceMovementCost(previous.notes, best);
       return currentCost < bestCost ? current : best;
-    }, allVoicings[0]); // Provide a default best voicing to avoid errors
+    }, allVoicings[0]);
   } else {
-    // Use default spread pattern
-    selectedVoicing = createDefaultSpreadPattern(desired.bass, intervals, allVoicings);
+    // Use range-based default voicing selection
+    selectedVoicing = selectDefaultVoicing(allVoicings, desired.bass);
   }
 
   return {
