@@ -22,10 +22,12 @@ function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
             { key: "N" },
             { key: "M" },
           ].map(({ key }) => (
-            <div 
-              key={key} 
-              className={`relative w-8 h-20 bg-white border-x first:border-l last:border-r border-gray-300 flex flex-col items-center justify-end pb-1 ${
-                activeKey?.toLowerCase() === key.toLowerCase() ? "bg-blue-100" : ""
+            <div
+              key={key}
+              className={`relative w-8 h-20 border-x first:border-l last:border-r border-gray-300 flex flex-col items-center justify-end pb-1 ${
+                activeKey?.toLowerCase() === key.toLowerCase()
+                  ? "bg-blue-100"
+                  : ""
               }`}
             >
               <span className="text-xs font-medium text-gray-900">{key}</span>
@@ -47,13 +49,15 @@ function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
             ) : (
               <div
                 key={index}
-                className={`w-4 h-12 bg-gray-800 rounded-b-sm border-x border-b border-gray-600 flex flex-col items-center justify-end pb-1 ${
-                  activeKey?.toLowerCase() === key.toLowerCase() ? "bg-blue-700" : ""
+                className={`w-4 h-12  rounded-b-sm border-x border-b border-gray-600 flex flex-col items-center justify-end pb-1 ${
+                  activeKey?.toLowerCase() === key.toLowerCase()
+                    ? "bg-blue-700"
+                    : "bg-gray-800"
                 }`}
               >
                 <span className="text-xs font-medium text-white">{key}</span>
               </div>
-            )
+            ),
           )}
         </div>
       </div>
