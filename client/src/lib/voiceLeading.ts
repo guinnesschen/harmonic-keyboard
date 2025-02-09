@@ -79,7 +79,7 @@ function generatePossibleVoicings(
 function createDefaultSpreadPattern(
   bassNote: number,
   intervals: number[],
-  candidates: number[]
+  candidates: number[][]
 ): number[] {
   if (candidates.length === 0) return [];
 
@@ -89,7 +89,7 @@ function createDefaultSpreadPattern(
     : [0, 7, 12, 4, 7]; // Triad: 1-5-1-3-5
 
   // Select most compact voicing matching target intervals
-  return candidates.reduce((best, current) => {
+  return candidates.reduce((best: number[], current: number[]) => {
     let currentScore = 0;
     let bestScore = 0;
 
@@ -136,6 +136,10 @@ export function generateVoicing(
     doubledTones
   );
 
+  if (allVoicings.length === 0) {
+    return { ...desired, notes: [] };
+  }
+
   // Select voicing based on previous chord or default pattern
   let selectedVoicing: number[];
   if (previous?.notes && previous.notes.length === VOICE_COUNT) {
@@ -144,10 +148,10 @@ export function generateVoicing(
       const currentCost = calculateVoiceMovementCost(previous.notes, current);
       const bestCost = calculateVoiceMovementCost(previous.notes, best);
       return currentCost < bestCost ? current : best;
-    });
+    }, allVoicings[0]); // Provide a default best voicing to avoid errors
   } else {
     // Use default spread pattern
-    selectedVoicing = createDefaultSpreadPattern(desired.bass, intervals, allVoicings[0]);
+    selectedVoicing = createDefaultSpreadPattern(desired.bass, intervals, allVoicings);
   }
 
   return {
