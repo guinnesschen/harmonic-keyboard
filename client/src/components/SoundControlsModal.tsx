@@ -24,7 +24,7 @@ export default function SoundControlsModal({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="absolute top-4 right-28">
+        <Button variant="ghost" size="icon">
           <Sliders className="h-5 w-5 text-gray-600" />
         </Button>
       </DialogTrigger  >

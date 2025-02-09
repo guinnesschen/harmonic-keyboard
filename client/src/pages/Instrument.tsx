@@ -124,12 +124,14 @@ export default function Instrument() {
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       <div className="relative z-10 [&:fullscreen]:pt-0 pt-8">
-        <SettingsModal
-          chordQualities={chordQualities}
-          onChordQualitiesChange={setChordQualities}
-        />
-        <HelpModal />
-        <SoundControlsModal initialSettings={defaultSettings} />
+        <div className="flex gap-2 absolute top-4 right-4">
+          <SettingsModal
+            chordQualities={chordQualities}
+            onChordQualitiesChange={setChordQualities}
+          />
+          <HelpModal />
+          <SoundControlsModal initialSettings={defaultSettings} />
+        </div>
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="space-y-12 max-w-4xl mx-auto">
