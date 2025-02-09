@@ -24,8 +24,8 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
         className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg transition-colors duration-150
           ${
             isActive
-              ? "bg-stone-500 text-white hover:bg-stone-400"
-              : "bg-transparent border border-stone-500/20 text-gray-900 hover:bg-stone-50"
+              ? "bg-stone-500 text-white hover:bg-stone-300 hover:text-gray-900" // Lighter on hover for active
+              : "bg-transparent border border-stone-500/20 text-gray-900 hover:bg-stone-100" // Brighter on hover for inactive
           }`}
       >
         {keyLabel}

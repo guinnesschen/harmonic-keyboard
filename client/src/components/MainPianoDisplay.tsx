@@ -45,9 +45,9 @@ export default function MainPianoDisplay({ activeVoicing }: MainPianoDisplayProp
                     <div
                       key={midiNote}
                       className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors duration-150
-                        ${isNoteActive(midiNote) 
-                          ? "bg-stone-500 hover:bg-stone-400" 
-                          : "bg-white hover:bg-stone-50"}`}
+                        ${isNoteActive(midiNote)
+                        ? "bg-stone-500 hover:bg-stone-400"
+                        : "bg-white hover:bg-stone-200"}`}
                     />
                   );
                 })}
@@ -62,9 +62,9 @@ export default function MainPianoDisplay({ activeVoicing }: MainPianoDisplayProp
                       key={midiNote}
                       style={{ left }}
                       className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10 transition-colors duration-150
-                        ${isNoteActive(midiNote) 
-                          ? "bg-stone-500 hover:bg-stone-400" 
-                          : "bg-gray-900 hover:bg-gray-800"}`}
+                        ${isNoteActive(midiNote)
+                        ? "bg-stone-500 hover:bg-stone-400"
+                        : "bg-gray-900 hover:bg-gray-600"}`}
                     />
                   );
                 })}
