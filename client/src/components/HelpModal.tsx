@@ -128,6 +128,9 @@ export default function HelpModal() {
                   (major quality) + 1 (first inversion), then press X (E bass).
                   This creates a C major chord with E in the bass.
                 </p>
+                <p className="text-gray-600 mt-2">
+                  Note: The relationship between bass note and root described above is a simplification. In practice, inversions are determined by the close position voicing of each chord quality, which can vary. For instance, in an add9 chord, first inversion places the 2nd/9th in the bass rather than the third. The inversion number always indicates which note of the close position voicing becomes the bass, counting up from the root.
+                </p>
               </div>
             </div>
           </section>
