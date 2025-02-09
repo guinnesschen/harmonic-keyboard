@@ -7,7 +7,7 @@ import {
 import { getDefaultQuality, getChordIntervals } from "./chordConfig";
 
 // Define keyboard mappings (all lowercase for consistent comparison)
-const BASS_KEYS = "zsxdcvgbhnjm,l./";
+const BASS_KEYS = "zsxdcvgbhnjm,l.;/";
 const POSITION_KEYS = "01234"; // Number row for inversions, including root position
 
 // Default quality key mappings
