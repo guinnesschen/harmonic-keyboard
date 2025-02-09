@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -16,7 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import type { SynthSettings } from "@/lib/audio";
-import { updateSynthSettings } from "@/lib/audio";
+import { updateSynthSettings, soundPresets, type SoundPresetName } from "@/lib/audio";
 
 interface SoundControlsProps {
   initialSettings: SynthSettings;
@@ -24,6 +24,7 @@ interface SoundControlsProps {
 
 export default function SoundControls({ initialSettings }: SoundControlsProps) {
   const [settings, setSettings] = useState<SynthSettings>(initialSettings);
+  const [currentPreset, setCurrentPreset] = useState<SoundPresetName | "custom">("Warm Piano");
 
   const updateSettings = (path: string[], value: number | string) => {
     const newSettings = { ...settings };
@@ -36,11 +37,44 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
     current[path[path.length - 1]] = value;
 
     setSettings(newSettings);
+    setCurrentPreset("custom");
     updateSynthSettings(newSettings);
   };
 
+  const loadPreset = (presetName: SoundPresetName) => {
+    const preset = soundPresets[presetName];
+    setSettings(preset);
+    setCurrentPreset(presetName);
+    updateSynthSettings(preset);
+  };
+
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <div className="space-y-4">
+      <div>
+        <Label className="text-gray-900">Sound Preset</Label>
+        <Select
+          value={currentPreset}
+          onValueChange={(value) => {
+            if (value !== "custom") {
+              loadPreset(value as SoundPresetName);
+            }
+          }}
+        >
+          <SelectTrigger className="bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(soundPresets).map((presetName) => (
+              <SelectItem key={presetName} value={presetName}>
+                {presetName}
+              </SelectItem>
+            ))}
+            <SelectItem value="custom">Custom</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="oscillator">
         <AccordionTrigger className="text-gray-900">
           Oscillator
@@ -359,6 +393,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
           </div>
         </AccordionContent>
       </AccordionItem>
-    </Accordion>
+      </Accordion>
+    </div>
   );
 }
