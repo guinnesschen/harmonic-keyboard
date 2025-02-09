@@ -56,7 +56,7 @@ export default function HelpModal() {
               with natural musical thought. Rather than thinking about
               individual notes, you think in terms of harmony and function - "C
               major", "first inversion", "bass on E". As you explore, you may
-              find yourself naturally playing progressions and voicings that
+              find yourself naturally playing progressions that
               previously seemed out of reach, because the interface speaks the
               same language as musical imagination.
             </p>
@@ -82,7 +82,7 @@ export default function HelpModal() {
 
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">
-                  Chord Quality Selection (Q through P)
+                  Chord Quality Selection
                 </h4>
                 <p className="text-gray-600">
                   Hold a quality modifier while pressing a bass note to specify
@@ -101,9 +101,7 @@ export default function HelpModal() {
               </div>
 
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">
-                  Inversions (0 through 3)
-                </h4>
+                <h4 className="font-medium text-gray-900 mb-2">Inversions</h4>
                 <p className="text-gray-600">
                   Inversions determine the relationship between the bass note
                   and the root of the chord. This creates different voicing
@@ -125,11 +123,18 @@ export default function HelpModal() {
                 </ul>
                 <p className="text-gray-600 mt-2">
                   For example, to play C/E (C major first inversion): Hold Q
-                  (major quality) + 1 (first inversion), then press X (E bass).
+                  (major quality) + 1 (first inversion), then press C (E bass).
                   This creates a C major chord with E in the bass.
                 </p>
                 <p className="text-gray-600 mt-2">
-                  Note: The relationship between bass note and root described above is a simplification. In practice, inversions are determined by the close position voicing of each chord quality, which can vary. For instance, in an add9 chord, first inversion places the 2nd/9th in the bass rather than the third. The inversion number always indicates which note of the close position voicing becomes the bass, counting up from the root.
+                  Note: The relationship between bass note and root described
+                  above is a simplification. In reality, inversions are
+                  determined by the close position voicing of each chord
+                  quality, which can vary. For instance, in an add9 chord, first
+                  inversion places the 2nd/9th in the bass rather than the
+                  third. The inversion number always indicates which note of the
+                  close position voicing becomes the bass, counting up from the
+                  root.
                 </p>
               </div>
             </div>
