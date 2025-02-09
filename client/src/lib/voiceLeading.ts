@@ -50,55 +50,67 @@ function distributeVoices(
   // Start with the bass note
   const voices = [bassNote];
   const requiredPitchClasses = new Set(Array.from(requiredNotes).map(note => note % 12));
+  const targetVoiceCount = 5;
 
   // If we have previous voices, try to move each voice to the nearest required note
   if (previousVoices && previousVoices.length > 1) {
     const upperVoices = previousVoices.slice(1);
-
-    // For each previous upper voice, find the closest required note
-    upperVoices.forEach(prevNote => {
+    
+    // For each previous upper voice position (4 positions since we already have bass)
+    for (let i = 0; i < targetVoiceCount - 1; i++) {
+      const prevNote = upperVoices[i] || (voices[voices.length - 1] + 4);
       let bestNote = -1;
       let minDistance = Infinity;
 
       // Try each required pitch class in different octaves
-      requiredPitchClasses.forEach(pitchClass => {
+      Array.from(requiredPitchClasses).forEach(pitchClass => {
         const baseNote = findClosestOctave(pitchClass, prevNote);
         const distance = Math.abs(baseNote - prevNote);
 
-        if (distance < minDistance && baseNote > bassNote) {
+        if (distance < minDistance && baseNote > voices[voices.length - 1]) {
           minDistance = distance;
           bestNote = baseNote;
         }
       });
 
-      if (bestNote !== -1) {
-        voices.push(bestNote);
-        requiredPitchClasses.delete(bestNote % 12);
+      // If no required note found, double an existing note (prefer root and fifth)
+      if (bestNote === -1) {
+        const rootPC = bassNote % 12;
+        const fifthPC = (bassNote + 7) % 12;
+        const noteToDouble = voices.find(n => 
+          (n % 12 === rootPC || n % 12 === fifthPC) && 
+          n !== voices[voices.length - 1]
+        ) || voices[voices.length - 1];
+        bestNote = findClosestOctave(noteToDouble, prevNote);
       }
-    });
-  }
 
-  // If we still need more voices or don't have previous voices
-  while (voices.length < 5) {
-    if (requiredPitchClasses.size > 0) {
-      // Add remaining required notes
-      const pitchClass = Array.from(requiredPitchClasses)[0];
-      const note = findClosestOctave(pitchClass, voices[voices.length - 1] + 4);
-      voices.push(note);
-      requiredPitchClasses.delete(pitchClass);
-    } else {
-      // Double appropriate notes (prefer root and fifth)
-      const lastNote = voices[voices.length - 1];
-      const rootPC = bassNote % 12;
-      const fifthPC = (bassNote + 7) % 12;
-
-      // Try to double root or fifth in a higher octave
-      const noteToDouble = voices.find(n => n % 12 === rootPC || n % 12 === fifthPC) || voices[1];
-      voices.push(findClosestOctave(noteToDouble, lastNote + 4));
+      voices.push(bestNote);
+      requiredPitchClasses.delete(bestNote % 12);
+    }
+  } else {
+    // No previous voices - build from scratch
+    while (voices.length < targetVoiceCount) {
+      if (requiredPitchClasses.size > 0) {
+        // Add remaining required notes
+        const pitchClass = Array.from(requiredPitchClasses)[0];
+        const note = findClosestOctave(pitchClass, voices[voices.length - 1] + 4);
+        voices.push(note);
+        requiredPitchClasses.delete(pitchClass);
+      } else {
+        // Double appropriate notes (prefer root and fifth)
+        const rootPC = bassNote % 12;
+        const fifthPC = (bassNote + 7) % 12;
+        const noteToDouble = voices.find(n => 
+          (n % 12 === rootPC || n % 12 === fifthPC) && 
+          n !== voices[voices.length - 1]
+        ) || voices[voices.length - 1];
+        const note = findClosestOctave(noteToDouble, voices[voices.length - 1] + 4);
+        voices.push(note);
+      }
     }
   }
 
-  // Sort voices while keeping bass note at bottom
+  // Sort upper voices while keeping bass note at bottom
   const upperVoices = voices.slice(1).sort((a, b) => a - b);
   return [bassNote, ...upperVoices];
 }
