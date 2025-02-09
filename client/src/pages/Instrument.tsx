@@ -13,6 +13,8 @@ import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
 import SettingsModal from "@/components/SettingsModal";
 import { defaultChordQualities } from "@/lib/chordConfig";
+import { Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -155,6 +157,20 @@ export default function Instrument() {
           />
           <HelpModal />
           <SoundControlsModal initialSettings={defaultSettings} />
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="black-900 hover:bg-transparent"
+          >
+            <a
+              href="https://github.com/guinnesschen/harmonic-keyboard"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github className="h-5 w-5 text-gray-600" />
+            </a>
+          </Button>
         </div>
 
         <div className="max-w-6xl mx-auto p-8 space-y-12">
