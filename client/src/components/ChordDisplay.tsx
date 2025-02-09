@@ -26,11 +26,15 @@ function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
               key={key}
               className={`relative w-8 h-20 border-x first:border-l last:border-r border-gray-300 flex flex-col items-center justify-end pb-1 ${
                 activeKey?.toLowerCase() === key.toLowerCase()
-                  ? "bg-blue-100"
+                  ? "bg-stone-500"
                   : ""
               }`}
             >
-              <span className="text-xs font-medium text-gray-900">{key}</span>
+              <span
+                className={`text-xs font-medium ${activeKey?.toLowerCase() === key.toLowerCase() ? "text-gray-100" : "text-gray-900"}`}
+              >
+                {key}
+              </span>
             </div>
           ))}
         </div>
