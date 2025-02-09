@@ -72,24 +72,54 @@ function generatePossibleVoicings(
 }
 
 /**
+ * Creates a default spread voicing pattern based on chord type
+ */
+function createDefaultSpreadPattern(
+  bassNote: number,
+  intervals: number[],
+  candidates: number[][]
+): number[] {
+  // If no candidates available, return empty array to handle gracefully
+  if (candidates.length === 0) return [];
+
+  const isSeventhChord = intervals.length >= 4;
+
+  // Define ideal intervals from bass for each voice
+  // [bass, fifth, octave/seventh, third, fifth]
+  const idealPattern = isSeventhChord
+    ? [0, 7, 10, 4, 7] // Seventh chord: 1-5-7-3-5
+    : [0, 7, 12, 4, 7]; // Triad: 1-5-1-3-5
+
+  // Find the voicing that best matches our ideal pattern
+  return candidates.reduce((best, current) => {
+    // Calculate how well this voicing matches our ideal pattern
+    const currentFit = current.slice(1).reduce((sum, note, idx) => {
+      const idealInterval = idealPattern[idx + 1];
+      const actualInterval = ((note - bassNote) + 1200) % 12; // Ensure positive modulo
+      return sum + Math.abs(actualInterval - idealInterval);
+    }, 0);
+
+    const bestFit = best.slice(1).reduce((sum, note, idx) => {
+      const idealInterval = idealPattern[idx + 1];
+      const actualInterval = ((note - bassNote) + 1200) % 12;
+      return sum + Math.abs(actualInterval - idealInterval);
+    }, 0);
+
+    return currentFit < bestFit ? current : best;
+  });
+}
+
+/**
  * Picks the best voicing based on voice leading from previous chord
  */
 function selectBestVoicing(
   candidates: number[][],
-  previousVoicing: number[] | null
+  previousVoicing: number[] | null,
+  intervals: number[]
 ): number[] {
   if (!previousVoicing || candidates.length === 0) {
-    // If no previous voicing, pick a well-spaced voicing
-    return candidates.reduce((best, current) => {
-      const avgSpacing = current.slice(1).reduce((sum, note, i, arr) => 
-        i > 0 ? sum + (note - arr[i-1]) : sum, 0) / (current.length - 2);
-
-      const bestSpacing = best.slice(1).reduce((sum, note, i, arr) =>
-        i > 0 ? sum + (note - arr[i-1]) : sum, 0) / (best.length - 2);
-
-      // Prefer voicings with more even spacing
-      return Math.abs(avgSpacing - 4) < Math.abs(bestSpacing - 4) ? current : best;
-    });
+    // Use our new spread pattern for default voicing
+    return createDefaultSpreadPattern(candidates[0][0], intervals, candidates);
   }
 
   // Find voicing with minimal movement from previous
@@ -131,7 +161,8 @@ export function generateVoicing(
   // Select the best voicing based on previous chord
   const bestVoicing = selectBestVoicing(
     allVoicings,
-    previous?.notes || null
+    previous?.notes || null,
+    intervals
   );
 
   return {
