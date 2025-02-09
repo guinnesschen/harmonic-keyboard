@@ -76,7 +76,28 @@ export default function Instrument() {
   };
 
   useEffect(() => {
+    let updateTimeout: NodeJS.Timeout | null = null;
+    let lastUpdateTime = 0;
+    const DEBOUNCE_TIME = 50; // 50ms debounce
+
     const updateVoicing = () => {
+      const now = Date.now();
+      if (now - lastUpdateTime < DEBOUNCE_TIME) {
+        // Clear existing timeout if it exists
+        if (updateTimeout) clearTimeout(updateTimeout);
+        
+        // Schedule new update
+        updateTimeout = setTimeout(() => {
+          performUpdate();
+        }, DEBOUNCE_TIME);
+        return;
+      }
+      
+      performUpdate();
+    };
+
+    const performUpdate = () => {
+      lastUpdateTime = Date.now();
       const newBasicVoicing = generateVoicingFromKeyState();
       if (newBasicVoicing) {
         const fullVoicing = generateVoicing(newBasicVoicing, prevVoicing);
@@ -105,6 +126,7 @@ export default function Instrument() {
 
     const onKeyUp = (e: KeyboardEvent) => {
       if (handleKeyRelease(e)) {
+        if (updateTimeout) clearTimeout(updateTimeout);
         playChord(null);
         setCurrentVoicing(null);
       } else {
