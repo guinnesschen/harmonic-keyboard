@@ -57,7 +57,7 @@ function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
                 className={`w-4 h-12 rounded-b-sm border-x border-b border-gray-600 flex flex-col items-center justify-end pb-1 transition-colors duration-150
                 ${
                   activeKey?.toLowerCase() === key.toLowerCase()
-                    ? "bg-blue-700 hover:bg-blue-500"
+                    ? "bg-stone-500 hover:bg-blue-500"
                     : "bg-gray-800 hover:bg-gray-600"
                 }`}
               >
