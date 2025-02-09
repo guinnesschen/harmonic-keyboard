@@ -1,6 +1,6 @@
 # harmonic-keyboard
 
-[Link text](https://harmony-keyboard-guinness1.replit.app)
+[Try harmonic-keyboard](https://harmony-keyboard-guinness1.replit.app)
 
 A musical instrument that generates dynamic chord voicings using intelligent voice leading algorithms. It works by mapping chord intent (bass note + quality + inversion) to concrete voicings that minimize total semitone movement between consecutive chords.
 
