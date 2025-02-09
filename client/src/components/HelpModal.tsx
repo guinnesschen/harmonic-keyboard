@@ -47,6 +47,9 @@ export default function HelpModal() {
               these three simple parameters, making it highly expressive while
               remaining cognitively manageable.
             </p>
+            <p className="text-gray-600">
+                What makes this instrument uniquely intuitive is how it aligns with natural musical thought. Rather than thinking about individual notes, you think in terms of harmony and function - "C major", "first inversion", "bass on F". As you explore, you may find yourself naturally playing progressions and voicings that previously seemed out of reach, because the interface speaks the same language as musical imagination.
+              </p>
           </section>
 
           <section className="space-y-3">
