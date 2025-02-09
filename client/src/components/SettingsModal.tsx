@@ -31,7 +31,7 @@ import {
 } from "@shared/schema";
 import { defaultChordQualities } from "@/lib/chordConfig";
 import { midiNoteToNoteName } from "@/lib/chords";
-import { getQualityKeyMappings, updateQualityKeyMappings } from "@/lib/keyboardMapping";
+import { useSettings } from "@/hooks/useSettings";
 
 interface SettingsModalProps {
   chordQualities: ChordQualityConfig;
@@ -116,11 +116,9 @@ export default function SettingsModal({
   onChordQualitiesChange,
 }: SettingsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { settings, updateSettings } = useSettings();
   const [localChordQualities, setLocalChordQualities] =
     useState<ChordQualityConfig>(chordQualities);
-  const [keyMappings, setKeyMappings] = useState<QualityKeyMapping[]>(
-    getQualityKeyMappings()
-  );
 
   const updateChordQuality = (
     position: keyof ChordQualityConfig,
@@ -139,11 +137,10 @@ export default function SettingsModal({
   };
 
   const updateKeyMapping = (index: number, updates: Partial<QualityKeyMapping>) => {
-    const newMappings = keyMappings.map((mapping, i) =>
+    const newMappings = settings.keyMappings.map((mapping, i) =>
       i === index ? { ...mapping, ...updates } : mapping
     );
-    setKeyMappings(newMappings);
-    updateQualityKeyMappings(newMappings);
+    updateSettings({ keyMappings: newMappings });
   };
 
   const resetToDefaults = () => {
@@ -174,7 +171,7 @@ export default function SettingsModal({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 border rounded-lg p-4">
-                  {keyMappings.map((mapping, index) => (
+                  {settings.keyMappings.map((mapping, index) => (
                     <QualityKeyMappingItem
                       key={index}
                       mapping={mapping}
@@ -185,7 +182,6 @@ export default function SettingsModal({
                 </div>
               </AccordionContent>
             </AccordionItem>
-
             <AccordionItem value="defaultQualities">
               <AccordionTrigger className="text-sm font-medium text-gray-900">
                 Default Chord Qualities
