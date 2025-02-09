@@ -40,7 +40,7 @@ function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
           ))}
         </div>
         {/* Black keys */}
-        <div className="absolute flex space-x-[0.85rem] left-[1.35rem]">
+        <div className="absolute flex space-x-[1.01rem] left-[1.47rem]">
           {[
             { key: "S", skip: false },
             { key: "D", skip: false },
