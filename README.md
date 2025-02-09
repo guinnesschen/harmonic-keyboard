@@ -1,5 +1,7 @@
 # harmonic-keyboard
 
+[Link text](https://harmony-keyboard-guinness1.replit.app)
+
 A musical instrument that generates dynamic chord voicings using intelligent voice leading algorithms. It works by mapping chord intent (bass note + quality + inversion) to concrete voicings that minimize total semitone movement between consecutive chords.
 
 ## How It Works
@@ -55,4 +57,9 @@ Example: To play C/E (C major first inversion), hold Q (major quality) + 1 (firs
   - Effects chain (reverb, chorus, EQ, compression, distortion)
   - Real-time parameter modulation
 
-The codebase emphasizes type safety, component reusability, and efficient state management for real-time audio processing.
+## TODO:
+- Add monkeytype X kareoke X synthesia type feature so that anybody who can touch type can play any song.
+- Improve the voice leading engine
+- Improve the main UI and design, in particular, the key hints.
+- Improve the sound settings UI. make it more like a proper synth UI, with LFOs and envelopes, etc. Maybe do some playful patch cables in the UI
+- Add a chord sequencer / arpeggiator / repeater, where the user can specify a rhythm, which will trigger MIDI notes for the chords
