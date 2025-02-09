@@ -11,7 +11,7 @@ const OPEN_VOICING_THRESHOLD = 55; // G3 in MIDI
 
 interface Voice {
   currentNote: number;
-  isFixed?: boolean; // Used for bass note
+  isFixed?: boolean;
 }
 
 /**
@@ -40,20 +40,36 @@ function findClosestNote(target: number, possibleNotes: number[]): number {
 }
 
 /**
+ * Determine the optimal bass octave that allows room for upper voices
+ */
+function findOptimalBassOctave(desiredBassNote: number): number {
+  // Get all possible bass notes in the valid range
+  const bassClass = desiredBassNote % 12;
+  const possibleBassNotes = getAllPossibleNotes(bassClass, MIN_NOTE, MAX_NOTE - 12);
+
+  // Prefer lower octaves but ensure there's room for upper voices
+  return possibleBassNotes[0];
+}
+
+/**
  * Creates a default voicing when there's no previous chord
  */
 function createDefaultVoicing(bassNote: number, chordTones: Set<number>): number[] {
-  const voices: number[] = [bassNote];
-  const isLowBass = bassNote <= OPEN_VOICING_THRESHOLD;
+  const voices: number[] = [];
+  const bassClass = bassNote % 12;
 
-  // Convert chord tones to array of pitch classes (0-11)
+  // Find optimal bass octave
+  const actualBassNote = findOptimalBassOctave(bassNote);
+  voices.push(actualBassNote);
+
+  const isLowBass = actualBassNote <= OPEN_VOICING_THRESHOLD;
   const availableTones = Array.from(chordTones);
 
   if (isLowBass) {
     // For lower bass notes, create an open voicing
     // Start with a fifth above the bass
-    const fifth = (bassNote % 12 + 7) % 12;
-    const fifthNote = findClosestNote(bassNote + 7, getAllPossibleNotes(fifth, bassNote + 5, bassNote + 9));
+    const fifth = (bassClass + 7) % 12;
+    const fifthNote = findClosestNote(actualBassNote + 7, getAllPossibleNotes(fifth, actualBassNote + 5, actualBassNote + 9));
     voices.push(fifthNote);
 
     // Add remaining voices in close position above the fifth
@@ -66,8 +82,8 @@ function createDefaultVoicing(bassNote: number, chordTones: Set<number>): number
       lastNote = nextNote;
     }
   } else {
-    // For higher bass notes, create a close position voicing
-    let lastNote = bassNote;
+    // For higher bass notes, use close position
+    let lastNote = actualBassNote;
     for (let i = 0; i < 4; i++) {
       const nextTone = availableTones[i % availableTones.length];
       const possibleNotes = getAllPossibleNotes(nextTone, lastNote, lastNote + 6);
@@ -88,43 +104,46 @@ function findOptimalVoiceMovements(
   chordTones: Set<number>,
   bassNote: number
 ): number[] {
-  // Initialize with bass note
-  const newVoices: number[] = [bassNote];
+  // Find optimal bass octave that allows room for upper voices
+  const actualBassNote = findOptimalBassOctave(bassNote);
+
+  // Initialize with fixed bass note
+  const newVoices: number[] = [actualBassNote];
   const remainingVoices = previousVoices.slice(1); // Skip bass voice
-  const coveredTones = new Set([bassNote % 12]);
+  const coveredTones = new Set([bassNote % 12]); // Mark bass note as covered
 
   // First pass: Move each voice to its closest available note
   for (const voice of remainingVoices) {
-    // Get all possible notes for remaining chord tones
+    // Get all possible notes above the bass note
     const availableTones = Array.from(chordTones)
-      .filter(tone => !coveredTones.has(tone))
-      .flatMap(tone => getAllPossibleNotes(tone, voice.currentNote - 6, voice.currentNote + 6));
+      .flatMap(tone => getAllPossibleNotes(tone, actualBassNote, MAX_NOTE));
 
-    // If no uncovered tones, allow moving to any chord tone
-    const possibleNotes = availableTones.length > 0 ? availableTones :
-      Array.from(chordTones).flatMap(tone => 
-        getAllPossibleNotes(tone, voice.currentNote - 6, voice.currentNote + 6)
-      );
+    // Find closest available note that's above the bass
+    const possibleNotes = availableTones.filter(note => note > actualBassNote);
+    if (possibleNotes.length === 0) continue;
 
-    // Find closest available note
     const newNote = findClosestNote(voice.currentNote, possibleNotes);
     newVoices.push(newNote);
     coveredTones.add(newNote % 12);
   }
 
-  // Second pass: If any chord tones are missing, adjust voices to cover them
+  // Second pass: Ensure all chord tones are covered
   const missingTones = Array.from(chordTones).filter(tone => !coveredTones.has(tone));
 
   if (missingTones.length > 0) {
-    // Find the voice that requires minimal movement to cover missing tone
     for (const tone of missingTones) {
+      // Find voice that can move to cover the missing tone with minimal movement
       let minDistance = Infinity;
       let bestVoiceIndex = 1; // Start from 1 to skip bass
       let bestNote = newVoices[1];
 
       for (let i = 1; i < newVoices.length; i++) {
         const currentVoice = newVoices[i];
-        const possibleNotes = getAllPossibleNotes(tone, MIN_NOTE, MAX_NOTE);
+        const possibleNotes = getAllPossibleNotes(tone, actualBassNote, MAX_NOTE)
+          .filter(note => note > actualBassNote);
+
+        if (possibleNotes.length === 0) continue;
+
         const closestNote = findClosestNote(currentVoice, possibleNotes);
         const distance = Math.abs(closestNote - currentVoice);
 
@@ -135,7 +154,9 @@ function findOptimalVoiceMovements(
         }
       }
 
-      newVoices[bestVoiceIndex] = bestNote;
+      if (minDistance !== Infinity) {
+        newVoices[bestVoiceIndex] = bestNote;
+      }
     }
   }
 
