@@ -134,6 +134,8 @@ export async function initAudio(settings: Partial<SynthSettings> = {}): Promise<
 }
 
 export function updateSynthSettings(settings: Partial<SynthSettings>): void {
+  if (!synth) return;
+  
   if (settings.oscillator) {
     synth.set({
       oscillator: {
