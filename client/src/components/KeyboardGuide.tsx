@@ -21,11 +21,11 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
     <div className="flex-1 flex flex-col justify-center items-center gap-2 min-w-[100px]">
       <span className="text-sm text-gray-600">{description}</span>
       <div
-        className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg
+        className={`w-10 h-10 flex items-center justify-center rounded-lg text-lg transition-colors duration-150
           ${
             isActive
-              ? "bg-stone-500 text-white"
-              : "bg-transparent border border-stone-500/20 text-gray-900"
+              ? "bg-stone-500 text-white hover:bg-stone-400"
+              : "bg-transparent border border-stone-500/20 text-gray-900 hover:bg-stone-50"
           }`}
       >
         {keyLabel}

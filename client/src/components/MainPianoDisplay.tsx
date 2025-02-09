@@ -27,7 +27,7 @@ const whiteKeyData = [
 export default function MainPianoDisplay({ activeVoicing }: MainPianoDisplayProps) {
   const activeNotes = new Set(activeVoicing?.notes || []);
   const isNoteActive = (midiNote: number) => activeNotes.has(midiNote);
-  
+
   // Define octaves to display (3 octaves starting from C3)
   const octaves = [3, 4, 5];
 
@@ -44,8 +44,10 @@ export default function MainPianoDisplay({ activeVoicing }: MainPianoDisplayProp
                   return (
                     <div
                       key={midiNote}
-                      className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors
-                        ${isNoteActive(midiNote) ? "bg-stone-500" : "bg-white"}`}
+                      className={`flex-1 flex items-end justify-center border-l last:border-r transition-colors duration-150
+                        ${isNoteActive(midiNote) 
+                          ? "bg-stone-500 hover:bg-stone-400" 
+                          : "bg-white hover:bg-stone-50"}`}
                     />
                   );
                 })}
@@ -59,8 +61,10 @@ export default function MainPianoDisplay({ activeVoicing }: MainPianoDisplayProp
                     <div
                       key={midiNote}
                       style={{ left }}
-                      className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10
-                        ${isNoteActive(midiNote) ? "bg-stone-500" : "bg-gray-900"}`}
+                      className={`absolute w-[8%] h-full -ml-[4%] rounded-b-lg shadow-lg z-10 transition-colors duration-150
+                        ${isNoteActive(midiNote) 
+                          ? "bg-stone-500 hover:bg-stone-400" 
+                          : "bg-gray-900 hover:bg-gray-800"}`}
                     />
                   );
                 })}
