@@ -16,7 +16,7 @@ import { defaultChordQualities } from "@/lib/chordConfig";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
-    type: "triangle",
+    type: "sine",
     spread: 20,
   },
   envelope: {
@@ -27,7 +27,7 @@ const defaultSettings: SynthSettings = {
   },
   effects: {
     reverb: {
-      decay: 2,
+      decay: 1,
       wet: 0.3,
     },
     chorus: {
@@ -38,7 +38,7 @@ const defaultSettings: SynthSettings = {
     eq: {
       low: 0,
       mid: 0,
-      high: 0,
+      high: 1,
     },
     compression: {
       threshold: -20,
@@ -47,15 +47,17 @@ const defaultSettings: SynthSettings = {
       release: 0.25,
     },
     distortion: {
-      distortion: 0.4,
-      wet: 0.2,
+      distortion: 0.2,
+      wet: 0.1,
     },
   },
   volume: -12,
 };
 
 export default function Instrument() {
-  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
+  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(
+    null,
+  );
   const [prevVoicing, setPrevVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [chordQualities, setChordQualities] = useState(defaultChordQualities);
@@ -78,21 +80,21 @@ export default function Instrument() {
   useEffect(() => {
     let updateTimeout: NodeJS.Timeout | null = null;
     let lastUpdateTime = 0;
-    const DEBOUNCE_TIME = 50; // 50ms debounce
+    const DEBOUNCE_TIME = 80; // 80ms debounce
 
     const updateVoicing = () => {
       const now = Date.now();
       if (now - lastUpdateTime < DEBOUNCE_TIME) {
         // Clear existing timeout if it exists
         if (updateTimeout) clearTimeout(updateTimeout);
-        
+
         // Schedule new update
         updateTimeout = setTimeout(() => {
           performUpdate();
         }, DEBOUNCE_TIME);
         return;
       }
-      
+
       performUpdate();
     };
 
@@ -158,9 +160,7 @@ export default function Instrument() {
         <div className="max-w-6xl mx-auto p-8 space-y-12">
           <div className="space-y-12 max-w-4xl mx-auto">
             <ChordDisplay voicing={currentVoicing} />
-            <KeyboardGuide
-              activeVoicing={currentVoicing}
-            />
+            <KeyboardGuide activeVoicing={currentVoicing} />
           </div>
         </div>
       </div>
