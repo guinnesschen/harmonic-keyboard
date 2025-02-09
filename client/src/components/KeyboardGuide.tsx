@@ -25,7 +25,7 @@ function KeyHint({ keyLabel, description, isActive }: KeyHintProps) {
           ${
             isActive
               ? "bg-stone-500 text-white hover:bg-stone-300 hover:text-gray-900" // Lighter on hover for active
-              : "bg-transparent border border-stone-500/20 text-gray-900 hover:bg-stone-100" // Brighter on hover for inactive
+              : "bg-transparent border border-stone-500/20 text-gray-900 hover:bg-stone-300" // Brighter on hover for inactive
           }`}
       >
         {keyLabel}
@@ -75,10 +75,10 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             description = "Dim 7";
             break;
           case ChordQuality.HalfDiminished7:
-            description = "Half-dim 7";
+            description = "HalfDim 7";
             break;
           case ChordQuality.DomSus:
-            description = "Dom Sus";
+            description = "DomSus";
             break;
           case ChordQuality.Sus:
             description = "Sus";
@@ -87,10 +87,13 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
             description = "Aug";
             break;
           case ChordQuality.MinMaj7:
-            description = "Min/Maj7";
+            description = "MinMaj 7";
             break;
           case ChordQuality.Add9:
             description = "Add 9";
+            break;
+          case ChordQuality.MinAdd9:
+            description = "MinAdd 9";
             break;
           default:
             description = mapping.quality;
