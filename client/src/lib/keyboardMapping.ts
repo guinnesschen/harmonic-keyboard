@@ -202,7 +202,7 @@ export function getMidiNoteKey(midiNote: number): string | null {
     1: "sl", // C#
     2: "x.", // D
     3: "d/", // D#
-    4: "c", // E
+    4: "c;", // E
     5: "v", // F
     6: "g", // F#
     7: "b", // G
