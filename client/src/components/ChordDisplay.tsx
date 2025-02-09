@@ -7,7 +7,7 @@ interface ChordDisplayProps {
   voicing: ChordVoicing | null;
 }
 
-function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
+export function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
   return (
     <div className="flex justify-center items-center">
       <div className="relative inline-flex h-20">
