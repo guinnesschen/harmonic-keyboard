@@ -79,33 +79,34 @@ function createDefaultSpreadPattern(
   intervals: number[],
   candidates: number[][]
 ): number[] {
-  // If no candidates available, return empty array to handle gracefully
   if (candidates.length === 0) return [];
 
   const isSeventhChord = intervals.length >= 4;
-
-  // Define ideal intervals from bass for each voice
-  // [bass, fifth, octave/seventh, third, fifth]
-  const idealPattern = isSeventhChord
+  const targetIntervals = isSeventhChord
     ? [0, 7, 10, 4, 7] // Seventh chord: 1-5-7-3-5
     : [0, 7, 12, 4, 7]; // Triad: 1-5-1-3-5
 
-  // Find the voicing that best matches our ideal pattern
+  // Find the voicing that best matches our target intervals
   return candidates.reduce((best, current) => {
-    // Calculate how well this voicing matches our ideal pattern
-    const currentFit = current.slice(1).reduce((sum, note, idx) => {
-      const idealInterval = idealPattern[idx + 1];
-      const actualInterval = ((note - bassNote) + 1200) % 12; // Ensure positive modulo
-      return sum + Math.abs(actualInterval - idealInterval);
-    }, 0);
+    let currentScore = 0;
+    let bestScore = 0;
 
-    const bestFit = best.slice(1).reduce((sum, note, idx) => {
-      const idealInterval = idealPattern[idx + 1];
-      const actualInterval = ((note - bassNote) + 1200) % 12;
-      return sum + Math.abs(actualInterval - idealInterval);
-    }, 0);
+    // Compare each voice's interval from the bass
+    for (let i = 1; i < current.length; i++) {
+      const currentInterval = current[i] - current[0];
+      const bestInterval = best[i] - best[0];
+      const targetInterval = targetIntervals[i];
 
-    return currentFit < bestFit ? current : best;
+      // Calculate how well each interval matches the target
+      currentScore += Math.abs((currentInterval % 12) - (targetInterval % 12));
+      bestScore += Math.abs((bestInterval % 12) - (targetInterval % 12));
+
+      // Also consider absolute pitch to prefer more compact voicings
+      currentScore += Math.abs(currentInterval - targetInterval) * 0.1;
+      bestScore += Math.abs(bestInterval - targetInterval) * 0.1;
+    }
+
+    return currentScore < bestScore ? current : best;
   });
 }
 
@@ -118,7 +119,6 @@ function selectBestVoicing(
   intervals: number[]
 ): number[] {
   if (!previousVoicing || candidates.length === 0) {
-    // Use our new spread pattern for default voicing
     return createDefaultSpreadPattern(candidates[0][0], intervals, candidates);
   }
 
