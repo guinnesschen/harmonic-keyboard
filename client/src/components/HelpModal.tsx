@@ -90,13 +90,13 @@ export default function HelpModal() {
                   root:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-gray-600 mt-2">
-                  <li>Q - Major triad (root, M3, P5)</li>
-                  <li>W - Major seventh (root, M3, P5, M7)</li>
-                  <li>E - Dominant seventh (root, M3, P5, m7)</li>
-                  <li>R - Minor triad (root, m3, P5)</li>
-                  <li>T - Minor seventh (root, m3, P5, m7)</li>
-                  <li>Y - Diminished seventh (root, m3, d5, d7)</li>
-                  <li>U - Half-diminished (root, m3, d5, m7)</li>
+                  <li>Q - Major triad </li>
+                  <li>W - Major seventh </li>
+                  <li>E - Dominant seventh </li>
+                  <li>R - Minor triad </li>
+                  <li>T - Minor seventh </li>
+                  <li>Y - Diminished seventh</li>
+                  <li>U - Half-diminished</li>
                 </ul>
               </div>
 
