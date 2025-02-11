@@ -150,6 +150,13 @@ export default function Instrument() {
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       <div className="relative z-10 [&:fullscreen]:pt-0 pt-8">
+        <Button
+          variant="ghost"
+          asChild
+          className="absolute top-4 left-4 text-gray-600 hover:text-gray-900"
+        >
+          <a href="/sheet-music">Tutorial</a>
+        </Button>
         <div className="flex gap-2 absolute top-4 right-4 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
           <SettingsModal
             chordQualities={chordQualities}
