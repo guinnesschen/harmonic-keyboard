@@ -66,8 +66,7 @@ Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
 
 Z                                      N
 
-You'd have to stop the world just to stop the feeling
-`;
+You'd have to stop the world just to stop the feeling`;
 
 const yesterday_tab = `Z               M  
 
@@ -117,8 +116,7 @@ I said something wrong
 
 B          BE       Z
 
-Now I long for yesterday
-`;
+Now I long for yesterday`;
 
 const when_you_wish_tab = `Z                NE      X5  X  Z3   
 
@@ -134,10 +132,14 @@ Anything your heart desires
 
 XT   BE  ZW
 
-Will come to you
-`;
+Will come to you`;
 
 const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
+  // Split tabs into arrays and filter out empty strings
+  const goodLuckLines = good_luck_babe_tab.split('\n').filter(line => line.trim() !== '');
+  const yesterdayLines = yesterday_tab.split('\n').filter(line => line.trim() !== '');
+  const wishLines = when_you_wish_tab.split('\n').filter(line => line.trim() !== '');
+
   return (
     <div className="min-h-screen w-full bg-white">
       <div className="relative p-4">
@@ -148,27 +150,33 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
           <div className="font-mono whitespace-pre-wrap text-gray-900 space-y-12">
             <div>
               <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
-              <pre className="[&>*:nth-child(odd)]:text-left [&>*:nth-child(even)]:text-center">
-                {good_luck_babe_tab.split('\n').map((line, i) => (
-                  <div key={i}>{line}</div>
+              <div className="space-y-1">
+                {goodLuckLines.map((line, i) => (
+                  <div key={i} className={i % 2 === 0 ? "text-left" : "text-center"}>
+                    {line}
+                  </div>
                 ))}
-              </pre>
+              </div>
             </div>
             <div>
               <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">Medium Difficulty: Yesterday by The Beatles</h2>
-              <pre className="[&>*:nth-child(odd)]:text-left [&>*:nth-child(even)]:text-center">
-                {yesterday_tab.split('\n').map((line, i) => (
-                  <div key={i}>{line}</div>
+              <div className="space-y-1">
+                {yesterdayLines.map((line, i) => (
+                  <div key={i} className={i % 2 === 0 ? "text-left" : "text-center"}>
+                    {line}
+                  </div>
                 ))}
-              </pre>
+              </div>
             </div>
             <div>
               <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">Hard Difficulty: When You Wish Upon A Star by Cliff Edwards</h2>
-              <pre className="[&>*:nth-child(odd)]:text-left [&>*:nth-child(even)]:text-center">
-                {when_you_wish_tab.split('\n').map((line, i) => (
-                  <div key={i}>{line}</div>
+              <div className="space-y-1">
+                {wishLines.map((line, i) => (
+                  <div key={i} className={i % 2 === 0 ? "text-left" : "text-center"}>
+                    {line}
+                  </div>
                 ))}
-              </pre>
+              </div>
             </div>
           </div>
         </div>
