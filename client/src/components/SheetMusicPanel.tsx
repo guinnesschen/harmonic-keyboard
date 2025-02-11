@@ -1,42 +1,42 @@
 import { FC } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
-const SheetMusicPanel: FC = () => {
+interface SheetMusicPanelProps {
+  onClose: () => void;
+}
+
+const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <div className="min-h-screen w-full bg-white">
+      <div className="relative">
         <Button
           variant="ghost"
-          className="text-gray-600 hover:bg-transparent hover:text-gray-700"
+          size="icon"
+          className="absolute right-4 top-4"
+          onClick={onClose}
         >
-          Tutorial
+          <X className="h-4 w-4" />
         </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-1/2 p-0 max-w-none">
-        <div className="min-h-screen w-full bg-white">
-          <div className="max-w-4xl mx-auto space-y-12 p-8">
-            {/* YouTube Video */}
-            <div className="aspect-w-16 aspect-h-9">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/EFqt0oD22WA"
-                title="Harmonic Keyboard Tutorial"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
+      </div>
+      <div className="max-w-4xl mx-auto space-y-12 p-8">
+        {/* YouTube Video */}
+        <div className="aspect-w-16 aspect-h-9">
+          <iframe
+            className="w-full h-full"
+            src="https://www.youtube.com/embed/EFqt0oD22WA"
+            title="Harmonic Keyboard Tutorial"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
 
-            {/* Sheet Music Text Content */}
-            <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
-              <pre className="text-center font-mono whitespace-pre-wrap text-gray-900 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-stone-800 [&>h2]:my-6">
-<h2>Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
+        {/* Sheet Music Text Content */}
+        <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
+          <pre className="text-center font-mono whitespace-pre-wrap text-gray-900 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-stone-800 [&>h2]:my-6">
+            <h2>Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
 
-             V            B
+            V            B
 It's fine, it's cool
    Z                                               N
 You can say that we are nothing, but you know the truth
@@ -113,12 +113,10 @@ Anything your heart desires
 Will come to you
 
 
-</pre>
-            </div>
-          </div>
+          </pre>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </div>
   );
 };
 
