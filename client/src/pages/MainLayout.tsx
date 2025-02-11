@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Instrument from "./Instrument";
 import SheetMusicPanel from "@/components/SheetMusicPanel";
-import { defaultChordQualities } from "@/lib/chordConfig";
+import { defaultChordQualities, type ChordQualityConfig } from "@/lib/chordConfig";
 import type { SynthSettings } from "@/lib/audio";
 
 const defaultSettings: SynthSettings = {
@@ -47,29 +47,34 @@ const defaultSettings: SynthSettings = {
 
 export default function MainLayout() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
-  const [chordQualities, setChordQualities] = useState(defaultChordQualities);
+  const [chordQualities, setChordQualities] = useState<ChordQualityConfig>(defaultChordQualities);
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="flex flex-col h-screen">
-        <Header
-          chordQualities={chordQualities}
-          onChordQualitiesChange={setChordQualities}
-          initialSoundSettings={defaultSettings}
-          onTutorialClick={() => setIsTutorialOpen(true)}
-        />
-        <div className="flex flex-1 overflow-hidden">
-          <div className={`flex-1 transition-all duration-300 ${isTutorialOpen ? 'w-1/2' : 'w-full'}`}>
-            <Instrument
+        <div className={`flex transition-all duration-300 ease-in-out h-full`}>
+          <div className={`flex flex-col transition-all duration-300 ease-in-out ${isTutorialOpen ? 'w-1/2' : 'w-full'}`}>
+            <Header
               chordQualities={chordQualities}
-              defaultSettings={defaultSettings}
+              onChordQualitiesChange={setChordQualities}
+              initialSoundSettings={defaultSettings}
+              isTutorialOpen={isTutorialOpen}
+              onTutorialToggle={() => setIsTutorialOpen(!isTutorialOpen)}
             />
-          </div>
-          {isTutorialOpen && (
-            <div className="w-1/2 border-l border-gray-200">
-              <SheetMusicPanel onClose={() => setIsTutorialOpen(false)} />
+            <div className="flex-1">
+              <Instrument
+                chordQualities={chordQualities}
+                defaultSettings={defaultSettings}
+              />
             </div>
-          )}
+          </div>
+          <div 
+            className={`w-1/2 border-l border-gray-200 transition-all duration-300 ease-in-out transform ${
+              isTutorialOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            {isTutorialOpen && <SheetMusicPanel onClose={() => setIsTutorialOpen(false)} />}
+          </div>
         </div>
       </div>
     </div>
