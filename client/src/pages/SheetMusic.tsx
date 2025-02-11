@@ -5,7 +5,10 @@ const SheetMusic: FC = () => {
   return (
     <div className="min-h-screen w-full bg-white p-8 relative">
       {/* Tutorial Link */}
-      <Link href="/" className="absolute top-4 left-4 text-gray-600 hover:text-gray-900 transition-colors">
+      <Link
+        href="/"
+        className="absolute top-4 left-4 text-gray-600 hover:text-gray-900 transition-colors"
+      >
         ← tutorial
       </Link>
 
@@ -15,7 +18,7 @@ const SheetMusic: FC = () => {
           <iframe
             className="w-full h-full"
             src="https://www.youtube.com/embed/EFqt0oD22WA"
-            title="Harmonova Tutorial"
+            title="Harmonic Keyboard Tutorial"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
@@ -28,20 +31,21 @@ const SheetMusic: FC = () => {
             type="application/pdf"
             className="w-full h-[842px]"
           >
-            <p>Unable to display PDF file. <a href="/sheet-music.pdf">Download</a> instead.</p>
+            <p>
+              Unable to display PDF file.{" "}
+              <a href="/sheet-music.pdf">Download</a> instead.
+            </p>
           </object>
           <object
             data="/sheet-music.pdf#page=2"
             type="application/pdf"
             className="w-full h-[842px]"
-          >
-          </object>
+          ></object>
           <object
             data="/sheet-music.pdf#page=3"
             type="application/pdf"
             className="w-full h-[842px]"
-          >
-          </object>
+          ></object>
         </div>
       </div>
     </div>
