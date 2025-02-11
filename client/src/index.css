@@ -10,4 +10,9 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
+
+  :root {
+    --accent: 0 0% 0%;
+    --accent-foreground: 0 0% 100%;
+  }
 }
