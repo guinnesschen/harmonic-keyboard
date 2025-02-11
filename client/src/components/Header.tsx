@@ -36,7 +36,7 @@ export default function Header({
       {showBanner && (
         <div className="relative bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <Alert className="relative border-none bg-transparent">
-            <AlertDescription className="text-sm text-gray-600">
+            <AlertDescription className="font-mono text-sm text-gray-900">
               Click the book icon to view sheet music and tutorials →
             </AlertDescription>
             <Button

@@ -27,11 +27,11 @@ export default function SoundControlsModal({
         <Button variant="ghost" size="icon">
           <Sliders className="h-5 w-5 text-gray-600" />
         </Button>
-      </DialogTrigger  >
+      </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-gray-900">Sound Controls</DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogTitle className="font-mono text-xl font-semibold text-stone-800">Sound Controls</DialogTitle>
+          <DialogDescription className="font-mono text-gray-900 whitespace-pre-wrap">
             Customize your instrument's sound
           </DialogDescription>
         </DialogHeader>
