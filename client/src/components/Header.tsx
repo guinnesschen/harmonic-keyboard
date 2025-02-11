@@ -123,7 +123,7 @@ export default function Header({
           onClick={handleBookClick}
           className={buttonClass}
         >
-          <motion.div animate={controls} initial={{ y: 0, rotate: 0 }}>
+          <motion.div animate={controls} initial={{ y: 0, rotate: 0 }} className="[&>svg]:text-gray-900">
             {isTutorialOpen ? (
               <BookOpen className="h-5 w-5" />
             ) : (
