@@ -24,28 +24,90 @@ const SheetMusic: FC = () => {
           ></iframe>
         </div>
 
-        {/* PDF Viewer */}
-        <div className="space-y-8">
-          <object
-            data="/sheet-music.pdf#page=1"
-            type="application/pdf"
-            className="w-full h-[842px]"
-          >
-            <p>
-              Unable to display PDF file.{" "}
-              <a href="/sheet-music.pdf">Download</a> instead.
-            </p>
-          </object>
-          <object
-            data="/sheet-music.pdf#page=2"
-            type="application/pdf"
-            className="w-full h-[842px]"
-          ></object>
-          <object
-            data="/sheet-music.pdf#page=3"
-            type="application/pdf"
-            className="w-full h-[842px]"
-          ></object>
+        {/* Sheet Music Text Content */}
+        <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8">
+          <pre className="text-center font-mono whitespace-pre-wrap">
+{`Easy Difficulty: Good Luck Babe by Chappell Roan
+
+
+             V            B
+It's fine, it's cool
+   Z                                               N
+You can say that we are nothing, but you know the truth
+                       V          B
+And guess I'm the fool
+         Z                                              N
+With her arms out like an angel through the car sunroof
+
+                                                       X     
+I don't wanna call it off
+                                                 X
+But you don't wanna call it love
+                                       X                                
+You only wanna be the one that I call "baby"
+
+                                                    V                                  B
+You can kiss a hundred boys in bars
+                                                     Z                                N
+Shoot another shot, try to stop the feeling
+                                                     V                                B
+You can say it's just the way you are
+                                                   Z                                       N
+Make a new excuse, another stupid reason
+                                   V                                                        B
+Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
+                                                  Z                                      N
+You'd have to stop the world just to stop the feeling
+                                  V                                                        B
+Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
+                                                  Z                                      N
+You'd have to stop the world just to stop the feeling
+
+
+Medium Difficulty: Yesterday by The Beatles
+
+
+                                                                     Z               M  
+Yesterday
+       					CE                           N             B  V
+All my troubles seemed so far away
+B                                   Z   
+Now it looks as though they're here to stay
+        M1  N       XQ    V        Z     
+Oh, I believe in yesterday
+
+    Z              M
+Suddenly
+                  CE                 N               B V
+I'm not half the man I used to be
+        B                       Z
+There's a shadow hanging over me
+M1 N       XQ            V        Z
+Oh, yesterday came suddenly
+
+  					    M    CE   N    B  V 
+Why she had to go
+               B               BE             Z
+I don't know, she wouldn't say
+ 				          M CE  N     B        V 
+I said something wrong
+          B          BE       Z
+Now I long for yesterday
+Hard Difficulty: When You Wish Upon A Star by Cliff Edwards
+
+
+
+Z                NE      X5  X  Z3   
+When you wish upon a star
+				    M1           BE            ZY          Z 
+Makes no difference who you are
+       CT   DY           XT          BE
+Anything your heart desires
+           XT   BE  ZW
+Will come to you
+
+
+`}</pre>
         </div>
       </div>
     </div>
