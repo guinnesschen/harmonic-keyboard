@@ -34,64 +34,64 @@ const SheetMusic: FC = () => {
 It's fine, it's cool
    Z                                               N
 You can say that we are nothing, but you know the truth
-                       V          B
+                        V          B
 And guess I'm the fool
-         Z                                              N
+          Z                                              N
 With her arms out like an angel through the car sunroof
 
-                                                       X     
+                                                        X     
 I don't wanna call it off
-                                                 X
+                                                  X
 But you don't wanna call it love
-                                       X                                
+                                        X                                
 You only wanna be the one that I call "baby"
 
-                                                    V                                  B
+                                                     V                                  B
 You can kiss a hundred boys in bars
-                                                     Z                                N
+                                                      Z                                N
 Shoot another shot, try to stop the feeling
-                                                     V                                B
+                                                      V                                B
 You can say it's just the way you are
-                                                   Z                                       N
+                                                    Z                                       N
 Make a new excuse, another stupid reason
+                                    V                                                        B
+Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
+                                                   Z                                      N
+You'd have to stop the world just to stop the feeling
                                    V                                                        B
 Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
-                                                  Z                                      N
-You'd have to stop the world just to stop the feeling
-                                  V                                                        B
-Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
-                                                  Z                                      N
+                                                   Z                                      N
 You'd have to stop the world just to stop the feeling
 
 
 <h2>Medium Difficulty: Yesterday by The Beatles</h2>
 
 
-                                                                     Z               M  
+                                                                      Z               M  
 Yesterday
-       					CE                           N             B  V
+        					CE                           N             B  V
 All my troubles seemed so far away
 B                                   Z   
 Now it looks as though they're here to stay
-        M1  N       XQ    V        Z     
+         M1  N       XQ    V        Z     
 Oh, I believe in yesterday
 
     Z              M
 Suddenly
-                  CE                 N               B V
+                   CE                 N               B V
 I'm not half the man I used to be
-        B                       Z
+         B                       Z
 There's a shadow hanging over me
 M1 N       XQ            V        Z
 Oh, yesterday came suddenly
 
   					    M    CE   N    B  V 
 Why she had to go
-               B               BE             Z
+                B               BE             Z
 I don't know, she wouldn't say
  				          M CE  N     B        V 
 I said something wrong
-          B          BE       Z
+           B          BE       Z
 Now I long for yesterday
 
 <h2>Hard Difficulty: When You Wish Upon A Star by Cliff Edwards</h2>
@@ -99,11 +99,11 @@ Now I long for yesterday
 
 Z                NE      X5  X  Z3   
 When you wish upon a star
-				    M1           BE            ZY          Z 
+ 				    M1           BE            ZY          Z 
 Makes no difference who you are
-       CT   DY           XT          BE
+        CT   DY           XT          BE
 Anything your heart desires
-           XT   BE  ZW
+            XT   BE  ZW
 Will come to you
 
 
