@@ -30,6 +30,8 @@ export default function Header({
 
   // Animation sequence for the bouncing effect
   const bounceAnimation = async () => {
+    if (hasClickedBook) return; // Exit if book has been clicked
+
     await controls.start({
       y: [-4, 0, -8, 0],
       rotate: [-5, 0, 5, 0],
@@ -39,30 +41,36 @@ export default function Header({
         ease: "easeInOut",
       },
     });
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between bounces
+
+    // Only schedule next bounce if still hasn't been clicked
+    if (!hasClickedBook) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between bounces
+      if (!hasClickedBook) {
+        requestAnimationFrame(bounceAnimation);
+      }
+    }
   };
 
   useEffect(() => {
     if (!hasClickedBook) {
       // Start animation after 15 seconds
       const timeout = setTimeout(() => {
-        const animateLoop = async () => {
-          if (!hasClickedBook) {
-            await bounceAnimation();
-            if (!hasClickedBook) {
-              requestAnimationFrame(animateLoop);
-            }
-          }
-        };
-        animateLoop();
+        if (!hasClickedBook) {
+          bounceAnimation();
+        }
       }, 15000);
 
-      return () => clearTimeout(timeout);
+      return () => {
+        clearTimeout(timeout);
+        controls.stop(); // Stop any ongoing animation when unmounting
+      };
     }
-  }, [hasClickedBook]);
+  }, [hasClickedBook]); // Added hasClickedBook as dependency
 
   const handleBookClick = () => {
     setHasClickedBook(true);
+    controls.stop(); // Immediately stop any ongoing animation
+    controls.set({ y: 0, rotate: 0 }); // Reset to initial position
     onTutorialToggle();
   };
 
@@ -103,7 +111,7 @@ export default function Header({
           onClick={handleBookClick}
           className="text-gray-900 hover:text-gray-700 transition-colors"
         >
-          <motion.div animate={controls}>
+          <motion.div animate={controls} initial={{ y: 0, rotate: 0 }}>
             {isTutorialOpen ? (
               <BookOpen className="h-5 w-5" />
             ) : (
