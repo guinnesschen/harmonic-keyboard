@@ -75,7 +75,6 @@ export default function MainLayout() {
               <Instrument
                 chordQualities={chordQualities}
                 defaultSettings={defaultSettings}
-                isTutorialOpen={isTutorialOpen}
               />
             </div>
           </div>
