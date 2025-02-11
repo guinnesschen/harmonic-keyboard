@@ -20,7 +20,7 @@ export default function HelpModal() {
         <Button
           variant="ghost"
           size="icon"
-          className="black-900 hover:bg-transparent"
+          className="text-gray-900 hover:bg-transparent hover:text-gray-700"
         >
           <HelpCircle className="h-5 w-5 text-gray-900" />
         </Button>
