@@ -80,7 +80,7 @@ export default function Header({
 
   return (
     <div className="flex justify-end items-center p-4 bg-[#fafafa]">
-      <div className="flex gap-2 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
+      <div className="flex gap-2">
         <SettingsModal
           chordQualities={chordQualities}
           onChordQualitiesChange={onChordQualitiesChange}
@@ -91,21 +91,21 @@ export default function Header({
           variant="ghost"
           size="icon"
           asChild
-          className="black-900 hover:bg-transparent"
+          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
         >
           <a
             href="https://github.com/guinnesschen/harmonic-keyboard"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Github className="h-5 w-5 text-gray-900" />
+            <Github className="h-5 w-5" />
           </a>
         </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={onVideoOpen}
-          className="text-gray-900 hover:text-gray-700 transition-colors"
+          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
         >
           <Youtube className="h-5 w-5" />
         </Button>
@@ -113,7 +113,7 @@ export default function Header({
           variant="ghost"
           size="icon"
           onClick={handleBookClick}
-          className="text-gray-900 hover:text-gray-700 transition-colors"
+          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
         >
           <motion.div animate={controls} initial={{ y: 0, rotate: 0 }}>
             {isTutorialOpen ? (
