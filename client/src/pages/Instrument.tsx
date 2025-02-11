@@ -98,10 +98,16 @@ export default function Instrument({ chordQualities, defaultSettings, sheetMusic
   }, [currentVoicing, isAudioInitialized]);
 
   return (
-    <div className="h-full flex flex-col justify-center overflow-hidden font-mono text-gray-900">
-      <div className={`space-y-2 max-w-4xl mx-auto px-4 ${sheetMusicPanelOpen ? 'mt-2' : '-mt-8'}`}>
-        <ChordDisplay voicing={currentVoicing} sheetMusicPanelOpen={sheetMusicPanelOpen} />
-        <KeyboardGuide activeVoicing={currentVoicing} />
+    <div className="h-full flex flex-col justify-between overflow-hidden font-mono text-gray-900">
+      <div className={`flex-grow flex flex-col max-w-4xl mx-auto px-4 w-full ${
+        sheetMusicPanelOpen ? 'min-h-[300px] py-2' : 'min-h-[400px] py-4'
+      }`}>
+        <div className="min-h-[60px] mb-auto">
+          <ChordDisplay voicing={currentVoicing} sheetMusicPanelOpen={sheetMusicPanelOpen} />
+        </div>
+        <div className={`flex-grow flex flex-col justify-center ${sheetMusicPanelOpen ? 'gap-2' : 'gap-4'}`}>
+          <KeyboardGuide activeVoicing={currentVoicing} />
+        </div>
       </div>
     </div>
   );
