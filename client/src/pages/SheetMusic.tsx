@@ -25,9 +25,9 @@ const SheetMusic: FC = () => {
         </div>
 
         {/* Sheet Music Text Content */}
-        <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8">
-          <pre className="text-center font-mono whitespace-pre-wrap">
-{`Easy Difficulty: Good Luck Babe by Chappell Roan
+        <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
+          <pre className="text-center font-mono whitespace-pre-wrap text-gray-900 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-stone-800 [&>h2]:my-6">
+<h2>Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
 
 
              V            B
@@ -64,7 +64,7 @@ Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
 You'd have to stop the world just to stop the feeling
 
 
-Medium Difficulty: Yesterday by The Beatles
+<h2>Medium Difficulty: Yesterday by The Beatles</h2>
 
 
                                                                      Z               M  
@@ -93,8 +93,8 @@ I don't know, she wouldn't say
 I said something wrong
           B          BE       Z
 Now I long for yesterday
-Hard Difficulty: When You Wish Upon A Star by Cliff Edwards
 
+<h2>Hard Difficulty: When You Wish Upon A Star by Cliff Edwards</h2>
 
 
 Z                NE      X5  X  Z3   
@@ -107,7 +107,7 @@ Anything your heart desires
 Will come to you
 
 
-`}</pre>
+</pre>
         </div>
       </div>
     </div>
