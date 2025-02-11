@@ -7,7 +7,6 @@ import type { SynthSettings } from "@/lib/audio";
 import {
   Alert,
   AlertDescription,
-  AlertTitle,
 } from "@/components/ui/alert";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -19,6 +18,7 @@ interface HeaderProps {
   initialSoundSettings: SynthSettings;
   isTutorialOpen: boolean;
   onTutorialToggle: () => void;
+  onVideoOpen: () => void;
 }
 
 export default function Header({
@@ -27,6 +27,7 @@ export default function Header({
   initialSoundSettings,
   isTutorialOpen,
   onTutorialToggle,
+  onVideoOpen,
 }: HeaderProps) {
   const [showBanner, setShowBanner] = useState(true);
 
@@ -69,6 +70,14 @@ export default function Header({
             >
               <Github className="h-5 w-5 text-gray-900" />
             </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onVideoOpen}
+            className="text-gray-900 hover:text-gray-700 transition-colors"
+          >
+            <Youtube className="h-5 w-5" />
           </Button>
           <Button
             variant="ghost"

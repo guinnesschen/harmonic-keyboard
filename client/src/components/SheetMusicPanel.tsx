@@ -1,25 +1,16 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Youtube } from "lucide-react";
+import { X } from "lucide-react";
 
 interface SheetMusicPanelProps {
   onClose: () => void;
-  onVideoOpen: () => void;
 }
 
-const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose, onVideoOpen }) => {
+const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
   return (
     <div className="min-h-screen w-full bg-white">
       <div className="relative p-4">
-        <div className="flex justify-between items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onVideoOpen}
-            className="text-gray-900 hover:text-gray-700 transition-colors"
-          >
-            <Youtube className="h-5 w-5" />
-          </Button>
+        <div className="flex justify-end items-center">
           <Button
             variant="ghost"
             size="icon"

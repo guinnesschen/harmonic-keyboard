@@ -62,6 +62,7 @@ export default function MainLayout() {
               initialSoundSettings={defaultSettings}
               isTutorialOpen={isTutorialOpen}
               onTutorialToggle={() => setIsTutorialOpen(!isTutorialOpen)}
+              onVideoOpen={() => setIsVideoOpen(true)}
             />
             <div className="flex-1">
               <Instrument
@@ -87,15 +88,13 @@ export default function MainLayout() {
 
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
         <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
-          <div className="aspect-w-16 aspect-h-9">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/EFqt0oD22WA"
-              title="Harmonic Keyboard Tutorial"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          <iframe
+            className="w-full aspect-video"
+            src="https://www.youtube.com/embed/EFqt0oD22WA"
+            title="Harmonic Keyboard Tutorial"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
         </DialogContent>
       </Dialog>
     </div>
