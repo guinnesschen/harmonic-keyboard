@@ -1,3 +1,4 @@
+
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -155,9 +156,12 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
         <div className="h-[calc(100vh-8rem)] w-[691px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
           <div className="font-mono whitespace-pre-wrap text-gray-900 space-y-12">
             <div>
-              <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">
-                Easy Difficulty: Good Luck Babe by Chappell Roan
+              <h2 className="text-xl font-semibold text-stone-800 text-center">
+                Good Luck Babe by Chappell Roan
               </h2>
+              <h3 className="text-lg font-medium text-stone-600 text-center mb-6">
+                Easy Difficulty
+              </h3>
               <div className="space-y-1">
                 {goodLuckLines.map((line, i) => (
                   <div
@@ -170,9 +174,12 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">
-                Medium Difficulty: Yesterday by The Beatles
+              <h2 className="text-xl font-semibold text-stone-800 text-center">
+                Yesterday by The Beatles
               </h2>
+              <h3 className="text-lg font-medium text-stone-600 text-center mb-6">
+                Medium Difficulty
+              </h3>
               <div className="space-y-1">
                 {yesterdayLines.map((line, i) => (
                   <div
@@ -185,9 +192,12 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">
-                Hard Difficulty: When You Wish Upon A Star by Cliff Edwards
+              <h2 className="text-xl font-semibold text-stone-800 text-center">
+                When You Wish Upon A Star by Cliff Edwards
               </h2>
+              <h3 className="text-lg font-medium text-stone-600 text-center mb-6">
+                Hard Difficulty
+              </h3>
               <div className="space-y-1">
                 {wishLines.map((line, i) => (
                   <div
