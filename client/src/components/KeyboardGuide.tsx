@@ -109,7 +109,7 @@ export default function KeyboardGuide({ activeVoicing }: KeyboardGuideProps) {
   return (
     <div className="space-y-12">
       {/* Keyboard Controls */}
-      <div className="flex flex-col items-center gap-16">
+      <div className="flex flex-col items-center gap-8">
         {/* Inversions */}
         <div className="w-full">
           <div className="flex justify-between">

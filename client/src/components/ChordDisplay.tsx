@@ -5,6 +5,7 @@ import { getMidiNoteKey } from "@/lib/keyboardMapping";
 
 interface ChordDisplayProps {
   voicing: ChordVoicing | null;
+  sheetMusicPanelOpen: boolean; // Added prop to track panel state
 }
 
 export function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
@@ -71,7 +72,7 @@ export function MiniPianoGuide({ activeKey }: { activeKey?: string }) {
   );
 }
 
-export default function ChordDisplay({ voicing }: ChordDisplayProps) {
+export default function ChordDisplay({ voicing, sheetMusicPanelOpen }: ChordDisplayProps) {
   const emptyState = !voicing;
   const activeKey = voicing ? getMidiNoteKey(voicing.bass) : undefined;
 
@@ -81,8 +82,8 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
       : "";
 
   return (
-    <div className="flex flex-col justify-center space-y-4">
-      <div className="text-2xl font-light text-center tracking-wide">
+    <div className={`flex flex-col justify-center space-y-4 ${sheetMusicPanelOpen ? 'min-h-[10rem]' : ''}`}> {/* Added conditional min-height */}
+      <div className="text-2xl font-light text-center tracking-wide min-h-[4rem]"> {/* Increased min-height for better visibility */}
         {emptyState ? (
           <span className="text-gray-600">Press a key to play a note</span>
         ) : (
