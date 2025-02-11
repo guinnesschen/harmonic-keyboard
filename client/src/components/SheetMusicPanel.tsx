@@ -6,9 +6,9 @@ interface SheetMusicPanelProps {
   onClose: () => void;
 }
 
-const good_luck_babe_tab = `             V            B
+const good_luck_babe_tab = `           V          B
 It's fine, it's cool
-   Z                                               N
+ Z                            N
 You can say that we are nothing, but you know the truth
                        V          B
 And guess I'm the fool

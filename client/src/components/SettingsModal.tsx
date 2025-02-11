@@ -38,6 +38,9 @@ interface SettingsModalProps {
   onChordQualitiesChange: (config: ChordQualityConfig) => void;
 }
 
+const buttonClass =
+  "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150";
+
 function QualitySelect({
   value,
   onChange,
@@ -63,7 +66,9 @@ function QualitySelect({
           <SelectItem value={ChordQuality.Minor7}>Minor 7</SelectItem>
           <SelectItem value={ChordQuality.Dominant7}>Dominant 7</SelectItem>
           <SelectItem value={ChordQuality.Diminished7}>Diminished 7</SelectItem>
-          <SelectItem value={ChordQuality.HalfDiminished7}>Half-dim 7</SelectItem>
+          <SelectItem value={ChordQuality.HalfDiminished7}>
+            Half-dim 7
+          </SelectItem>
           <SelectItem value={ChordQuality.DomSus}>Dom Sus</SelectItem>
           <SelectItem value={ChordQuality.Sus}>Sus</SelectItem>
           <SelectItem value={ChordQuality.Aug}>Augmented</SelectItem>
@@ -151,7 +156,7 @@ export default function SettingsModal({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className={buttonClass}>
           <Settings className="h-5 w-5 text-gray-600" />
         </Button>
       </DialogTrigger>
@@ -179,7 +184,9 @@ export default function SettingsModal({
                     <QualityKeyMappingItem
                       key={index}
                       mapping={mapping}
-                      onToggle={(enabled) => updateKeyMapping(index, { enabled })}
+                      onToggle={(enabled) =>
+                        updateKeyMapping(index, { enabled })
+                      }
                       onKeyChange={(key) => updateKeyMapping(index, { key })}
                     />
                   ))}
@@ -195,7 +202,11 @@ export default function SettingsModal({
               <AccordionContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Button variant="outline" size="sm" onClick={resetToDefaults}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetToDefaults}
+                    >
                       Reset to Defaults
                     </Button>
                   </div>
