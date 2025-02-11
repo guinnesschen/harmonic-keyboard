@@ -81,8 +81,8 @@ export default function ChordDisplay({ voicing }: ChordDisplayProps) {
       : "";
 
   return (
-    <div className="flex flex-col justify-center space-y-6 min-h-[180px]">
-      <div className="text-3xl font-light text-center tracking-wide">
+    <div className="flex flex-col justify-center space-y-4">
+      <div className="text-2xl font-light text-center tracking-wide">
         {emptyState ? (
           <span className="text-gray-600">Press a key to play a note</span>
         ) : (

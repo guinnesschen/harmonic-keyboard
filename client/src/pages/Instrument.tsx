@@ -97,8 +97,8 @@ export default function Instrument({ chordQualities, defaultSettings }: Instrume
   }, [currentVoicing, isAudioInitialized]);
 
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-12">
-      <div className="space-y-12 max-w-4xl mx-auto">
+    <div className="h-full flex flex-col justify-center overflow-hidden">
+      <div className="space-y-8 max-w-4xl mx-auto px-8">
         <ChordDisplay voicing={currentVoicing} />
         <KeyboardGuide activeVoicing={currentVoicing} />
       </div>

@@ -57,9 +57,9 @@ export default function MainLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <div className="flex flex-col">
-        <div className={`flex transition-all duration-300 ease-in-out h-full`}>
+    <div className="h-screen bg-[#fafafa] flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
+        <div className="flex flex-1">
           <div
             className={`flex flex-col transition-all duration-300 ease-in-out ${isTutorialOpen ? "w-1/2" : "w-full"}`}
           >
@@ -71,7 +71,7 @@ export default function MainLayout() {
               onTutorialToggle={() => setIsTutorialOpen(!isTutorialOpen)}
               onVideoOpen={() => setIsVideoOpen(true)}
             />
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <Instrument
                 chordQualities={chordQualities}
                 defaultSettings={defaultSettings}
