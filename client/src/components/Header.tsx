@@ -4,12 +4,8 @@ import SoundControlsModal from "@/components/SoundControlsModal";
 import { Button } from "@/components/ui/button";
 import { Github, BookOpen, BookIcon, Youtube } from "lucide-react";
 import type { SynthSettings } from "@/lib/audio";
-import {
-  Alert,
-  AlertDescription,
-} from "@/components/ui/alert";
-import { X } from "lucide-react";
-import { useState } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useState } from "react";
 import type { ChordQualityConfig } from "@/lib/chordConfig";
 
 interface HeaderProps {
@@ -29,70 +25,93 @@ export default function Header({
   onTutorialToggle,
   onVideoOpen,
 }: HeaderProps) {
-  const [showBanner, setShowBanner] = useState(true);
+  const [hasClickedBook, setHasClickedBook] = useState(false);
+  const controls = useAnimation();
+
+  // Animation sequence for the bouncing effect
+  const bounceAnimation = async () => {
+    await controls.start({
+      y: [-4, 0, -8, 0],
+      rotate: [-5, 0, 5, 0],
+      transition: {
+        duration: 1,
+        times: [0, 0.3, 0.6, 1],
+        ease: "easeInOut",
+      },
+    });
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between bounces
+  };
+
+  useEffect(() => {
+    if (!hasClickedBook) {
+      // Start animation after 15 seconds
+      const timeout = setTimeout(() => {
+        const animateLoop = async () => {
+          if (!hasClickedBook) {
+            await bounceAnimation();
+            if (!hasClickedBook) {
+              requestAnimationFrame(animateLoop);
+            }
+          }
+        };
+        animateLoop();
+      }, 15000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [hasClickedBook]);
+
+  const handleBookClick = () => {
+    setHasClickedBook(true);
+    onTutorialToggle();
+  };
 
   return (
-    <>
-      {showBanner && (
-        <div className="relative bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <Alert className="relative border-none bg-transparent">
-            <AlertDescription className="font-mono text-sm text-gray-900">
-              Click the book icon to view sheet music and tutorials →
-            </AlertDescription>
-            <Button
-              variant="ghost"
-              className="absolute right-2 top-2 px-2 opacity-70 ring-offset-background transition-opacity hover:opacity-100"
-              onClick={() => setShowBanner(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </Alert>
-        </div>
-      )}
-      <div className="flex justify-end items-center p-4 bg-[#fafafa]">
-        <div className="flex gap-2 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
-          <SettingsModal
-            chordQualities={chordQualities}
-            onChordQualitiesChange={onChordQualitiesChange}
-          />
-          <HelpModal />
-          <SoundControlsModal initialSettings={initialSoundSettings} />
-          <Button
-            variant="ghost"
-            size="icon"
-            asChild
-            className="black-900 hover:bg-transparent"
+    <div className="flex justify-end items-center p-4 bg-[#fafafa]">
+      <div className="flex gap-2 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
+        <SettingsModal
+          chordQualities={chordQualities}
+          onChordQualitiesChange={onChordQualitiesChange}
+        />
+        <HelpModal />
+        <SoundControlsModal initialSettings={initialSoundSettings} />
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          className="black-900 hover:bg-transparent"
+        >
+          <a
+            href="https://github.com/guinnesschen/harmonic-keyboard"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <a
-              href="https://github.com/guinnesschen/harmonic-keyboard"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github className="h-5 w-5 text-gray-900" />
-            </a>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onVideoOpen}
-            className="text-gray-900 hover:text-gray-700 transition-colors"
-          >
-            <Youtube className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onTutorialToggle}
-            className="text-gray-900 hover:text-gray-700 transition-colors"
-          >
+            <Github className="h-5 w-5 text-gray-900" />
+          </a>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onVideoOpen}
+          className="text-gray-900 hover:text-gray-700 transition-colors"
+        >
+          <Youtube className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBookClick}
+          className="text-gray-900 hover:text-gray-700 transition-colors"
+        >
+          <motion.div animate={controls}>
             {isTutorialOpen ? (
               <BookOpen className="h-5 w-5" />
             ) : (
               <BookIcon className="h-5 w-5" />
             )}
-          </Button>
-        </div>
+          </motion.div>
+        </Button>
       </div>
-    </>
+    </div>
   );
 }
