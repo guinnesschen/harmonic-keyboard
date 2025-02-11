@@ -78,7 +78,7 @@ export default function Header({
     onTutorialToggle();
   };
 
-  const buttonClass = "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150";
+  const buttonClass = "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150 [&>svg]:text-gray-900";
 
   return (
     <div className="flex justify-end items-center p-4 bg-[#fafafa]">
