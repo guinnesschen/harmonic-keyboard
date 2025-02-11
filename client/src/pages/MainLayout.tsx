@@ -2,7 +2,10 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Instrument from "./Instrument";
 import SheetMusicPanel from "@/components/SheetMusicPanel";
-import { defaultChordQualities, type ChordQualityConfig } from "@/lib/chordConfig";
+import {
+  defaultChordQualities,
+  type ChordQualityConfig,
+} from "@/lib/chordConfig";
 import type { SynthSettings } from "@/lib/audio";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -49,13 +52,17 @@ const defaultSettings: SynthSettings = {
 export default function MainLayout() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [chordQualities, setChordQualities] = useState<ChordQualityConfig>(defaultChordQualities);
+  const [chordQualities, setChordQualities] = useState<ChordQualityConfig>(
+    defaultChordQualities,
+  );
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col">
         <div className={`flex transition-all duration-300 ease-in-out h-full`}>
-          <div className={`flex flex-col transition-all duration-300 ease-in-out ${isTutorialOpen ? 'w-1/2' : 'w-full'}`}>
+          <div
+            className={`flex flex-col transition-all duration-300 ease-in-out ${isTutorialOpen ? "w-1/2" : "w-full"}`}
+          >
             <Header
               chordQualities={chordQualities}
               onChordQualitiesChange={setChordQualities}
@@ -71,14 +78,14 @@ export default function MainLayout() {
               />
             </div>
           </div>
-          <div 
-            className={`w-1/2 border-l border-gray-200 transition-all duration-300 ease-in-out transform ${
-              isTutorialOpen ? 'translate-x-0' : 'translate-x-full'
+          <div
+            className={`border-l border-gray-200 transition-all duration-300 ease-in-out transform ${
+              isTutorialOpen ? "w-1/2 translate-x-0" : "w-0 overflow-hidden"
             }`}
           >
             {isTutorialOpen && (
-              <SheetMusicPanel 
-                onClose={() => setIsTutorialOpen(false)} 
+              <SheetMusicPanel
+                onClose={() => setIsTutorialOpen(false)}
                 onVideoOpen={() => setIsVideoOpen(true)}
               />
             )}
