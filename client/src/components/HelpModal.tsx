@@ -26,7 +26,7 @@ export default function HelpModal() {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[70vh] overflow-y-auto">
         <div className="space-y-6">
-          <section className="space-y-3">
+          <section className="space-y-3 font-mono">
             <h3 className="text-lg font-medium text-gray-900">
               Design Philosophy
             </h3>
@@ -61,7 +61,7 @@ export default function HelpModal() {
             </p>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-3 font-mono">
             <h3 className="text-lg font-medium text-gray-900">
               Control System
             </h3>
@@ -139,7 +139,7 @@ export default function HelpModal() {
             </div>
           </section>
 
-          <section className="space-y-3">
+          <section className="space-y-3 font-mono">
             <h3 className="text-lg font-medium text-gray-900">
               Voice Leading System
             </h3>
