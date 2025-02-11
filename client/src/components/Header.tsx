@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Github, BookOpen, BookIcon, Youtube } from "lucide-react";
 import type { SynthSettings } from "@/lib/audio";
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { ChordQualityConfig } from "@/lib/chordConfig";
 
 interface HeaderProps {
@@ -27,50 +27,54 @@ export default function Header({
 }: HeaderProps) {
   const [hasClickedBook, setHasClickedBook] = useState(false);
   const controls = useAnimation();
+  const shouldAnimate = useRef(true);
 
   // Animation sequence for the bouncing effect
   const bounceAnimation = async () => {
-    if (hasClickedBook) return; // Exit if book has been clicked
+    while (shouldAnimate.current && !hasClickedBook) {
+      await controls.start({
+        y: [-4, 0, -8, 0],
+        rotate: [-5, 0, 5, 0],
+        transition: {
+          duration: 1,
+          times: [0, 0.3, 0.6, 1],
+          ease: "easeInOut",
+        },
+      });
 
-    await controls.start({
-      y: [-4, 0, -8, 0],
-      rotate: [-5, 0, 5, 0],
-      transition: {
-        duration: 1,
-        times: [0, 0.3, 0.6, 1],
-        ease: "easeInOut",
-      },
-    });
-
-    // Only schedule next bounce if still hasn't been clicked
-    if (!hasClickedBook) {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between bounces
-      if (!hasClickedBook) {
-        requestAnimationFrame(bounceAnimation);
+      // Wait between bounces, but check if we should continue
+      if (shouldAnimate.current && !hasClickedBook) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } else {
+        break;
       }
     }
   };
 
   useEffect(() => {
     if (!hasClickedBook) {
+      shouldAnimate.current = true;
       // Start animation after 15 seconds
       const timeout = setTimeout(() => {
-        if (!hasClickedBook) {
+        if (shouldAnimate.current && !hasClickedBook) {
           bounceAnimation();
         }
       }, 15000);
 
       return () => {
         clearTimeout(timeout);
-        controls.stop(); // Stop any ongoing animation when unmounting
+        shouldAnimate.current = false;
+        controls.stop();
+        controls.set({ y: 0, rotate: 0 });
       };
     }
-  }, [hasClickedBook]); // Added hasClickedBook as dependency
+  }, [hasClickedBook]);
 
   const handleBookClick = () => {
     setHasClickedBook(true);
-    controls.stop(); // Immediately stop any ongoing animation
-    controls.set({ y: 0, rotate: 0 }); // Reset to initial position
+    shouldAnimate.current = false;
+    controls.stop();
+    controls.set({ y: 0, rotate: 0 });
     onTutorialToggle();
   };
 
