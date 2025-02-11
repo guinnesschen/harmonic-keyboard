@@ -2,7 +2,7 @@ import SettingsModal from "@/components/SettingsModal";
 import HelpModal from "@/components/HelpModal";
 import SoundControlsModal from "@/components/SoundControlsModal";
 import { Button } from "@/components/ui/button";
-import { Github, BookOpen, BookIcon } from "lucide-react";
+import { Github, BookOpen, BookIcon, Youtube } from "lucide-react";
 import type { SynthSettings } from "@/lib/audio";
 import {
   Alert,
@@ -34,10 +34,9 @@ export default function Header({
     <>
       {showBanner && (
         <div className="relative bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <Alert className="relative">
-            <AlertTitle>Sheet Music Available!</AlertTitle>
-            <AlertDescription>
-              Click the book icon in the top right corner to view sheet music and tutorials.
+          <Alert className="relative border-none bg-transparent">
+            <AlertDescription className="text-sm text-gray-600">
+              Click the book icon to view sheet music and tutorials →
             </AlertDescription>
             <Button
               variant="ghost"
@@ -49,7 +48,7 @@ export default function Header({
           </Alert>
         </div>
       )}
-      <div className="flex justify-between items-center p-4 bg-[#fafafa]">
+      <div className="flex justify-end items-center p-4 bg-[#fafafa]">
         <div className="flex gap-2 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
           <SettingsModal
             chordQualities={chordQualities}
@@ -68,14 +67,14 @@ export default function Header({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Github className="h-5 w-5 text-gray-600" />
+              <Github className="h-5 w-5 text-gray-900" />
             </a>
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onTutorialToggle}
-            className="text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-gray-900 hover:text-gray-700 transition-colors"
           >
             {isTutorialOpen ? (
               <BookOpen className="h-5 w-5" />

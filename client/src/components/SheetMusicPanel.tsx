@@ -1,38 +1,37 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Youtube } from "lucide-react";
 
 interface SheetMusicPanelProps {
   onClose: () => void;
+  onVideoOpen: () => void;
 }
 
-const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
+const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose, onVideoOpen }) => {
   return (
     <div className="min-h-screen w-full bg-white">
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-4"
-          onClick={onClose}
-        >
-          <X className="h-4 w-4" />
-        </Button>
+      <div className="relative p-4">
+        <div className="flex justify-between items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onVideoOpen}
+            className="text-gray-900 hover:text-gray-700 transition-colors"
+          >
+            <Youtube className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-gray-900 hover:text-gray-700 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       <div className="max-w-4xl mx-auto space-y-12 p-8">
-        {/* YouTube Video */}
-        <div className="aspect-w-16 aspect-h-9">
-          <iframe
-            className="w-full h-full"
-            src="https://www.youtube.com/embed/EFqt0oD22WA"
-            title="Harmonic Keyboard Tutorial"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </div>
-
-        {/* Sheet Music Text Content */}
-        <div className="h-[600px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
+        <div className="h-[calc(100vh-8rem)] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
           <pre className="text-center font-mono whitespace-pre-wrap text-gray-900 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-stone-800 [&>h2]:my-6">
             <h2>Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
 
@@ -40,40 +39,40 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
 It's fine, it's cool
    Z                                               N
 You can say that we are nothing, but you know the truth
-                        V          B
+                         V          B
 And guess I'm the fool
-          Z                                              N
+           Z                                              N
 With her arms out like an angel through the car sunroof
 
-                                                        X     
+                                                         X     
 I don't wanna call it off
-                                                  X
+                                                   X
 But you don't wanna call it love
-                                        X                                
+                                         X                                
 You only wanna be the one that I call "baby"
 
-                                                     V                                  B
+                                                      V                                  B
 You can kiss a hundred boys in bars
-                                                      Z                                N
+                                                       Z                                N
 Shoot another shot, try to stop the feeling
-                                                      V                                B
+                                                       V                                B
 You can say it's just the way you are
-                                                    Z                                       N
+                                                     Z                                       N
 Make a new excuse, another stupid reason
+                                     V                                                        B
+Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
+                                                    Z                                      N
+You'd have to stop the world just to stop the feeling
                                     V                                                        B
 Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
-                                                   Z                                      N
-You'd have to stop the world just to stop the feeling
-                                   V                                                        B
-Good luck, babe (well, good luck), well, good luck, babe (well, good luck)
-                                                   Z                                      N
+                                                    Z                                      N
 You'd have to stop the world just to stop the feeling
 
 
 <h2>Medium Difficulty: Yesterday by The Beatles</h2>
 
 
-                                                                      Z               M  
+                                                                       Z               M  
 Yesterday
         					CE                           N             B  V
 All my troubles seemed so far away
@@ -111,7 +110,6 @@ Makes no difference who you are
 Anything your heart desires
             XT   BE  ZW
 Will come to you
-
 
           </pre>
         </div>

@@ -4,6 +4,7 @@ import Instrument from "./Instrument";
 import SheetMusicPanel from "@/components/SheetMusicPanel";
 import { defaultChordQualities, type ChordQualityConfig } from "@/lib/chordConfig";
 import type { SynthSettings } from "@/lib/audio";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -47,6 +48,7 @@ const defaultSettings: SynthSettings = {
 
 export default function MainLayout() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [chordQualities, setChordQualities] = useState<ChordQualityConfig>(defaultChordQualities);
 
   return (
@@ -73,10 +75,29 @@ export default function MainLayout() {
               isTutorialOpen ? 'translate-x-0' : 'translate-x-full'
             }`}
           >
-            {isTutorialOpen && <SheetMusicPanel onClose={() => setIsTutorialOpen(false)} />}
+            {isTutorialOpen && (
+              <SheetMusicPanel 
+                onClose={() => setIsTutorialOpen(false)} 
+                onVideoOpen={() => setIsVideoOpen(true)}
+              />
+            )}
           </div>
         </div>
       </div>
+
+      <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+        <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
+          <div className="aspect-w-16 aspect-h-9">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/EFqt0oD22WA"
+              title="Harmonic Keyboard Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
