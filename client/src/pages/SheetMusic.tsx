@@ -6,7 +6,7 @@ const SheetMusic: FC = () => {
     <div className="min-h-screen w-full bg-white p-8">
       {/* Tutorial Link */}
       <Link href="/" className="absolute top-4 left-4 text-gray-600 hover:text-gray-900 transition-colors">
-        ← tutorial
+        ← back
       </Link>
 
       <div className="max-w-4xl mx-auto space-y-12">
@@ -22,60 +22,33 @@ const SheetMusic: FC = () => {
         </div>
 
         {/* Sheet Music Content */}
-        <div className="prose prose-stone mx-auto">
-          <h1 className="text-3xl font-light text-gray-900 text-center mb-12">
-            Harmonic Keyboard Guide
-          </h1>
+        <div className="font-mono text-center whitespace-pre-wrap text-gray-900 leading-relaxed">
+{`                              Em                   
+And I don't want the world to see me
+                    Gmaj                     
+'Cause I don't think that they'd understand
+                   Em                         A
+When everything's made to be broken
+                 C                 D          Em
+I just want you to know who I am
 
-          <div className="space-y-8 text-gray-800">
-            <section>
-              <h2 className="text-xl font-light mb-4">Introduction</h2>
-              <p>
-                The Harmonic Keyboard is a revolutionary musical instrument that 
-                transforms how we approach chord generation and musical harmony.
-                This guide will walk you through its core concepts and usage.
-              </p>
-            </section>
+                     Em
+And you can't fight the tears that ain't coming
+                    Gmaj
+Or the moment of truth in your lies
+                   Em                         A
+When everything feels like the movies
+                  C                D          Em
+Yeah you bleed just to know you're alive
 
-            <section>
-              <h2 className="text-xl font-light mb-4">Basic Controls</h2>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Use the bottom two keyboard rows for bass notes (A-L keys)</li>
-                <li>Press Q/W/E/R/T/Y for different chord qualities</li>
-                <li>Numbers 0-3 select inversions</li>
-                <li>Hold Space to sustain chords</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-light mb-4">Advanced Features</h2>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Intelligent voice leading between chord changes</li>
-                <li>Customizable chord qualities per scale degree</li>
-                <li>Multiple sound synthesis options</li>
-                <li>MIDI output capabilities</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-light mb-4">Practice Tips</h2>
-              <ol className="list-decimal pl-5 space-y-2">
-                <li>Start with simple major and minor triads in root position</li>
-                <li>Practice moving between inversions on a single chord</li>
-                <li>Experiment with different chord qualities on the same bass note</li>
-                <li>Try common chord progressions in different keys</li>
-              </ol>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-light mb-4">Voice Leading</h2>
-              <p>
-                The intelligent voice leading system ensures smooth transitions between
-                chords by minimizing the movement of individual voices. This creates
-                more natural and musical progressions.
-              </p>
-            </section>
-          </div>
+                              Em                   
+And I don't want the world to see me
+                    Gmaj                     
+'Cause I don't think that they'd understand
+                   Em                         A
+When everything's made to be broken
+                 C                 D          Em
+I just want you to know who I am`}
         </div>
       </div>
     </div>
