@@ -78,20 +78,28 @@ export default function Header({
     onTutorialToggle();
   };
 
+  const buttonClass = "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150";
+
   return (
     <div className="flex justify-end items-center p-4 bg-[#fafafa]">
       <div className="flex gap-2">
-        <SettingsModal
-          chordQualities={chordQualities}
-          onChordQualitiesChange={onChordQualitiesChange}
-        />
-        <HelpModal />
-        <SoundControlsModal initialSettings={initialSoundSettings} />
+        <div className={buttonClass}>
+          <SettingsModal
+            chordQualities={chordQualities}
+            onChordQualitiesChange={onChordQualitiesChange}
+          />
+        </div>
+        <div className={buttonClass}>
+          <HelpModal />
+        </div>
+        <div className={buttonClass}>
+          <SoundControlsModal initialSettings={initialSoundSettings} />
+        </div>
         <Button
           variant="ghost"
           size="icon"
           asChild
-          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
+          className={buttonClass}
         >
           <a
             href="https://github.com/guinnesschen/harmonic-keyboard"
@@ -105,7 +113,7 @@ export default function Header({
           variant="ghost"
           size="icon"
           onClick={onVideoOpen}
-          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
+          className={buttonClass}
         >
           <Youtube className="h-5 w-5" />
         </Button>
@@ -113,7 +121,7 @@ export default function Header({
           variant="ghost"
           size="icon"
           onClick={handleBookClick}
-          className="text-gray-900 hover:bg-transparent hover:opacity-70 transition-opacity"
+          className={buttonClass}
         >
           <motion.div animate={controls} initial={{ y: 0, rotate: 0 }}>
             {isTutorialOpen ? (
