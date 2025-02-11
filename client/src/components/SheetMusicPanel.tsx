@@ -36,7 +36,6 @@ const SheetMusicPanel: FC = () => {
               <pre className="text-center font-mono whitespace-pre-wrap text-gray-900 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:text-stone-800 [&>h2]:my-6">
 <h2>Easy Difficulty: Good Luck Babe by Chappell Roan</h2>
 
-
              V            B
 It's fine, it's cool
    Z                                               N
