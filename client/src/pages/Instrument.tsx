@@ -153,7 +153,7 @@ export default function Instrument() {
         <Button
           variant="ghost"
           asChild
-          className="absolute top-4 left-4 text-gray-600"
+          className="absolute top-4 left-4 text-gray-600 hover:bg-transparent hover:text-gray-700"
         >
           <a href="/sheet-music">Tutorial</a>
         </Button>
