@@ -13,9 +13,10 @@ import { generateVoicing } from "@/lib/voiceLeading";
 interface InstrumentProps {
   chordQualities: Record<string, boolean>;
   defaultSettings: SynthSettings;
+  sheetMusicPanelOpen?: boolean;
 }
 
-export default function Instrument({ chordQualities, defaultSettings }: InstrumentProps) {
+export default function Instrument({ chordQualities, defaultSettings, sheetMusicPanelOpen = false }: InstrumentProps) {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [prevVoicing, setPrevVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
@@ -98,8 +99,8 @@ export default function Instrument({ chordQualities, defaultSettings }: Instrume
 
   return (
     <div className="h-full flex flex-col justify-center overflow-hidden font-mono text-gray-900">
-      <div className={`space-y-4 max-w-4xl mx-auto px-4 ${isTutorialOpen ? 'mt-0' : '-mt-8'} mb-8`}>
-        <ChordDisplay voicing={currentVoicing} />
+      <div className={`space-y-2 max-w-4xl mx-auto px-4 ${sheetMusicPanelOpen ? 'mt-2' : '-mt-8'}`}>
+        <ChordDisplay voicing={currentVoicing} sheetMusicPanelOpen={sheetMusicPanelOpen} />
         <KeyboardGuide activeVoicing={currentVoicing} />
       </div>
     </div>
