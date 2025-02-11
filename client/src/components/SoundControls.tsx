@@ -16,7 +16,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import type { SynthSettings } from "@/lib/audio";
-import { updateSynthSettings, soundPresets, type SoundPresetName } from "@/lib/audio";
+import {
+  updateSynthSettings,
+  soundPresets,
+  type SoundPresetName,
+} from "@/lib/audio";
 import { useSettings } from "@/hooks/useSettings";
 
 interface SoundControlsProps {
@@ -38,7 +42,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
     updateSettings({
       soundSettings: newSettings,
-      currentPreset: "custom"
+      currentPreset: "custom",
     });
     updateSynthSettings(newSettings);
   };
@@ -47,7 +51,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
     const preset = soundPresets[presetName];
     updateSettings({
       soundSettings: preset,
-      currentPreset: presetName
+      currentPreset: presetName,
     });
     updateSynthSettings(preset);
   };
@@ -69,11 +73,17 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
           </SelectTrigger>
           <SelectContent>
             {Object.keys(soundPresets).map((presetName) => (
-              <SelectItem key={presetName} value={presetName} className="font-mono">
+              <SelectItem
+                key={presetName}
+                value={presetName}
+                className="font-mono"
+              >
                 {presetName}
               </SelectItem>
             ))}
-            <SelectItem value="custom" className="font-mono">Custom</SelectItem>
+            <SelectItem value="custom" className="font-mono">
+              Custom
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -81,7 +91,7 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="oscillator">
           <AccordionTrigger className="text-stone-800 font-semibold">
-            <h2 className="text-xl">Oscillator</h2>
+            <h2 className="">Oscillator</h2>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
@@ -122,7 +132,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="envelope">
-          <AccordionTrigger className="text-stone-800 font-semibold">Envelope</AccordionTrigger>
+          <AccordionTrigger className="text-stone-800 font-semibold">
+            Envelope
+          </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4">
               <div>
@@ -178,7 +190,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="effects">
-          <AccordionTrigger className="text-stone-800 font-semibold">Effects</AccordionTrigger>
+          <AccordionTrigger className="text-stone-800 font-semibold">
+            Effects
+          </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-6">
               {/* Reverb */}
@@ -233,7 +247,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                     max={10}
                     step={0.1}
                     onValueChange={([value]) =>
-                      updateSoundSettings(["effects", "chorus", "frequency"], value)
+                      updateSoundSettings(
+                        ["effects", "chorus", "frequency"],
+                        value,
+                      )
                     }
                   />
                 </div>
@@ -253,11 +270,15 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* Distortion */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-stone-800">Distortion</h3>
+                <h3 className="text-sm font-medium text-stone-800">
+                  Distortion
+                </h3>
                 <div>
                   <Label className="text-stone-800">Amount</Label>
                   <Slider
-                    value={[settings.soundSettings.effects.distortion.distortion]}
+                    value={[
+                      settings.soundSettings.effects.distortion.distortion,
+                    ]}
                     min={0}
                     max={1}
                     step={0.01}
@@ -277,7 +298,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                     max={1}
                     step={0.01}
                     onValueChange={([value]) =>
-                      updateSoundSettings(["effects", "distortion", "wet"], value)
+                      updateSoundSettings(
+                        ["effects", "distortion", "wet"],
+                        value,
+                      )
                     }
                   />
                 </div>
@@ -326,11 +350,15 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
 
               {/* Compressor */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-stone-800">Compressor</h3>
+                <h3 className="text-sm font-medium text-stone-800">
+                  Compressor
+                </h3>
                 <div>
                   <Label className="text-stone-800">Threshold</Label>
                   <Slider
-                    value={[settings.soundSettings.effects.compression.threshold]}
+                    value={[
+                      settings.soundSettings.effects.compression.threshold,
+                    ]}
                     min={-60}
                     max={0}
                     step={1}
@@ -350,7 +378,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                     max={20}
                     step={1}
                     onValueChange={([value]) =>
-                      updateSoundSettings(["effects", "compression", "ratio"], value)
+                      updateSoundSettings(
+                        ["effects", "compression", "ratio"],
+                        value,
+                      )
                     }
                   />
                 </div>
@@ -362,7 +393,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                     max={1}
                     step={0.001}
                     onValueChange={([value]) =>
-                      updateSoundSettings(["effects", "compression", "attack"], value)
+                      updateSoundSettings(
+                        ["effects", "compression", "attack"],
+                        value,
+                      )
                     }
                   />
                 </div>
@@ -374,7 +408,10 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                     max={1}
                     step={0.01}
                     onValueChange={([value]) =>
-                      updateSoundSettings(["effects", "compression", "release"], value)
+                      updateSoundSettings(
+                        ["effects", "compression", "release"],
+                        value,
+                      )
                     }
                   />
                 </div>
@@ -384,7 +421,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
         </AccordionItem>
 
         <AccordionItem value="master">
-          <AccordionTrigger className="text-stone-800 font-semibold">Master</AccordionTrigger>
+          <AccordionTrigger className="text-stone-800 font-semibold">
+            Master
+          </AccordionTrigger>
           <AccordionContent>
             <div>
               <Label className="text-stone-800">Volume</Label>
@@ -393,7 +432,9 @@ export default function SoundControls({ initialSettings }: SoundControlsProps) {
                 min={-60}
                 max={0}
                 step={1}
-                onValueChange={([value]) => updateSoundSettings(["volume"], value)}
+                onValueChange={([value]) =>
+                  updateSoundSettings(["volume"], value)
+                }
               />
             </div>
           </AccordionContent>

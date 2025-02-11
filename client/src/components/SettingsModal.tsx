@@ -87,16 +87,13 @@ function QualityKeyMappingItem({
   return (
     <div className="flex items-center justify-between gap-4 py-2">
       <div className="flex items-center gap-4">
-        <Switch
-          checked={mapping.enabled}
-          onCheckedChange={onToggle}
-        />
+        <Switch checked={mapping.enabled} onCheckedChange={onToggle} />
         <Select value={mapping.key} onValueChange={onKeyChange}>
           <SelectTrigger className="w-20">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {LEGAL_QUALITY_KEYS.map(key => (
+            {LEGAL_QUALITY_KEYS.map((key) => (
               <SelectItem key={key} value={key}>
                 {key}
               </SelectItem>
@@ -136,9 +133,12 @@ export default function SettingsModal({
     onChordQualitiesChange(newConfig);
   };
 
-  const updateKeyMapping = (index: number, updates: Partial<QualityKeyMapping>) => {
+  const updateKeyMapping = (
+    index: number,
+    updates: Partial<QualityKeyMapping>,
+  ) => {
     const newMappings = settings.keyMappings.map((mapping, i) =>
-      i === index ? { ...mapping, ...updates } : mapping
+      i === index ? { ...mapping, ...updates } : mapping,
     );
     updateSettings({ keyMappings: newMappings });
   };
@@ -157,8 +157,10 @@ export default function SettingsModal({
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-mono text-xl font-semibold text-stone-800">
+            Settings
+          </DialogTitle>
+          <DialogDescription className="font-mono text-gray-900">
             Configure your playing experience
           </DialogDescription>
         </DialogHeader>
@@ -167,7 +169,9 @@ export default function SettingsModal({
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="keyMappings">
               <AccordionTrigger className="text-sm font-medium text-gray-900">
-                Chord Quality Key Mappings
+                <h2 className="text-xl font-semibold text-stone-800">
+                  Chord Quality Key Mappings
+                </h2>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 border rounded-lg p-4">
@@ -184,7 +188,9 @@ export default function SettingsModal({
             </AccordionItem>
             <AccordionItem value="defaultQualities">
               <AccordionTrigger className="text-sm font-medium text-gray-900">
-                Default Chord Qualities
+                <h2 className="text-xl font-semibold text-stone-800">
+                  Default Chord Qualities
+                </h2>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
@@ -196,7 +202,7 @@ export default function SettingsModal({
 
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="root">
-                      <AccordionTrigger className="text-sm text-gray-900">
+                      <AccordionTrigger className="text-sm text-gray-900 font-mono">
                         Root Position
                       </AccordionTrigger>
                       <AccordionContent className="space-y-2">
@@ -214,7 +220,7 @@ export default function SettingsModal({
                     </AccordionItem>
 
                     <AccordionItem value="first">
-                      <AccordionTrigger className="text-sm text-gray-900">
+                      <AccordionTrigger className="text-sm text-gray-900 font-mono">
                         First Inversion
                       </AccordionTrigger>
                       <AccordionContent className="space-y-2">
@@ -232,7 +238,7 @@ export default function SettingsModal({
                     </AccordionItem>
 
                     <AccordionItem value="second">
-                      <AccordionTrigger className="text-sm text-gray-900">
+                      <AccordionTrigger className="text-sm text-gray-900 font-mono">
                         Second Inversion
                       </AccordionTrigger>
                       <AccordionContent className="space-y-2">
@@ -250,7 +256,7 @@ export default function SettingsModal({
                     </AccordionItem>
 
                     <AccordionItem value="third">
-                      <AccordionTrigger className="text-sm text-gray-900">
+                      <AccordionTrigger className="text-sm text-gray-900 font-mono">
                         Third/Seventh in Bass
                       </AccordionTrigger>
                       <AccordionContent className="space-y-2">
