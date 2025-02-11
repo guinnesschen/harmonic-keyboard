@@ -13,6 +13,7 @@ import { generateVoicing } from "@/lib/voiceLeading";
 interface InstrumentProps {
   chordQualities: Record<string, boolean>;
   defaultSettings: SynthSettings;
+  isTutorialOpen: boolean;
 }
 
 export default function Instrument({ chordQualities, defaultSettings }: InstrumentProps) {
