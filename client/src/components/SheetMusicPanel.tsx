@@ -152,7 +152,7 @@ const SheetMusicPanel: FC<SheetMusicPanelProps> = ({ onClose }) => {
         <div className="flex justify-end items-center"></div>
       </div>
       <div className="max-w-4xl mx-auto space-y-12 p-8">
-        <div className="h-[calc(100vh-8rem)] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
+        <div className="h-[calc(100vh-8rem)] w-[691px] overflow-y-auto border rounded-lg shadow-sm p-8 bg-white">
           <div className="font-mono whitespace-pre-wrap text-gray-900 space-y-12">
             <div>
               <h2 className="text-xl font-semibold text-stone-800 text-center mb-6">
