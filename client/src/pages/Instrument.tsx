@@ -15,6 +15,7 @@ import SettingsModal from "@/components/SettingsModal";
 import { defaultChordQualities } from "@/lib/chordConfig";
 import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SheetMusicPanel from "@/components/SheetMusicPanel";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -150,13 +151,7 @@ export default function Instrument() {
   return (
     <div className="min-h-screen bg-[#fafafa] relative overflow-hidden">
       <div className="relative z-10 [&:fullscreen]:pt-0 pt-8">
-        <Button
-          variant="ghost"
-          asChild
-          className="absolute top-4 left-4 text-gray-600 hover:bg-transparent hover:text-gray-700"
-        >
-          <a href="/sheet-music">Tutorial</a>
-        </Button>
+        <SheetMusicPanel />
         <div className="flex gap-2 absolute top-4 right-4 [&_button]:hover:bg-transparent [&_button]:hover:opacity-70">
           <SettingsModal
             chordQualities={chordQualities}
