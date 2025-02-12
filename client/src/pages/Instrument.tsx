@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ChordDisplay from "@/components/ChordDisplay";
 import KeyboardGuide from "@/components/KeyboardGuide";
+import DrumMachine from "@/components/DrumMachine";
 import {
   generateVoicingFromKeyState,
   handleKeyPress,
@@ -9,14 +10,21 @@ import {
 import { initAudio, playChord, type SynthSettings } from "@/lib/audio";
 import type { ChordVoicing } from "@shared/schema";
 import { generateVoicing } from "@/lib/voiceLeading";
+import type { InstrumentType } from "@/components/InstrumentSwitcher";
 
 interface InstrumentProps {
   chordQualities: Record<string, boolean>;
   defaultSettings: SynthSettings;
   sheetMusicPanelOpen?: boolean;
+  currentInstrument: InstrumentType;
 }
 
-export default function Instrument({ chordQualities, defaultSettings, sheetMusicPanelOpen = false }: InstrumentProps) {
+export default function Instrument({
+  chordQualities,
+  defaultSettings,
+  sheetMusicPanelOpen = false,
+  currentInstrument,
+}: InstrumentProps) {
   const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
   const [prevVoicing, setPrevVoicing] = useState<ChordVoicing | null>(null);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
@@ -99,15 +107,30 @@ export default function Instrument({ chordQualities, defaultSettings, sheetMusic
 
   return (
     <div className="h-full flex flex-col justify-between overflow-hidden font-mono text-gray-900">
-      <div className={`flex-grow flex flex-col max-w-4xl mx-auto px-4 w-full ${
-        sheetMusicPanelOpen ? 'min-h-[300px] py-2' : 'min-h-[400px] py-4'
-      }`}>
-        <div className="min-h-[60px] mb-auto">
-          <ChordDisplay voicing={currentVoicing} sheetMusicPanelOpen={sheetMusicPanelOpen} />
-        </div>
-        <div className={`flex-grow flex flex-col justify-center ${sheetMusicPanelOpen ? 'gap-2' : 'gap-4'}`}>
-          <KeyboardGuide activeVoicing={currentVoicing} />
-        </div>
+      <div
+        className={`flex-grow flex flex-col max-w-4xl mx-auto px-4 w-full ${
+          sheetMusicPanelOpen ? "min-h-[300px] py-2" : "min-h-[400px] py-4"
+        }`}
+      >
+        {currentInstrument === "piano" ? (
+          <>
+            <div className="min-h-[60px] mb-auto">
+              <ChordDisplay
+                voicing={currentVoicing}
+                sheetMusicPanelOpen={sheetMusicPanelOpen}
+              />
+            </div>
+            <div
+              className={`flex-grow flex flex-col justify-center ${
+                sheetMusicPanelOpen ? "gap-2" : "gap-4"
+              }`}
+            >
+              <KeyboardGuide activeVoicing={currentVoicing} />
+            </div>
+          </>
+        ) : (
+          <DrumMachine className="flex-grow flex items-center" />
+        )}
       </div>
     </div>
   );

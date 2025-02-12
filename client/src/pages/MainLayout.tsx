@@ -8,6 +8,7 @@ import {
 } from "@/lib/chordConfig";
 import type { SynthSettings } from "@/lib/audio";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import InstrumentSwitcher, { type InstrumentType } from "@/components/InstrumentSwitcher";
 
 const defaultSettings: SynthSettings = {
   oscillator: {
@@ -52,6 +53,7 @@ const defaultSettings: SynthSettings = {
 export default function MainLayout() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [currentInstrument, setCurrentInstrument] = useState<InstrumentType>("piano");
   const [chordQualities, setChordQualities] = useState<ChordQualityConfig>(
     defaultChordQualities,
   );
@@ -71,10 +73,17 @@ export default function MainLayout() {
               onTutorialToggle={() => setIsTutorialOpen(!isTutorialOpen)}
               onVideoOpen={() => setIsVideoOpen(true)}
             />
+            <div className="border-b border-gray-200">
+              <InstrumentSwitcher
+                currentInstrument={currentInstrument}
+                onInstrumentChange={setCurrentInstrument}
+              />
+            </div>
             <div className="flex-1 overflow-hidden">
               <Instrument
                 chordQualities={chordQualities}
                 defaultSettings={defaultSettings}
+                currentInstrument={currentInstrument}
               />
             </div>
           </div>
@@ -86,7 +95,6 @@ export default function MainLayout() {
             {isTutorialOpen && (
               <SheetMusicPanel
                 onClose={() => setIsTutorialOpen(false)}
-                onVideoOpen={() => setIsVideoOpen(true)}
               />
             )}
           </div>
