@@ -14,7 +14,7 @@ interface DrumPad {
 const drumPads: DrumPad[] = [
   { key: "U", sound: "crash", label: "Crash", color: "bg-yellow-100", row: 0, animation: "crash" },
   { key: "I", sound: "hihat", label: "Hi-Hat", color: "bg-yellow-200", row: 0, animation: "hihat" },
-  { key: "O", sound: "ride", label: "Ride", color: "bg-yellow-300", row: 0, animation: "ripple" },
+  { key: "O", sound: "openhat", label: "Open Hat", color: "bg-yellow-300", row: 0, animation: "ripple" },
   { key: "H", sound: "highTom", label: "Hi Tom", color: "bg-blue-100", row: 1, animation: "bounce" },
   { key: "J", sound: "snare", label: "Snare", color: "bg-blue-200", row: 1, animation: "snare" },
   { key: "K", sound: "lowTom", label: "Lo Tom", color: "bg-blue-300", row: 1, animation: "bounce" },
@@ -33,8 +33,8 @@ const animations = {
     transition: { duration: 0.3, times: [0, 0.2, 1] }
   },
   crash: {
-    rotate: [0, -3, 3, -3, 3, 0],
-    transition: { duration: 0.4 }
+    rotate: [0, -3, 3, -3, 3, -1.5, 0],
+    transition: { duration: 0.4, ease: "easeOut" }
   },
   hihat: {
     x: [0, -2, 2, -2, 2, 0],
@@ -49,9 +49,9 @@ const animations = {
     transition: { duration: 0.2 }
   },
   ripple: {
-    scale: [1, 1.1, 1],
-    opacity: [1, 0.8, 1],
-    transition: { duration: 0.3 }
+    y: [0, -5, 0],
+    rotate: [0, 3, 0],
+    transition: { duration: 0.3, ease: "easeOut" }
   },
   snare: {
     scale: [1, 1.1, 1],
@@ -62,10 +62,17 @@ const animations = {
 
 export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
+  const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
 
   const handlePadTrigger = (pad: DrumPad) => {
     // TODO: Implement sound triggering
     console.log(`Triggered drum pad: ${pad.sound}`);
+
+    // Increment trigger count to force animation restart
+    setTriggerCount(prev => ({
+      ...prev,
+      [pad.key]: (prev[pad.key] || 0) + 1
+    }));
 
     // Visual feedback
     setActivePads((prev) => {
@@ -119,7 +126,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
           >
             {pads.map((pad) => (
               <motion.div
-                key={pad.key}
+                key={`${pad.key}-${triggerCount[pad.key] || 0}`}
                 animate={activePads.has(pad.key) ? animations[pad.animation] : {}}
                 className={`
                   w-64 h-24 flex flex-col items-center justify-center
