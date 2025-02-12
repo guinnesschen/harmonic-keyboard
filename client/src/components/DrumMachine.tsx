@@ -50,8 +50,8 @@ const animations = {
   },
   ripple: {
     y: [0, -5, 0],
-    rotate: [0, 3, 0],
-    transition: { duration: 0.3, ease: "easeOut" }
+    rotate: [0, -3, 3, -3, 3, -1.5, 0],
+    transition: { duration: 0.4, ease: "easeOut" }
   },
   snare: {
     scale: [1, 1.1, 1],
