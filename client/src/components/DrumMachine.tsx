@@ -8,15 +8,15 @@ interface DrumPad {
   label: string;
   color: string;
   row: number;
-  animation: "heartbeat" | "shake" | "bounce" | "pulse" | "ripple";
+  animation: "heartbeat" | "shake" | "bounce" | "pulse" | "ripple" | "crash" | "hihat" | "snare";
 }
 
 const drumPads: DrumPad[] = [
-  { key: "U", sound: "crash", label: "Crash", color: "bg-yellow-100", row: 0, animation: "shake" },
-  { key: "I", sound: "hihat", label: "Hi-Hat", color: "bg-yellow-200", row: 0, animation: "pulse" },
+  { key: "U", sound: "crash", label: "Crash", color: "bg-yellow-100", row: 0, animation: "crash" },
+  { key: "I", sound: "hihat", label: "Hi-Hat", color: "bg-yellow-200", row: 0, animation: "hihat" },
   { key: "O", sound: "ride", label: "Ride", color: "bg-yellow-300", row: 0, animation: "ripple" },
   { key: "H", sound: "highTom", label: "Hi Tom", color: "bg-blue-100", row: 1, animation: "bounce" },
-  { key: "J", sound: "snare", label: "Snare", color: "bg-blue-200", row: 1, animation: "pulse" },
+  { key: "J", sound: "snare", label: "Snare", color: "bg-blue-200", row: 1, animation: "snare" },
   { key: "K", sound: "lowTom", label: "Lo Tom", color: "bg-blue-300", row: 1, animation: "bounce" },
   { key: "F", sound: "kick", label: "Kick", color: "bg-red-100", row: 2, animation: "heartbeat" },
   { key: "G", sound: "rimshot", label: "Rim", color: "bg-red-200", row: 2, animation: "ripple" },
@@ -32,9 +32,13 @@ const animations = {
     scale: [1, 1.4, 1],
     transition: { duration: 0.3, times: [0, 0.2, 1] }
   },
-  shake: {
-    x: [0, -5, 5, -5, 5, 0],
+  crash: {
+    rotate: [0, -3, 3, -3, 3, 0],
     transition: { duration: 0.4 }
+  },
+  hihat: {
+    x: [0, -2, 2, -2, 2, 0],
+    transition: { duration: 0.2 }
   },
   bounce: {
     y: [0, -10, 0],
@@ -48,6 +52,11 @@ const animations = {
     scale: [1, 1.1, 1],
     opacity: [1, 0.8, 1],
     transition: { duration: 0.3 }
+  },
+  snare: {
+    scale: [1, 1.1, 1],
+    rotate: [0, 2, 0],
+    transition: { duration: 0.2, ease: "easeOut" }
   }
 };
 
