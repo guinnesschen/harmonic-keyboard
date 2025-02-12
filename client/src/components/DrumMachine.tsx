@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DrumPad {
   key: string;
@@ -18,7 +18,7 @@ const drumPads: DrumPad[] = [
   { key: "H", sound: "highTom", label: "Hi Tom", color: "bg-blue-100", row: 1, animation: "bounce" },
   { key: "J", sound: "snare", label: "Snare", color: "bg-blue-200", row: 1, animation: "snare" },
   { key: "K", sound: "lowTom", label: "Lo Tom", color: "bg-blue-300", row: 1, animation: "bounce" },
-  { key: "F", sound: "kick", label: "Kick", color: "bg-red-100", row: 2, animation: "heartbeat" },
+  { key: "F", sound: "kick", label: "Kick", color: "bg-red-100", row: 2, animation: "shake" },
   { key: "G", sound: "rimshot", label: "Rim", color: "bg-red-200", row: 2, animation: "ripple" },
   { key: "B", sound: "clap", label: "Clap", color: "bg-red-300", row: 2, animation: "pulse" },
 ];
@@ -38,6 +38,7 @@ const animations = {
   },
   hihat: {
     x: [0, -2, 2, -2, 2, 0],
+    rotate: [0, 1, -1, 1, -1, 0],
     transition: { duration: 0.2 }
   },
   bounce: {
@@ -57,6 +58,10 @@ const animations = {
     scale: [1, 1.1, 1],
     rotate: [0, 2, 0],
     transition: { duration: 0.2, ease: "easeOut" }
+  },
+  shake: {
+    x: [0, -4, 4, -4, 4, 0],
+    transition: { duration: 0.2, ease: "linear" }
   }
 };
 
