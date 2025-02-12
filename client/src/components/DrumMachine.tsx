@@ -71,22 +71,24 @@ export default function DrumMachine({ className = "", isActive = false }: DrumMa
 
   return (
     <div className={`p-8 ${className}`}>
-      <div className="grid grid-cols-3 gap-6 max-w-4xl mx-auto">
+      <div className="grid grid-cols-3 gap-6 max-w-5xl mx-auto">
         {drumPads.map((pad) => (
           <Button
             key={pad.key}
             variant="ghost"
             className={`
-              aspect-square flex flex-col items-center justify-center p-8
+              aspect-square flex flex-col items-center justify-center p-4
               ${pad.color} hover:brightness-95
               ${activePads.has(pad.key) ? "brightness-75" : ""}
               transition-all duration-150
-              min-h-[180px] text-3xl
+              min-h-[200px] min-w-[200px]
+              transform perspective-800 hover:-translate-y-1 hover:shadow-xl
+              rounded-2xl border-2 border-gray-200/20
             `}
             onClick={() => handlePadTrigger(pad)}
           >
-            <span className="text-4xl font-bold text-gray-900 mb-4">{pad.label}</span>
-            <span className="text-lg text-gray-600">{pad.key}</span>
+            <span className="text-3xl font-bold text-gray-900">{pad.label}</span>
+            <span className="text-xl text-gray-600 mt-4">{pad.key}</span>
           </Button>
         ))}
       </div>
