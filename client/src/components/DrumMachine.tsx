@@ -30,14 +30,14 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const handlePadTrigger = (pad: DrumPad) => {
     // TODO: Implement sound triggering
     console.log(`Triggered drum pad: ${pad.sound}`);
-    
+
     // Visual feedback
     setActivePads((prev) => {
       const next = new Set(prev);
       next.add(pad.key);
       return next;
     });
-    
+
     setTimeout(() => {
       setActivePads((prev) => {
         const next = new Set(prev);
@@ -50,7 +50,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      
+
       const pad = drumPads.find(
         (p) => p.key.toLowerCase() === e.key.toLowerCase()
       );
@@ -65,16 +65,16 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
   return (
     <div className={`p-8 ${className}`}>
-      <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+      <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
         {drumPads.map((pad) => (
           <Button
             key={pad.key}
             variant="ghost"
             className={`
-              aspect-square flex flex-col items-center justify-center p-4
+              aspect-square flex flex-col items-center justify-center p-6
               ${pad.color} hover:brightness-95
               ${activePads.has(pad.key) ? "brightness-75" : ""}
-              transition-all duration-150
+              transition-all duration-150 scale-150
             `}
             onClick={() => handlePadTrigger(pad)}
           >

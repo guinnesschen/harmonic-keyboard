@@ -45,6 +45,16 @@ export default function Instrument({
   };
 
   useEffect(() => {
+    // Clean up any active sounds when switching instruments
+    if (currentVoicing) {
+      playChord(null);
+      setCurrentVoicing(null);
+    }
+  }, [currentInstrument]);
+
+  useEffect(() => {
+    if (currentInstrument !== "piano") return;
+
     let updateTimeout: NodeJS.Timeout | null = null;
     let lastUpdateTime = 0;
     const DEBOUNCE_TIME = 80;
@@ -103,7 +113,7 @@ export default function Instrument({
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [currentVoicing, isAudioInitialized]);
+  }, [currentVoicing, isAudioInitialized, currentInstrument]);
 
   return (
     <div className="h-full flex flex-col justify-between overflow-hidden font-mono text-gray-900">
