@@ -49,61 +49,68 @@ export default function Instrument({
     let lastUpdateTime = 0;
     const DEBOUNCE_TIME = 80;
 
-    const updateVoicing = () => {
-      const now = Date.now();
-      if (now - lastUpdateTime < DEBOUNCE_TIME) {
-        if (updateTimeout) clearTimeout(updateTimeout);
-        updateTimeout = setTimeout(() => {
-          performUpdate();
-        }, DEBOUNCE_TIME);
-        return;
-      }
-      performUpdate();
-    };
+    // Only setup piano key handlers if piano is the current instrument
+    if (currentInstrument === "piano") {
+      const updateVoicing = () => {
+        const now = Date.now();
+        if (now - lastUpdateTime < DEBOUNCE_TIME) {
+          if (updateTimeout) clearTimeout(updateTimeout);
+          updateTimeout = setTimeout(() => {
+            performUpdate();
+          }, DEBOUNCE_TIME);
+          return;
+        }
+        performUpdate();
+      };
 
-    const performUpdate = () => {
-      lastUpdateTime = Date.now();
-      const newBasicVoicing = generateVoicingFromKeyState();
-      if (newBasicVoicing) {
-        const fullVoicing = generateVoicing(newBasicVoicing, prevVoicing);
-        setPrevVoicing(currentVoicing);
-        setCurrentVoicing(fullVoicing);
-        playChord(fullVoicing);
-      } else {
-        setPrevVoicing(currentVoicing);
-        setCurrentVoicing(null);
-        playChord(null);
-      }
-    };
+      const performUpdate = () => {
+        lastUpdateTime = Date.now();
+        const newBasicVoicing = generateVoicingFromKeyState();
+        if (newBasicVoicing) {
+          const fullVoicing = generateVoicing(newBasicVoicing, prevVoicing);
+          setPrevVoicing(currentVoicing);
+          setCurrentVoicing(fullVoicing);
+          playChord(fullVoicing);
+        } else {
+          setPrevVoicing(currentVoicing);
+          setCurrentVoicing(null);
+          playChord(null);
+        }
+      };
 
-    const onKeyDown = async (e: KeyboardEvent) => {
-      if (e.repeat) return;
-      if (!isAudioInitialized) {
-        const success = await initializeAudio();
-        if (!success) return;
-      }
-      handleKeyPress(e);
-      updateVoicing();
-    };
-
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (handleKeyRelease(e)) {
-        if (updateTimeout) clearTimeout(updateTimeout);
-        playChord(null);
-        setCurrentVoicing(null);
-      } else {
+      const onKeyDown = async (e: KeyboardEvent) => {
+        if (e.repeat) return;
+        if (!isAudioInitialized) {
+          const success = await initializeAudio();
+          if (!success) return;
+        }
+        handleKeyPress(e);
         updateVoicing();
-      }
-    };
+      };
 
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
+      const onKeyUp = (e: KeyboardEvent) => {
+        if (handleKeyRelease(e)) {
+          if (updateTimeout) clearTimeout(updateTimeout);
+          playChord(null);
+          setCurrentVoicing(null);
+        } else {
+          updateVoicing();
+        }
+      };
 
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, [currentVoicing, isAudioInitialized]);
+      window.addEventListener("keydown", onKeyDown);
+      window.addEventListener("keyup", onKeyUp);
+
+      return () => {
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+      };
+    } else {
+      // If switching away from piano, clear any active chords
+      playChord(null);
+      setCurrentVoicing(null);
+    }
+  }, [currentInstrument, currentVoicing, isAudioInitialized]);
 
   return (
     <div className="h-full flex flex-col justify-between overflow-hidden font-mono text-gray-900">
@@ -129,7 +136,10 @@ export default function Instrument({
             </div>
           </>
         ) : (
-          <DrumMachine className="flex-grow flex items-center" />
+          <DrumMachine 
+            className="flex-grow flex items-center" 
+            isActive={currentInstrument === "drums"} 
+          />
         )}
       </div>
     </div>
