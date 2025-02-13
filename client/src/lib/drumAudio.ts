@@ -69,13 +69,13 @@ class DrumAudioEngine {
 
     // Load drum samples
     const samples: DrumSampleMap = {
-      crash: "/attached_assets/crash.wav",
-      hihat: "/attached_assets/hihat.wav",
-      openhat: "/attached_assets/openhat.wav",
-      snare: "/attached_assets/snare.wav",
-      kick: "/attached_assets/kick.wav",
-      rimshot: "/attached_assets/rimshot.wav",
-      clap: "/attached_assets/clap.wav",
+      crash: "./sounds/crash.wav",
+      hihat: "./sounds/hihat.wav",
+      openhat: "./sounds/openhat.wav",
+      snare: "./sounds/snare.wav",
+      kick: "./sounds/kick.wav",
+      rimshot: "./sounds/rimshot.wav",
+      clap: "./sounds/clap.wav",
     };
 
     try {
@@ -87,13 +87,14 @@ class DrumAudioEngine {
               url: path,
               onload: () => {
                 console.log(`Loaded drum sample: ${name}`);
+
                 this.loadedSamples.add(name);
                 resolve();
               },
               onerror: (error) => {
                 console.error(`Failed to load drum sample ${name}:`, error);
                 reject(error);
-              }
+              },
             }).connect(this.eq);
 
             this.players.set(name, player);
@@ -152,7 +153,7 @@ class DrumAudioEngine {
   }
 
   cleanup() {
-    this.players.forEach(player => player.dispose());
+    this.players.forEach((player) => player.dispose());
     this.mixBus.dispose();
     this.compressor.dispose();
     this.eq.dispose();
