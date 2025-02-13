@@ -20,6 +20,14 @@ export default function WaveformDisplay({
 }: WaveformDisplayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
+  const progressRef = useRef<HTMLDivElement>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
+
+  // Constants for rhythmic movement
+  const CANVAS_WIDTH = 800;
+  const DIVISIONS = 64; // 64th notes
+  const STEP_WIDTH = CANVAS_WIDTH / DIVISIONS;
+  const TIME_PER_STEP = duration / DIVISIONS;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -99,21 +107,54 @@ export default function WaveformDisplay({
     };
   }, [audioBuffer, isRecording, streamAnalyser]);
 
-  const progressWidth = duration > 0 ? (playbackPosition / duration) * 100 : 0;
+  // Update progress bar position rhythmically
+  useEffect(() => {
+    if (!isPlaying || !duration) return;
+
+    let currentStep = Math.floor(playbackPosition / TIME_PER_STEP);
+    const progressBar = progressRef.current;
+    if (!progressBar) return;
+
+    const updatePosition = () => {
+      if (!isPlaying) return;
+
+      const now = performance.now();
+      const timeSinceLastUpdate = (now - lastUpdateTimeRef.current) / 1000;
+
+      if (timeSinceLastUpdate >= TIME_PER_STEP) {
+        currentStep = (currentStep + 1) % DIVISIONS;
+        const newPosition = (currentStep * STEP_WIDTH);
+        progressBar.style.transform = `translateX(${newPosition}px)`;
+        lastUpdateTimeRef.current = now;
+      }
+
+      animationFrameRef.current = requestAnimationFrame(updatePosition);
+    };
+
+    lastUpdateTimeRef.current = performance.now();
+    updatePosition();
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying, duration, playbackPosition]);
 
   return (
     <div className="relative w-full h-24 bg-white rounded-lg shadow-sm overflow-hidden">
       <canvas
         ref={canvasRef}
-        width={800}
+        width={CANVAS_WIDTH}
         height={96}
         className="absolute inset-0 w-full h-full"
       />
       {isPlaying && (
-        <motion.div
-          className="absolute top-0 h-full w-0.5 bg-green-500"
+        <div
+          ref={progressRef}
+          className="absolute top-0 h-full w-0.5 bg-green-500 transition-transform duration-0"
           style={{
-            left: `${progressWidth}%`,
+            transform: `translateX(0px)`,
           }}
         />
       )}
