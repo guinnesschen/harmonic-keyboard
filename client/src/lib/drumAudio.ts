@@ -25,6 +25,11 @@ export interface DrumMixSettings {
   };
 }
 
+export interface MIDIEvent {
+  time: number;    // Time in seconds from loop start
+  drumSound: keyof DrumSampleMap;
+}
+
 const defaultDrumMixSettings: DrumMixSettings = {
   volume: -6,
   compression: {
@@ -48,6 +53,9 @@ class DrumAudioEngine {
   private mainOutput: Tone.Channel;
   private initialized: boolean = false;
   private loadedSamples: Set<string> = new Set();
+  private midiEvents: MIDIEvent[] = [];
+  private recordStartTime: number = 0;
+  private isRecording: boolean = false;
 
   constructor() {
     this.players = new Map();
@@ -65,9 +73,6 @@ class DrumAudioEngine {
   async initialize(settings: DrumMixSettings = defaultDrumMixSettings) {
     if (this.initialized) return;
 
-    // Don't start Tone.js here, wait for user interaction
-
-    // Load drum samples
     const samples: DrumSampleMap = {
       crash: "./sounds/crash.wav",
       hihat: "./sounds/hihat.wav",
@@ -79,7 +84,6 @@ class DrumAudioEngine {
     };
 
     try {
-      // Create and load players for each sample
       const loadPromises = Object.entries(samples).map(([name, path]) => {
         return new Promise<void>((resolve, reject) => {
           try {
@@ -87,7 +91,6 @@ class DrumAudioEngine {
               url: path,
               onload: () => {
                 console.log(`Loaded drum sample: ${name}`);
-
                 this.loadedSamples.add(name);
                 resolve();
               },
@@ -127,15 +130,33 @@ class DrumAudioEngine {
 
   applyMixSettings(settings: DrumMixSettings) {
     this.mixBus.volume.value = settings.volume;
-
     this.compressor.threshold.value = settings.compression.threshold;
     this.compressor.ratio.value = settings.compression.ratio;
     this.compressor.attack.value = settings.compression.attack;
     this.compressor.release.value = settings.compression.release;
-
     this.eq.low.value = settings.eq.low;
     this.eq.mid.value = settings.eq.mid;
     this.eq.high.value = settings.eq.high;
+  }
+
+  startMIDIRecording() {
+    this.recordStartTime = Tone.now();
+    this.midiEvents = [];
+    this.isRecording = true;
+  }
+
+  stopMIDIRecording() {
+    this.isRecording = false;
+    return [...this.midiEvents];
+  }
+
+  quantizeMIDIEvents(events: MIDIEvent[], gridSize: number = 16): MIDIEvent[] {
+    const gridInterval = 60 / (Tone.Transport.bpm.value * (gridSize / 4)); // Time for one grid unit in seconds
+
+    return events.map(event => ({
+      ...event,
+      time: Math.round(event.time / gridInterval) * gridInterval
+    }));
   }
 
   triggerSample(name: keyof DrumSampleMap) {
@@ -147,14 +168,32 @@ class DrumAudioEngine {
     const player = this.players.get(name);
     if (!player) return;
 
+    // Record MIDI event if recording
+    if (this.isRecording) {
+      const eventTime = Tone.now() - this.recordStartTime;
+      this.midiEvents.push({
+        time: eventTime,
+        drumSound: name
+      });
+    }
+
     // Stop the current playback and restart immediately to handle rapid triggers
     player.stop();
     player.start();
   }
 
+  playMIDIEvents(events: MIDIEvent[]) {
+    const startTime = Tone.now();
+    events.forEach(event => {
+      const player = this.players.get(event.drumSound);
+      if (player) {
+        player.start(startTime + event.time);
+      }
+    });
+  }
+
   connectToRecorder(recorder: Tone.Recorder) {
     if (!recorder) return;
-    // Connect the main output to the recorder
     this.mainOutput.connect(recorder);
   }
 
@@ -167,5 +206,4 @@ class DrumAudioEngine {
   }
 }
 
-// Create a singleton instance
 export const drumAudioEngine = new DrumAudioEngine();

@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { drumAudioEngine, type DrumSampleMap } from "@/lib/drumAudio";
+import { drumAudioEngine, type DrumSampleMap, type MIDIEvent } from "@/lib/drumAudio";
 import RecordButton from "@/components/RecordButton";
+import QuantizeButton from "@/components/QuantizeButton";
 import WaveformDisplay from "@/components/WaveformDisplay";
 import * as Tone from "tone";
 
@@ -26,10 +27,6 @@ const drumPads: DrumPad[] = [
   { key: "G", sound: "rimshot", label: "Rim", color: "bg-red-200", row: 2, animation: "ripple" },
   { key: "B", sound: "clap", label: "Clap", color: "bg-red-300", row: 2, animation: "pulse" },
 ];
-
-interface DrumMachineProps {
-  className?: string;
-}
 
 const animations = {
   heartbeat: {
@@ -69,10 +66,11 @@ const animations = {
   }
 };
 
-export default function DrumMachine({ className = "" }: DrumMachineProps) {
-  // State
+export default function DrumMachine({ className = "" }: { className?: string }) {
   const [loopState, setLoopState] = useState<LoopState>("idle");
   const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(null);
+  const [midiEvents, setMidiEvents] = useState<MIDIEvent[]>([]);
+  const [isQuantized, setIsQuantized] = useState(false);
   const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
   const [playbackPosition, setPlaybackPosition] = useState(0);
   const [loopDuration, setLoopDuration] = useState(0);
@@ -81,7 +79,6 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Refs
   const recorderRef = useRef<Tone.Recorder | null>(null);
   const playerRef = useRef<Tone.Player | null>(null);
   const recordStartTimeRef = useRef<number>(0);
@@ -89,7 +86,6 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const analyserDataRef = useRef<Float32Array | null>(null);
 
   useEffect(() => {
-    // Initialize recorder and analyzer
     recorderRef.current = new Tone.Recorder();
     const analyser = Tone.getContext().createAnalyser();
     analyser.fftSize = 2048;
@@ -138,6 +134,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     try {
       await recorderRef.current.start();
       recordStartTimeRef.current = Date.now();
+      drumAudioEngine.startMIDIRecording();
     } catch (error) {
       console.error("Failed to start recording:", error);
       setLoopState("idle");
@@ -157,7 +154,10 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
       setLoopDuration(recordingDuration);
       setRecordedBuffer(newBuffer);
 
-      updatePlayer(newBuffer);
+      const newMidiEvents = drumAudioEngine.stopMIDIRecording();
+      setMidiEvents(newMidiEvents);
+
+      updatePlayer(newBuffer, newMidiEvents);
     } catch (error) {
       console.error("Failed to stop recording:", error);
       setLoopState("idle");
@@ -169,6 +169,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     try {
       await recorderRef.current.start();
       recordStartTimeRef.current = Date.now();
+      drumAudioEngine.startMIDIRecording();
     } catch (error) {
       console.error("Failed to start overdub:", error);
       setLoopState("playing");
@@ -186,10 +187,26 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
       const mergedBuffer = await mergeAudioBuffers(recordedBuffer, newBuffer);
       setRecordedBuffer(mergedBuffer);
-      updatePlayer(mergedBuffer);
+
+      const newMidiEvents = drumAudioEngine.stopMIDIRecording();
+      setMidiEvents(prev => [...prev, ...newMidiEvents]);
+
+      updatePlayer(mergedBuffer, midiEvents);
     } catch (error) {
       console.error("Failed to stop overdub:", error);
       setLoopState("playing");
+    }
+  };
+
+  const handleQuantize = () => {
+    if (midiEvents.length === 0) return;
+
+    const quantizedEvents = drumAudioEngine.quantizeMIDIEvents(midiEvents);
+    setMidiEvents(quantizedEvents);
+    setIsQuantized(true);
+
+    if (recordedBuffer) {
+      updatePlayer(recordedBuffer, quantizedEvents);
     }
   };
 
@@ -217,7 +234,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     return mergedBuffer;
   };
 
-  const updatePlayer = (buffer: AudioBuffer) => {
+  const updatePlayer = (buffer: AudioBuffer, events: MIDIEvent[]) => {
     if (playerRef.current) {
       playerRef.current.stop();
       playerRef.current.dispose();
@@ -233,6 +250,8 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
     playerRef.current.buffer = new Tone.ToneAudioBuffer(buffer);
     playerRef.current.start();
+
+    drumAudioEngine.playMIDIEvents(events);
 
     const updatePosition = () => {
       if (playerRef.current && loopState !== "idle") {
@@ -317,7 +336,6 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   }, [isInitialized, loopState]);
 
 
-  // Group pads by row
   const padsByRow = drumPads.reduce((acc, pad) => {
     if (!acc[pad.row]) acc[pad.row] = [];
     acc[pad.row].push(pad);
@@ -327,7 +345,6 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   return (
     <div className={`p-8 ${className}`}>
       <div className="flex flex-col gap-8">
-        {/* Status Display */}
         <div className="text-center text-lg font-semibold">
           {loopState === "idle" && "Press SPACE to start recording"}
           {loopState === "recording" && "Recording... Press SPACE to stop"}
@@ -335,7 +352,6 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
           {loopState === "overdubbing" && "Overdubbing... Press SPACE to stop"}
         </div>
 
-        {/* Waveform Display */}
         <div className="w-full px-4">
           <WaveformDisplay
             audioBuffer={recordedBuffer}
@@ -347,16 +363,18 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
           />
         </div>
 
-        {/* Record Button */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center gap-4 mb-4">
           <RecordButton
             onRecordStart={handleLoopStateChange}
             onRecordStop={handleLoopStateChange}
             isActive={loopState === "recording" || loopState === "overdubbing"}
           />
+          <QuantizeButton
+            onClick={handleQuantize}
+            isActive={isQuantized}
+          />
         </div>
 
-        {/* Drum Pads */}
         {Object.entries(padsByRow).map(([row, pads]) => (
           <div
             key={row}
