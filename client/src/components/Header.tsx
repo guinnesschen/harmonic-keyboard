@@ -7,6 +7,8 @@ import type { SynthSettings } from "@/lib/audio";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import type { ChordQualityConfig } from "@/lib/chordConfig";
+import Instrument from "@/pages/Instrument";
+import InstrumentSwitcher, { InstrumentType } from "./InstrumentSwitcher";
 
 interface HeaderProps {
   chordQualities: ChordQualityConfig;
@@ -15,6 +17,8 @@ interface HeaderProps {
   isTutorialOpen: boolean;
   onTutorialToggle: () => void;
   onVideoOpen: () => void;
+  onInstrumentChange: (instrument: InstrumentType) => void;
+  currentInstrument: InstrumentType;
 }
 
 export default function Header({
@@ -24,6 +28,8 @@ export default function Header({
   isTutorialOpen,
   onTutorialToggle,
   onVideoOpen,
+  onInstrumentChange,
+  currentInstrument,
 }: HeaderProps) {
   const [hasClickedBook, setHasClickedBook] = useState(false);
   const controls = useAnimation();
@@ -44,7 +50,7 @@ export default function Header({
 
       // Wait between bounces, but check if we should continue
       if (shouldAnimate.current && !hasClickedBook) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } else {
         break;
       }
@@ -78,59 +84,67 @@ export default function Header({
     onTutorialToggle();
   };
 
-  const buttonClass = "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150 [&>svg]:text-gray-900";
+  const buttonClass =
+    "text-gray-900 hover:bg-stone-500/10 transition-colors duration-150 [&>svg]:text-gray-900";
 
   return (
-    <div className="flex justify-end items-center p-4 bg-[#fafafa]">
-      <div className="flex gap-2">
-        <div className={buttonClass}>
-          <SettingsModal
-            chordQualities={chordQualities}
-            onChordQualitiesChange={onChordQualitiesChange}
-          />
-        </div>
-        <div className={buttonClass}>
-          <HelpModal />
-        </div>
-        <div className={buttonClass}>
-          <SoundControlsModal initialSettings={initialSoundSettings} />
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          asChild
-          className={buttonClass}
-        >
-          <a
-            href="https://github.com/guinnesschen/harmonic-keyboard"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex justify-between items-center p-4 bg-[#fafafa]">
+      <div>
+        <InstrumentSwitcher
+          onInstrumentChange={onInstrumentChange}
+          currentInstrument={currentInstrument}
+        />
+      </div>
+      <div>
+        <div className="flex gap-2">
+          <div className={buttonClass}>
+            <SettingsModal
+              chordQualities={chordQualities}
+              onChordQualitiesChange={onChordQualitiesChange}
+            />
+          </div>
+          <div className={buttonClass}>
+            <HelpModal />
+          </div>
+          <div className={buttonClass}>
+            <SoundControlsModal initialSettings={initialSoundSettings} />
+          </div>
+          <Button variant="ghost" size="icon" asChild className={buttonClass}>
+            <a
+              href="https://github.com/guinnesschen/harmonic-keyboard"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github className="h-5 w-5" />
+            </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onVideoOpen}
+            className={buttonClass}
           >
-            <Github className="h-5 w-5" />
-          </a>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onVideoOpen}
-          className={buttonClass}
-        >
-          <Youtube className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleBookClick}
-          className={buttonClass}
-        >
-          <motion.div animate={controls} initial={{ y: 0, rotate: 0 }} className="[&>svg]:text-gray-900">
-            {isTutorialOpen ? (
-              <BookOpen className="h-5 w-5" />
-            ) : (
-              <BookIcon className="h-5 w-5" />
-            )}
-          </motion.div>
-        </Button>
+            <Youtube className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBookClick}
+            className={buttonClass}
+          >
+            <motion.div
+              animate={controls}
+              initial={{ y: 0, rotate: 0 }}
+              className="[&>svg]:text-gray-900"
+            >
+              {isTutorialOpen ? (
+                <BookOpen className="h-5 w-5" />
+              ) : (
+                <BookIcon className="h-5 w-5" />
+              )}
+            </motion.div>
+          </Button>
+        </div>
       </div>
     </div>
   );
