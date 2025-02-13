@@ -152,6 +152,12 @@ class DrumAudioEngine {
     player.start();
   }
 
+  connectToRecorder(recorder: Tone.Recorder) {
+    if (!recorder) return;
+    // Connect the main output to the recorder
+    this.mainOutput.connect(recorder);
+  }
+
   cleanup() {
     this.players.forEach((player) => player.dispose());
     this.mixBus.dispose();

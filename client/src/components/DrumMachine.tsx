@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { drumAudioEngine, type DrumSampleMap } from "@/lib/drumAudio";
 import RecordButton from "@/components/RecordButton";
+import WaveformDisplay from "@/components/WaveformDisplay";
+import * as Tone from "tone";
 
 interface DrumPad {
   key: string;
@@ -70,6 +72,92 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
+
+  // Recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+  const [loopDuration, setLoopDuration] = useState(0);
+
+  const recorderRef = useRef<Tone.Recorder | null>(null);
+  const playerRef = useRef<Tone.Player | null>(null);
+  const recordStartTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    // Initialize recorder
+    recorderRef.current = new Tone.Recorder();
+    drumAudioEngine.connectToRecorder(recorderRef.current);
+
+    return () => {
+      recorderRef.current?.dispose();
+      playerRef.current?.dispose();
+    };
+  }, []);
+
+  const startRecording = async () => {
+    if (!recorderRef.current) return;
+
+    // Reset states
+    setIsRecording(true);
+    setRecordedBuffer(null);
+    setIsPlaying(false);
+    setPlaybackPosition(0);
+
+    // Start recording
+    await recorderRef.current.start();
+    recordStartTimeRef.current = Date.now();
+  };
+
+  const stopRecording = async () => {
+    if (!recorderRef.current) return;
+
+    // Stop recording and get the blob
+    const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
+    setLoopDuration(recordingDuration);
+
+    const recording = await recorderRef.current.stop();
+    const audioBuffer = await Tone.getContext().rawContext.decodeAudioData(
+      await recording.arrayBuffer()
+    );
+
+    setRecordedBuffer(audioBuffer);
+    setIsRecording(false);
+
+    // Create a new player with the recorded audio
+    if (playerRef.current) {
+      playerRef.current.dispose();
+    }
+
+    playerRef.current = new Tone.Player({
+      url: URL.createObjectURL(recording),
+      loop: true,
+    }).toDestination();
+
+    // Start playback
+    await playerRef.current.load();
+    playerRef.current.start();
+    setIsPlaying(true);
+
+    // Update playback position
+    const updatePosition = () => {
+      if (!playerRef.current || !isPlaying) return;
+      setPlaybackPosition(playerRef.current.now() % loopDuration);
+      requestAnimationFrame(updatePosition);
+    };
+    updatePosition();
+  };
+
+  const handleRecordStart = async () => {
+    if (!isAudioContextStarted) {
+      await startAudioContext();
+    }
+    await startRecording();
+  };
+
+  const handleRecordStop = async () => {
+    await stopRecording();
+  };
 
   useEffect(() => {
     // Initialize audio engine
@@ -165,19 +253,20 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     return acc;
   }, {} as Record<number, DrumPad[]>);
 
-  const handleRecordStart = () => {
-    console.log("Recording started");
-    // TODO: Implement recording logic
-  };
-
-  const handleRecordStop = () => {
-    console.log("Recording stopped");
-    // TODO: Implement recording logic
-  };
 
   return (
     <div className={`p-8 ${className}`}>
       <div className="flex flex-col gap-8">
+        {/* Waveform Display */}
+        <div className="w-full px-4">
+          <WaveformDisplay
+            audioBuffer={recordedBuffer}
+            isPlaying={isPlaying}
+            playbackPosition={playbackPosition}
+            duration={loopDuration}
+          />
+        </div>
+
         {/* Record Button */}
         <div className="flex justify-center mb-4">
           <RecordButton
