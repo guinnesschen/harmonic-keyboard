@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { drumAudioEngine, type DrumSampleMap } from "@/lib/drumAudio";
 
 interface DrumPad {
   key: string;
-  sound: string;
+  sound: keyof DrumSampleMap;
   label: string;
   color: string;
   row: number;
@@ -15,9 +16,7 @@ const drumPads: DrumPad[] = [
   { key: "U", sound: "crash", label: "Crash", color: "bg-yellow-100", row: 0, animation: "crash" },
   { key: "I", sound: "hihat", label: "Hi-Hat", color: "bg-yellow-200", row: 0, animation: "hihat" },
   { key: "O", sound: "openhat", label: "Open Hat", color: "bg-yellow-300", row: 0, animation: "ripple" },
-  { key: "H", sound: "highTom", label: "Hi Tom", color: "bg-blue-100", row: 1, animation: "bounce" },
   { key: "J", sound: "snare", label: "Snare", color: "bg-blue-200", row: 1, animation: "snare" },
-  { key: "K", sound: "lowTom", label: "Lo Tom", color: "bg-blue-300", row: 1, animation: "bounce" },
   { key: "F", sound: "kick", label: "Kick", color: "bg-red-100", row: 2, animation: "shake" },
   { key: "G", sound: "rimshot", label: "Rim", color: "bg-red-200", row: 2, animation: "ripple" },
   { key: "B", sound: "clap", label: "Clap", color: "bg-red-300", row: 2, animation: "pulse" },
@@ -68,10 +67,33 @@ const animations = {
 export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
   const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // Initialize audio engine
+    const initAudio = async () => {
+      try {
+        await drumAudioEngine.initialize();
+        setIsInitialized(true);
+        console.log("Drum audio engine initialized");
+      } catch (error) {
+        console.error("Failed to initialize drum audio:", error);
+      }
+    };
+
+    initAudio();
+
+    // Cleanup on unmount
+    return () => {
+      drumAudioEngine.cleanup();
+    };
+  }, []);
 
   const handlePadTrigger = (pad: DrumPad) => {
-    // TODO: Implement sound triggering
-    console.log(`Triggered drum pad: ${pad.sound}`);
+    if (!isInitialized) return;
+
+    // Trigger the sound
+    drumAudioEngine.triggerSample(pad.sound);
 
     // Increment trigger count to force animation restart
     setTriggerCount(prev => ({
@@ -96,6 +118,8 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   };
 
   useEffect(() => {
+    if (!isInitialized) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
 
@@ -109,7 +133,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isInitialized]);
 
   // Group pads by row
   const padsByRow = drumPads.reduce((acc, pad) => {
@@ -139,6 +163,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
                   rounded-lg shadow-md
                   cursor-pointer
                   transition-colors duration-150
+                  ${!isInitialized ? 'opacity-50' : ''}
                 `}
                 onClick={() => handlePadTrigger(pad)}
               >
