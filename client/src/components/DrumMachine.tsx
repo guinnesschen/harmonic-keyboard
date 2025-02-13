@@ -102,16 +102,11 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const startRecording = async () => {
     if (!recorderRef.current) return;
 
-    // Reset states
-    setIsRecording(true);
-    setRecordedBuffer(null);
-    setIsPlaying(false);
-    setPlaybackPosition(0);
-
     try {
-      // Start recording
+      // Start recording at the current playback position
       await recorderRef.current.start();
       recordStartTimeRef.current = Date.now();
+      setIsRecording(true);
     } catch (error) {
       console.error("Failed to start recording:", error);
       setIsRecording(false);
@@ -122,53 +117,88 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     if (!recorderRef.current || !recorderRef.current.state) return;
 
     try {
-      // Stop recording and get the blob
-      const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
-      setLoopDuration(recordingDuration);
-
       const recording = await recorderRef.current.stop();
-      const audioBuffer = await Tone.getContext().rawContext.decodeAudioData(
+      const newBuffer = await Tone.getContext().rawContext.decodeAudioData(
         await recording.arrayBuffer()
       );
 
-      setRecordedBuffer(audioBuffer);
-      setIsRecording(false);
-
-      // Cleanup existing player
-      if (playerRef.current) {
-        playerRef.current.stop();
-        playerRef.current.dispose();
+      // If this is the first recording, set it as the base
+      if (!recordedBuffer) {
+        const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
+        setLoopDuration(recordingDuration);
+        setRecordedBuffer(newBuffer);
+      } else {
+        // Merge the new recording with existing buffer
+        const mergedBuffer = await mergeAudioBuffers(recordedBuffer, newBuffer);
+        setRecordedBuffer(mergedBuffer);
       }
 
-      // Create blob URL
-      const blobUrl = URL.createObjectURL(recording);
+      setIsRecording(false);
 
-      // Create a new player with the recorded audio
-      playerRef.current = new Tone.Player({
-        url: blobUrl,
-        loop: true,
-        onload: () => {
-          // Start playback once loaded
-          playerRef.current?.start();
-          setIsPlaying(true);
-
-          // Update playback position
-          const updatePosition = () => {
-            if (playerRef.current && isPlaying) {
-              setPlaybackPosition(playerRef.current.now() % recordingDuration);
-              animationFrameRef.current = requestAnimationFrame(updatePosition);
-            }
-          };
-          updatePosition();
-        },
-      }).toDestination();
-
-      // Revoke the blob URL when the component unmounts
-      return () => URL.revokeObjectURL(blobUrl);
+      // Create or update player with new buffer
+      updatePlayer();
     } catch (error) {
       console.error("Failed to stop recording:", error);
       setIsRecording(false);
     }
+  };
+
+  const mergeAudioBuffers = async (existingBuffer: AudioBuffer, newBuffer: AudioBuffer): Promise<AudioBuffer> => {
+    const ctx = Tone.getContext().rawContext;
+    const numberOfChannels = Math.max(existingBuffer.numberOfChannels, newBuffer.numberOfChannels);
+    const bufferLength = Math.max(existingBuffer.length, newBuffer.length);
+
+    const mergedBuffer = ctx.createBuffer(
+      numberOfChannels,
+      bufferLength,
+      existingBuffer.sampleRate
+    );
+
+    // Mix both buffers
+    for (let channel = 0; channel < numberOfChannels; channel++) {
+      const mergedChannelData = mergedBuffer.getChannelData(channel);
+      const existingChannelData = existingBuffer.getChannelData(channel);
+      const newChannelData = newBuffer.getChannelData(channel);
+
+      for (let i = 0; i < bufferLength; i++) {
+        // Add samples together, with a small reduction to prevent clipping
+        mergedChannelData[i] = (existingChannelData[i] || 0) * 0.8 + (newChannelData[i] || 0) * 0.8;
+      }
+    }
+
+    return mergedBuffer;
+  };
+
+  const updatePlayer = () => {
+    if (!recordedBuffer) return;
+
+    // Stop and dispose existing player
+    if (playerRef.current) {
+      playerRef.current.stop();
+      playerRef.current.dispose();
+    }
+
+    // Create new player with the correct options type
+    playerRef.current = new Tone.Player()
+      .set({ 
+        loop: true,
+        autostart: true,
+        volume: 0 
+      })
+      .toDestination();
+
+    // Set the buffer directly after creation
+    playerRef.current.buffer = recordedBuffer;
+    setIsPlaying(true);
+
+    // Update playback position animation
+    const updatePosition = () => {
+      if (playerRef.current && isPlaying) {
+        setPlaybackPosition(playerRef.current.now() % loopDuration);
+        animationFrameRef.current = requestAnimationFrame(updatePosition);
+      }
+    };
+    updatePosition();
   };
 
   const handleRecordStart = async () => {
@@ -300,11 +330,11 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
         {/* Drum Pads */}
         {Object.entries(padsByRow).map(([row, pads]) => (
-          <div 
-            key={row} 
+          <div
+            key={row}
             className="flex justify-center gap-8"
-            style={{ 
-              paddingLeft: `${parseInt(row) * 40}px` 
+            style={{
+              paddingLeft: `${parseInt(row) * 40}px`
             }}
           >
             {pads.map((pad) => (
