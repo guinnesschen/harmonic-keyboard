@@ -45,15 +45,16 @@ class DrumAudioEngine {
   private mixBus: Tone.Channel;
   private compressor: Tone.Compressor;
   private eq: Tone.EQ3;
-  private mainOutput: Tone.Destination;
+  private mainOutput: Tone.Channel;
   private initialized: boolean = false;
+  private loadedSamples: Set<string> = new Set();
 
   constructor() {
     this.players = new Map();
     this.mixBus = new Tone.Channel();
     this.compressor = new Tone.Compressor();
     this.eq = new Tone.EQ3();
-    this.mainOutput = Tone.Destination;
+    this.mainOutput = new Tone.Channel().toDestination();
 
     // Set up audio routing
     this.eq.connect(this.compressor);
@@ -65,7 +66,7 @@ class DrumAudioEngine {
     if (this.initialized) return;
 
     await Tone.start();
-    
+
     // Load drum samples
     const samples: DrumSampleMap = {
       crash: "/attached_assets/crash.wav",
@@ -77,24 +78,40 @@ class DrumAudioEngine {
       clap: "/attached_assets/clap.wav",
     };
 
-    // Create players for each sample
-    for (const [name, path] of Object.entries(samples)) {
-      const player = new Tone.Player({
-        url: path,
-        onload: () => {
-          console.log(`Loaded drum sample: ${name}`);
-        },
-      }).connect(this.eq);
-      this.players.set(name, player);
-    }
+    // Create and load players for each sample
+    const loadPromises = Object.entries(samples).map(([name, path]) => {
+      return new Promise<void>((resolve, reject) => {
+        const player = new Tone.Player({
+          url: path,
+          onload: () => {
+            console.log(`Loaded drum sample: ${name}`);
+            this.loadedSamples.add(name);
+            resolve();
+          },
+          onerror: (error) => {
+            console.error(`Failed to load drum sample ${name}:`, error);
+            reject(error);
+          }
+        }).connect(this.eq);
 
-    this.applyMixSettings(settings);
-    this.initialized = true;
+        this.players.set(name, player);
+      });
+    });
+
+    try {
+      await Promise.all(loadPromises);
+      this.applyMixSettings(settings);
+      this.initialized = true;
+      console.log("All drum samples loaded successfully");
+    } catch (error) {
+      console.error("Failed to load one or more drum samples:", error);
+      throw error;
+    }
   }
 
   applyMixSettings(settings: DrumMixSettings) {
     this.mixBus.volume.value = settings.volume;
-    
+
     this.compressor.threshold.value = settings.compression.threshold;
     this.compressor.ratio.value = settings.compression.ratio;
     this.compressor.attack.value = settings.compression.attack;
@@ -106,10 +123,16 @@ class DrumAudioEngine {
   }
 
   triggerSample(name: keyof DrumSampleMap) {
+    if (!this.initialized || !this.loadedSamples.has(name)) {
+      console.warn(`Cannot trigger sample ${name}: not initialized or loaded`);
+      return;
+    }
+
     const player = this.players.get(name);
     if (!player) return;
 
-    // Create a new buffer source for each trigger to allow overlapping
+    // Stop the current playback and restart immediately to handle rapid triggers
+    player.stop();
     player.start();
   }
 
@@ -118,6 +141,7 @@ class DrumAudioEngine {
     this.mixBus.dispose();
     this.compressor.dispose();
     this.eq.dispose();
+    this.mainOutput.dispose();
   }
 }
 
