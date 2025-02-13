@@ -83,6 +83,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const recorderRef = useRef<Tone.Recorder | null>(null);
   const playerRef = useRef<Tone.Player | null>(null);
   const recordStartTimeRef = useRef<number>(0);
+  const animationFrameRef = useRef<number>();
 
   useEffect(() => {
     // Initialize recorder
@@ -90,6 +91,9 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     drumAudioEngine.connectToRecorder(recorderRef.current);
 
     return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       recorderRef.current?.dispose();
       playerRef.current?.dispose();
     };
@@ -104,48 +108,67 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     setIsPlaying(false);
     setPlaybackPosition(0);
 
-    // Start recording
-    await recorderRef.current.start();
-    recordStartTimeRef.current = Date.now();
+    try {
+      // Start recording
+      await recorderRef.current.start();
+      recordStartTimeRef.current = Date.now();
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+      setIsRecording(false);
+    }
   };
 
   const stopRecording = async () => {
-    if (!recorderRef.current) return;
+    if (!recorderRef.current || !recorderRef.current.state) return;
 
-    // Stop recording and get the blob
-    const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
-    setLoopDuration(recordingDuration);
+    try {
+      // Stop recording and get the blob
+      const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
+      setLoopDuration(recordingDuration);
 
-    const recording = await recorderRef.current.stop();
-    const audioBuffer = await Tone.getContext().rawContext.decodeAudioData(
-      await recording.arrayBuffer()
-    );
+      const recording = await recorderRef.current.stop();
+      const audioBuffer = await Tone.getContext().rawContext.decodeAudioData(
+        await recording.arrayBuffer()
+      );
 
-    setRecordedBuffer(audioBuffer);
-    setIsRecording(false);
+      setRecordedBuffer(audioBuffer);
+      setIsRecording(false);
 
-    // Create a new player with the recorded audio
-    if (playerRef.current) {
-      playerRef.current.dispose();
+      // Cleanup existing player
+      if (playerRef.current) {
+        playerRef.current.stop();
+        playerRef.current.dispose();
+      }
+
+      // Create blob URL
+      const blobUrl = URL.createObjectURL(recording);
+
+      // Create a new player with the recorded audio
+      playerRef.current = new Tone.Player({
+        url: blobUrl,
+        loop: true,
+        onload: () => {
+          // Start playback once loaded
+          playerRef.current?.start();
+          setIsPlaying(true);
+
+          // Update playback position
+          const updatePosition = () => {
+            if (playerRef.current && isPlaying) {
+              setPlaybackPosition(playerRef.current.now() % recordingDuration);
+              animationFrameRef.current = requestAnimationFrame(updatePosition);
+            }
+          };
+          updatePosition();
+        },
+      }).toDestination();
+
+      // Revoke the blob URL when the component unmounts
+      return () => URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Failed to stop recording:", error);
+      setIsRecording(false);
     }
-
-    playerRef.current = new Tone.Player({
-      url: URL.createObjectURL(recording),
-      loop: true,
-    }).toDestination();
-
-    // Start playback
-    await playerRef.current.load();
-    playerRef.current.start();
-    setIsPlaying(true);
-
-    // Update playback position
-    const updatePosition = () => {
-      if (!playerRef.current || !isPlaying) return;
-      setPlaybackPosition(playerRef.current.now() % loopDuration);
-      requestAnimationFrame(updatePosition);
-    };
-    updatePosition();
   };
 
   const handleRecordStart = async () => {
