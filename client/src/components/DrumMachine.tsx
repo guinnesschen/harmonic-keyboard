@@ -68,6 +68,7 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
   const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
 
   useEffect(() => {
     // Initialize audio engine
@@ -89,8 +90,25 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     };
   }, []);
 
-  const handlePadTrigger = (pad: DrumPad) => {
+  const startAudioContext = async () => {
+    if (!isAudioContextStarted) {
+      try {
+        await drumAudioEngine.startAudioContext();
+        setIsAudioContextStarted(true);
+        console.log("Audio context started");
+      } catch (error) {
+        console.error("Failed to start audio context:", error);
+      }
+    }
+  };
+
+  const handlePadTrigger = async (pad: DrumPad) => {
     if (!isInitialized) return;
+
+    // Start audio context if it hasn't been started yet
+    if (!isAudioContextStarted) {
+      await startAudioContext();
+    }
 
     // Trigger the sound
     drumAudioEngine.triggerSample(pad.sound);
@@ -120,20 +138,20 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
   useEffect(() => {
     if (!isInitialized) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.repeat) return;
 
       const pad = drumPads.find(
         (p) => p.key.toLowerCase() === e.key.toLowerCase()
       );
       if (pad) {
-        handlePadTrigger(pad);
+        await handlePadTrigger(pad);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isInitialized]);
+  }, [isInitialized, isAudioContextStarted]);
 
   // Group pads by row
   const padsByRow = drumPads.reduce((acc, pad) => {

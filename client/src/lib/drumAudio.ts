@@ -65,7 +65,7 @@ class DrumAudioEngine {
   async initialize(settings: DrumMixSettings = defaultDrumMixSettings) {
     if (this.initialized) return;
 
-    await Tone.start();
+    // Don't start Tone.js here, wait for user interaction
 
     // Load drum samples
     const samples: DrumSampleMap = {
@@ -78,33 +78,48 @@ class DrumAudioEngine {
       clap: "/attached_assets/clap.wav",
     };
 
-    // Create and load players for each sample
-    const loadPromises = Object.entries(samples).map(([name, path]) => {
-      return new Promise<void>((resolve, reject) => {
-        const player = new Tone.Player({
-          url: path,
-          onload: () => {
-            console.log(`Loaded drum sample: ${name}`);
-            this.loadedSamples.add(name);
-            resolve();
-          },
-          onerror: (error) => {
-            console.error(`Failed to load drum sample ${name}:`, error);
+    try {
+      // Create and load players for each sample
+      const loadPromises = Object.entries(samples).map(([name, path]) => {
+        return new Promise<void>((resolve, reject) => {
+          try {
+            const player = new Tone.Player({
+              url: path,
+              onload: () => {
+                console.log(`Loaded drum sample: ${name}`);
+                this.loadedSamples.add(name);
+                resolve();
+              },
+              onerror: (error) => {
+                console.error(`Failed to load drum sample ${name}:`, error);
+                reject(error);
+              }
+            }).connect(this.eq);
+
+            this.players.set(name, player);
+          } catch (error) {
+            console.error(`Error creating player for ${name}:`, error);
             reject(error);
           }
-        }).connect(this.eq);
-
-        this.players.set(name, player);
+        });
       });
-    });
 
-    try {
       await Promise.all(loadPromises);
       this.applyMixSettings(settings);
       this.initialized = true;
       console.log("All drum samples loaded successfully");
     } catch (error) {
       console.error("Failed to load one or more drum samples:", error);
+      throw error;
+    }
+  }
+
+  async startAudioContext() {
+    try {
+      await Tone.start();
+      console.log("Audio context started successfully");
+    } catch (error) {
+      console.error("Failed to start audio context:", error);
       throw error;
     }
   }
