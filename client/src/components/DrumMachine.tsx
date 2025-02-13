@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { drumAudioEngine, type DrumSampleMap } from "@/lib/drumAudio";
+import RecordButton from "@/components/RecordButton";
 
 interface DrumPad {
   key: string;
@@ -141,6 +142,10 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.repeat) return;
 
+      if (!isAudioContextStarted) {
+        await startAudioContext();
+      }
+
       const pad = drumPads.find(
         (p) => p.key.toLowerCase() === e.key.toLowerCase()
       );
@@ -160,9 +165,28 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     return acc;
   }, {} as Record<number, DrumPad[]>);
 
+  const handleRecordStart = () => {
+    console.log("Recording started");
+    // TODO: Implement recording logic
+  };
+
+  const handleRecordStop = () => {
+    console.log("Recording stopped");
+    // TODO: Implement recording logic
+  };
+
   return (
     <div className={`p-8 ${className}`}>
       <div className="flex flex-col gap-8">
+        {/* Record Button */}
+        <div className="flex justify-center mb-4">
+          <RecordButton
+            onRecordStart={handleRecordStart}
+            onRecordStop={handleRecordStop}
+          />
+        </div>
+
+        {/* Drum Pads */}
         {Object.entries(padsByRow).map(([row, pads]) => (
           <div 
             key={row} 
