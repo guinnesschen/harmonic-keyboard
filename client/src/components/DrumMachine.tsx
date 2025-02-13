@@ -178,17 +178,18 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
       playerRef.current.dispose();
     }
 
-    // Create new player with the correct options type
+    // Create new player with the correct type
     playerRef.current = new Tone.Player()
       .set({ 
         loop: true,
-        autostart: true,
+        autostart: false,
         volume: 0 
       })
       .toDestination();
 
-    // Set the buffer directly after creation
-    playerRef.current.buffer = recordedBuffer;
+    // Set the buffer and start playback
+    playerRef.current.buffer = new Tone.ToneAudioBuffer(recordedBuffer);
+    playerRef.current.start();
     setIsPlaying(true);
 
     // Update playback position animation

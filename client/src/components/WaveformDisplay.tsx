@@ -63,12 +63,11 @@ export default function WaveformDisplay({
       {isPlaying && (
         <motion.div
           className="absolute top-0 h-full w-0.5 bg-green-500"
-          animate={{
+          style={{
             left: `${progressWidth}%`,
           }}
           transition={{
-            duration: duration - playbackPosition,
-            ease: "linear",
+            duration: 0,
           }}
         />
       )}
