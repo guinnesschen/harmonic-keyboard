@@ -1,0 +1,93 @@
+Web-Based Loop Pedal Instrument Spec (Boss-Style)
+
+Overview
+
+We will implement a web-based loop pedal instrument that mimics the behavior of a Boss loop pedal, with keyboard inputs acting as footswitches. The instrument will support loop recording, playback, overdubbing, pausing, stopping, and undo/redo operations. The interface will include a keyboard-based drum machine and chord/harmony control inspired by physical loop pedal workflows.
+
+Keyboard Mappings
+
+Spacebar: Primary switch (Record/Play/Overdub cycle)
+
+Shift + Spacebar: Stop/Start All Loops
+
+Backspace: Undo Last Overdub
+
+Ctrl + Backspace: Redo Last Overdub
+
+Enter: Clear All Loops
+
+Arrow Up: Increase Tempo
+
+Arrow Down: Decrease Tempo
+
+1-5: Select Track (for multi-track mode)
+
+M: Mute/Unmute All Tracks
+
+T: Tap Tempo
+
+Loop Pedal States
+
+The system will follow the standard Boss loop pedal state machine:
+
+Idle: No loops recorded.
+
+Recording: Recording the initial loop.
+
+Playing: Loop is playing back.
+
+Overdubbing: Recording layers over the initial loop.
+
+Cycle:
+
+Idle -> Recording: Spacebar press.
+
+Recording -> Playing: Spacebar press.
+
+Playing -> Overdubbing: Spacebar press.
+
+Overdubbing -> Playing: Spacebar press.
+
+Track Management
+
+Single Track Mode: One loop at a time.
+
+Multi-Track Mode: Up to 5 tracks.
+
+Tracks can be individually muted, stopped, or soloed using keys 1 to 5.
+
+Recording Logic
+
+First recording sets the loop length.
+
+Subsequent overdubs must align with the original loop length.
+
+Playback Logic
+
+Loops are quantized to start on the next measure.
+
+Playback can be stopped and resumed seamlessly.
+
+Drum Machine Integration
+
+ASDF keys: Trigger drum sounds.
+
+QWER keys: Trigger chords/harmonies.
+
+Visual Feedback
+
+Display waveform for each track.
+
+Show loop length and tempo.
+
+Use color changes to indicate recording (red), playing (green), and overdubbing (yellow).
+
+Advanced Features
+
+Tap Tempo: Press T repeatedly to set BPM.
+
+Undo/Redo: Supports undo/redo of overdubs.
+
+Pause: Press M to mute all loops without resetting playback position.
+
+This spec replicates the functionality of a Boss loop pedal while taking advantage of the keyboard interface for efficient control of loops, drums, and harmonies.

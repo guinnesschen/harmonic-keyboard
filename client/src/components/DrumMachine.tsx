@@ -6,6 +6,8 @@ import RecordButton from "@/components/RecordButton";
 import WaveformDisplay from "@/components/WaveformDisplay";
 import * as Tone from "tone";
 
+type LoopState = "idle" | "recording" | "playing" | "overdubbing";
+
 interface DrumPad {
   key: string;
   sound: keyof DrumSampleMap;
@@ -68,26 +70,32 @@ const animations = {
 };
 
 export default function DrumMachine({ className = "" }: DrumMachineProps) {
+  // State
+  const [loopState, setLoopState] = useState<LoopState>("idle");
+  const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(null);
+  const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+  const [loopDuration, setLoopDuration] = useState(0);
+  const [streamAnalyser, setStreamAnalyser] = useState<AnalyserNode | null>(null);
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
   const [triggerCount, setTriggerCount] = useState<Record<string, number>>({});
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isAudioContextStarted, setIsAudioContextStarted] = useState(false);
 
-  // Recording states
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordedBuffer, setRecordedBuffer] = useState<AudioBuffer | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackPosition, setPlaybackPosition] = useState(0);
-  const [loopDuration, setLoopDuration] = useState(0);
-
+  // Refs
   const recorderRef = useRef<Tone.Recorder | null>(null);
   const playerRef = useRef<Tone.Player | null>(null);
   const recordStartTimeRef = useRef<number>(0);
   const animationFrameRef = useRef<number>();
+  const analyserDataRef = useRef<Float32Array | null>(null);
 
   useEffect(() => {
-    // Initialize recorder
+    // Initialize recorder and analyzer
     recorderRef.current = new Tone.Recorder();
+    const analyser = Tone.getContext().createAnalyser();
+    analyser.fftSize = 2048;
+    analyserDataRef.current = new Float32Array(analyser.frequencyBinCount);
+    setStreamAnalyser(analyser);
+
     drumAudioEngine.connectToRecorder(recorderRef.current);
 
     return () => {
@@ -99,17 +107,40 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     };
   }, []);
 
+  const handleLoopStateChange = async () => {
+    if (!isAudioContextStarted) {
+      await startAudioContext();
+    }
+
+    switch (loopState) {
+      case "idle":
+        await startRecording();
+        setLoopState("recording");
+        break;
+      case "recording":
+        await stopRecording();
+        setLoopState("playing");
+        break;
+      case "playing":
+        await startOverdub();
+        setLoopState("overdubbing");
+        break;
+      case "overdubbing":
+        await stopOverdub();
+        setLoopState("playing");
+        break;
+    }
+  };
+
   const startRecording = async () => {
     if (!recorderRef.current) return;
 
     try {
-      // Start recording at the current playback position
       await recorderRef.current.start();
       recordStartTimeRef.current = Date.now();
-      setIsRecording(true);
     } catch (error) {
       console.error("Failed to start recording:", error);
-      setIsRecording(false);
+      setLoopState("idle");
     }
   };
 
@@ -122,24 +153,43 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
         await recording.arrayBuffer()
       );
 
-      // If this is the first recording, set it as the base
-      if (!recordedBuffer) {
-        const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
-        setLoopDuration(recordingDuration);
-        setRecordedBuffer(newBuffer);
-      } else {
-        // Merge the new recording with existing buffer
-        const mergedBuffer = await mergeAudioBuffers(recordedBuffer, newBuffer);
-        setRecordedBuffer(mergedBuffer);
-      }
+      const recordingDuration = (Date.now() - recordStartTimeRef.current) / 1000;
+      setLoopDuration(recordingDuration);
+      setRecordedBuffer(newBuffer);
 
-      setIsRecording(false);
-
-      // Create or update player with new buffer
-      updatePlayer();
+      updatePlayer(newBuffer);
     } catch (error) {
       console.error("Failed to stop recording:", error);
-      setIsRecording(false);
+      setLoopState("idle");
+    }
+  };
+
+  const startOverdub = async () => {
+    if (!recorderRef.current) return;
+    try {
+      await recorderRef.current.start();
+      recordStartTimeRef.current = Date.now();
+    } catch (error) {
+      console.error("Failed to start overdub:", error);
+      setLoopState("playing");
+    }
+  };
+
+  const stopOverdub = async () => {
+    if (!recorderRef.current || !recorderRef.current.state || !recordedBuffer) return;
+
+    try {
+      const recording = await recorderRef.current.stop();
+      const newBuffer = await Tone.getContext().rawContext.decodeAudioData(
+        await recording.arrayBuffer()
+      );
+
+      const mergedBuffer = await mergeAudioBuffers(recordedBuffer, newBuffer);
+      setRecordedBuffer(mergedBuffer);
+      updatePlayer(mergedBuffer);
+    } catch (error) {
+      console.error("Failed to stop overdub:", error);
+      setLoopState("playing");
     }
   };
 
@@ -154,14 +204,12 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
       existingBuffer.sampleRate
     );
 
-    // Mix both buffers
     for (let channel = 0; channel < numberOfChannels; channel++) {
       const mergedChannelData = mergedBuffer.getChannelData(channel);
       const existingChannelData = existingBuffer.getChannelData(channel);
       const newChannelData = newBuffer.getChannelData(channel);
 
       for (let i = 0; i < bufferLength; i++) {
-        // Add samples together, with a small reduction to prevent clipping
         mergedChannelData[i] = (existingChannelData[i] || 0) * 0.8 + (newChannelData[i] || 0) * 0.8;
       }
     }
@@ -169,16 +217,12 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     return mergedBuffer;
   };
 
-  const updatePlayer = () => {
-    if (!recordedBuffer) return;
-
-    // Stop and dispose existing player
+  const updatePlayer = (buffer: AudioBuffer) => {
     if (playerRef.current) {
       playerRef.current.stop();
       playerRef.current.dispose();
     }
 
-    // Create new player with the correct type
     playerRef.current = new Tone.Player()
       .set({ 
         loop: true,
@@ -187,82 +231,54 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
       })
       .toDestination();
 
-    // Set the buffer and start playback
-    playerRef.current.buffer = new Tone.ToneAudioBuffer(recordedBuffer);
+    playerRef.current.buffer = new Tone.ToneAudioBuffer(buffer);
     playerRef.current.start();
-    setIsPlaying(true);
 
-    // Update playback position animation
     const updatePosition = () => {
-      if (playerRef.current && isPlaying) {
-        setPlaybackPosition(playerRef.current.now() % loopDuration);
+      if (playerRef.current && loopState !== "idle") {
+        const currentTime = Tone.Transport.seconds;
+        setPlaybackPosition(currentTime % loopDuration);
         animationFrameRef.current = requestAnimationFrame(updatePosition);
       }
     };
     updatePosition();
   };
 
-  const handleRecordStart = async () => {
-    if (!isAudioContextStarted) {
-      await startAudioContext();
+  const startAudioContext = async () => {
+    try {
+      await drumAudioEngine.startAudioContext();
+      setIsAudioContextStarted(true);
+    } catch (error) {
+      console.error("Failed to start audio context:", error);
     }
-    await startRecording();
-  };
-
-  const handleRecordStop = async () => {
-    await stopRecording();
   };
 
   useEffect(() => {
-    // Initialize audio engine
     const initAudio = async () => {
       try {
         await drumAudioEngine.initialize();
         setIsInitialized(true);
-        console.log("Drum audio engine initialized");
       } catch (error) {
         console.error("Failed to initialize drum audio:", error);
       }
     };
-
     initAudio();
-
-    // Cleanup on unmount
-    return () => {
-      drumAudioEngine.cleanup();
-    };
+    return () => drumAudioEngine.cleanup();
   }, []);
 
-  const startAudioContext = async () => {
-    if (!isAudioContextStarted) {
-      try {
-        await drumAudioEngine.startAudioContext();
-        setIsAudioContextStarted(true);
-        console.log("Audio context started");
-      } catch (error) {
-        console.error("Failed to start audio context:", error);
-      }
-    }
-  };
-
   const handlePadTrigger = async (pad: DrumPad) => {
-    if (!isInitialized) return;
+    if (!isInitialized || loopState === "idle") return;
 
-    // Start audio context if it hasn't been started yet
     if (!isAudioContextStarted) {
       await startAudioContext();
     }
 
-    // Trigger the sound
     drumAudioEngine.triggerSample(pad.sound);
-
-    // Increment trigger count to force animation restart
     setTriggerCount(prev => ({
       ...prev,
       [pad.key]: (prev[pad.key] || 0) + 1
     }));
 
-    // Visual feedback
     setActivePads((prev) => {
       const next = new Set(prev);
       next.add(pad.key);
@@ -283,22 +299,23 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
 
     const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.repeat) return;
-
-      if (!isAudioContextStarted) {
-        await startAudioContext();
-      }
-
-      const pad = drumPads.find(
-        (p) => p.key.toLowerCase() === e.key.toLowerCase()
-      );
-      if (pad) {
-        await handlePadTrigger(pad);
+      if (e.code === "Space" && !e.repeat) {
+        e.preventDefault();
+        await handleLoopStateChange();
+      } else {
+        const pad = drumPads.find(
+          (p) => p.key.toLowerCase() === e.key.toLowerCase()
+        );
+        if (pad) {
+          await handlePadTrigger(pad);
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isInitialized, isAudioContextStarted]);
+  }, [isInitialized, loopState]);
+
 
   // Group pads by row
   const padsByRow = drumPads.reduce((acc, pad) => {
@@ -307,25 +324,35 @@ export default function DrumMachine({ className = "" }: DrumMachineProps) {
     return acc;
   }, {} as Record<number, DrumPad[]>);
 
-
   return (
     <div className={`p-8 ${className}`}>
       <div className="flex flex-col gap-8">
+        {/* Status Display */}
+        <div className="text-center text-lg font-semibold">
+          {loopState === "idle" && "Press SPACE to start recording"}
+          {loopState === "recording" && "Recording... Press SPACE to stop"}
+          {loopState === "playing" && "Playing... Press SPACE to overdub"}
+          {loopState === "overdubbing" && "Overdubbing... Press SPACE to stop"}
+        </div>
+
         {/* Waveform Display */}
         <div className="w-full px-4">
           <WaveformDisplay
             audioBuffer={recordedBuffer}
-            isPlaying={isPlaying}
+            isPlaying={loopState === "playing" || loopState === "overdubbing"}
             playbackPosition={playbackPosition}
             duration={loopDuration}
+            streamAnalyser={streamAnalyser}
+            isRecording={loopState === "recording" || loopState === "overdubbing"}
           />
         </div>
 
         {/* Record Button */}
         <div className="flex justify-center mb-4">
           <RecordButton
-            onRecordStart={handleRecordStart}
-            onRecordStop={handleRecordStop}
+            onRecordStart={handleLoopStateChange}
+            onRecordStop={handleLoopStateChange}
+            isActive={loopState === "recording" || loopState === "overdubbing"}
           />
         </div>
 
