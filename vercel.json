@@ -1,5 +1,12 @@
 {
   "buildCommand": "vite build",
   "outputDirectory": "dist/public",
-  "framework": "vite"
+  "framework": "vite",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/v2",
+      "permanent": false
+    }
+  ]
 }
