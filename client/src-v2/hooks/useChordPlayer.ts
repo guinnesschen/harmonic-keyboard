@@ -15,8 +15,12 @@ export function useChordPlayer({ enabled }: UseChordPlayerOptions) {
   const { initialized, initialize, chordSynth } = useAudio();
   const { settings } = useStorage();
 
+  // Use refs for voicing history (doesn't need to trigger re-renders)
   const prevVoicingRef = useRef<ChordVoicing | null>(null);
-  const [currentVoicing, setCurrentVoicing] = useState<ChordVoicing | null>(null);
+  const currentVoicingRef = useRef<ChordVoicing | null>(null);
+
+  // State only for UI display
+  const [displayVoicing, setDisplayVoicing] = useState<ChordVoicing | null>(null);
 
   // Update voicing when keys change
   useEffect(() => {
@@ -25,17 +29,30 @@ export function useChordPlayer({ enabled }: UseChordPlayerOptions) {
     const intent = parseKeyboardState(pressedKeys, settings.qualityMappings);
 
     if (!intent) {
-      chordSynth.release();
-      prevVoicingRef.current = currentVoicing;
-      setCurrentVoicing(null);
+      // No chord - release and clear
+      if (currentVoicingRef.current !== null) {
+        chordSynth.release();
+        prevVoicingRef.current = currentVoicingRef.current;
+        currentVoicingRef.current = null;
+        setDisplayVoicing(null);
+      }
       return;
     }
 
+    // Generate new voicing with voice leading from previous
     const voicing = generateVoicing(intent, prevVoicingRef.current);
-    prevVoicingRef.current = currentVoicing;
-    setCurrentVoicing(voicing);
-    chordSynth.playChord(voicing.notes);
-  }, [pressedKeys, enabled, initialized, settings.qualityMappings, chordSynth, currentVoicing]);
+
+    // Only play if voicing actually changed
+    const notesChanged = !currentVoicingRef.current ||
+      voicing.notes.join(',') !== currentVoicingRef.current.notes.join(',');
+
+    if (notesChanged) {
+      prevVoicingRef.current = currentVoicingRef.current;
+      currentVoicingRef.current = voicing;
+      setDisplayVoicing(voicing);
+      chordSynth.playChord(voicing.notes);
+    }
+  }, [pressedKeys, enabled, initialized, settings.qualityMappings, chordSynth]);
 
   // Keyboard event handlers
   const handleKeyDown = useCallback(
@@ -76,5 +93,5 @@ export function useChordPlayer({ enabled }: UseChordPlayerOptions) {
     };
   }, [enabled, handleKeyDown, handleKeyUp, chordSynth]);
 
-  return { currentVoicing };
+  return { currentVoicing: displayVoicing };
 }
