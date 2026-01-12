@@ -1,5 +1,21 @@
 import type { ChordIntent, ChordQuality, Inversion, PitchClass, QualityKeyMapping } from './types';
-import { BASS_KEYS, INVERSION_KEYS, DEFAULT_QUALITY_MAPPINGS, NOTE_NAMES } from './constants';
+import { BASS_KEYS, INVERSION_KEYS, DEFAULT_QUALITY_MAPPINGS, NOTE_NAMES, DEFAULT_QUALITIES } from './constants';
+
+const INVERSION_NAMES: Record<Inversion, 'root' | 'first' | 'second' | 'third'> = {
+  0: 'root',
+  1: 'first',
+  2: 'second',
+  3: 'third',
+};
+
+/**
+ * Get the default chord quality for a given bass note and inversion.
+ * These are hand-picked defaults optimized for the key of C major.
+ */
+function getDefaultQuality(bassNote: PitchClass, inversion: Inversion): ChordQuality {
+  const inversionName = INVERSION_NAMES[inversion];
+  return DEFAULT_QUALITIES[inversionName][bassNote] ?? 'major';
+}
 
 /**
  * Parse currently pressed keys into a chord intent.
@@ -19,20 +35,23 @@ export function parseKeyboardState(
   const bassIndex = BASS_KEYS.indexOf(bassKey);
   const bassNote = (bassIndex % 12) as PitchClass;
 
-  // Find quality key
-  const enabledQualityKeys = qualityMappings.filter((m) => m.enabled).map((m) => m.key.toLowerCase());
-
-  const qualityKey = keys.find((k) => enabledQualityKeys.includes(k));
-
-  let quality: ChordQuality = 'major';
-  if (qualityKey) {
-    const mapping = qualityMappings.find((m) => m.key.toLowerCase() === qualityKey && m.enabled);
-    if (mapping) quality = mapping.quality;
-  }
-
-  // Find inversion key
+  // Find inversion key first (needed for default quality lookup)
   const inversionKey = keys.find((k) => INVERSION_KEYS.includes(k));
   const inversion = (inversionKey ? parseInt(inversionKey, 10) : 0) as Inversion;
+
+  // Find quality key
+  const enabledQualityKeys = qualityMappings.filter((m) => m.enabled).map((m) => m.key.toLowerCase());
+  const qualityKey = keys.find((k) => enabledQualityKeys.includes(k));
+
+  let quality: ChordQuality;
+  if (qualityKey) {
+    // Explicit quality key pressed
+    const mapping = qualityMappings.find((m) => m.key.toLowerCase() === qualityKey && m.enabled);
+    quality = mapping?.quality ?? 'major';
+  } else {
+    // No quality key - use hand-picked default based on bass note and inversion
+    quality = getDefaultQuality(bassNote, inversion);
+  }
 
   return { bassNote, quality, inversion };
 }

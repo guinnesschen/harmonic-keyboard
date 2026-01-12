@@ -81,3 +81,68 @@ export const DRUM_KEY_MAP: Record<string, string> = {
 } as const;
 
 export const DRUM_SOUNDS = ['kick', 'snare', 'hihat', 'openhat', 'crash', 'rimshot', 'clap'] as const;
+
+// Default chord qualities by inversion and bass note (hand-picked for C major)
+// Index is bass note pitch class (0=C, 1=C#, 2=D, etc.)
+export const DEFAULT_QUALITIES: Record<'root' | 'first' | 'second' | 'third', Record<number, ChordQuality>> = {
+  // Root position: diatonic triads in C major
+  root: {
+    0: 'major',           // C
+    1: 'major',           // Db
+    2: 'minor',           // D
+    3: 'major',           // Eb
+    4: 'minor',           // E
+    5: 'major',           // F
+    6: 'diminished7',     // F#/Gb
+    7: 'major',           // G
+    8: 'major',           // Ab
+    9: 'minor',           // A
+    10: 'major',          // Bb
+    11: 'halfDiminished7', // B
+  },
+  // First inversion: bass is the 3rd
+  first: {
+    0: 'minor',           // C in bass = Am/C
+    1: 'major',           // Db
+    2: 'major',           // D in bass = Bb/D
+    3: 'minor',           // Eb
+    4: 'major',           // E in bass = C/E
+    5: 'minor',           // F in bass = Dm/F
+    6: 'major',           // Gb
+    7: 'minor',           // G in bass = Em/G
+    8: 'minor',           // Ab
+    9: 'major',           // A in bass = F/A
+    10: 'minor',          // Bb
+    11: 'major',          // B in bass = G/B
+  },
+  // Second inversion: bass is the 5th
+  second: {
+    0: 'major',           // C in bass = F/C
+    1: 'major',           // Db
+    2: 'major',           // D in bass = G/D
+    3: 'major',           // Eb
+    4: 'minor',           // E in bass = Am/E
+    5: 'major',           // F
+    6: 'major',           // Gb
+    7: 'major',           // G in bass = C/G
+    8: 'major',           // Ab
+    9: 'minor',           // A in bass = Dm/A
+    10: 'major',          // Bb
+    11: 'minor',          // B in bass = Em/B
+  },
+  // Third inversion: bass is the 7th (implies 7th chord)
+  third: {
+    0: 'minor7',          // C in bass = Dm7/C
+    1: 'major7',          // Db
+    2: 'minor7',          // D in bass = Em7/D
+    3: 'major7',          // Eb
+    4: 'major7',          // E in bass = Fmaj7/E
+    5: 'dominant7',       // F in bass = G7/F
+    6: 'major7',          // Gb
+    7: 'minor7',          // G in bass = Am7/G
+    8: 'major7',          // Ab
+    9: 'minor7',          // A in bass = Bm7b5/A
+    10: 'dominant7',      // Bb in bass = C7/Bb (if treating as dominant)
+    11: 'major7',         // B in bass = Cmaj7/B
+  },
+};
