@@ -2,15 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles */
+/* Import elegant fonts */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --color-bg: #fafafa;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e5e5;
+  --color-key-white: #ffffff;
+  --color-key-black: #1f2937;
+  --color-key-active: #6b7280;
+  --color-accent: #4b5563;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Elegant chord name typography */
+.chord-name {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
 }
 
 /* Prevent text selection on interactive elements */
@@ -21,18 +43,18 @@ button,
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid #1f2937;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-/* Slider styling for webkit browsers */
+/* Slider styling */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #1f2937;
+  background: var(--color-text);
   cursor: pointer;
 }
 
@@ -40,7 +62,79 @@ input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #1f2937;
+  background: var(--color-text);
   cursor: pointer;
   border: none;
+}
+
+/* Piano key styles */
+.piano-key-white {
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f8f8 100%);
+  border: 1px solid #d1d5db;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.piano-key-white:active,
+.piano-key-white.active {
+  background: linear-gradient(to bottom, #e5e7eb 0%, #d1d5db 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.piano-key-black {
+  background: linear-gradient(to bottom, #374151 0%, #1f2937 100%);
+  border: 1px solid #111827;
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 -2px 4px rgba(255, 255, 255, 0.05);
+}
+
+.piano-key-black:active,
+.piano-key-black.active {
+  background: linear-gradient(to bottom, #4b5563 0%, #374151 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Quality/inversion key cap */
+.key-cap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-key-white);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.key-cap:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.key-cap.active {
+  background: var(--color-key-active);
+  border-color: var(--color-key-active);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon button */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text);
 }

@@ -10,10 +10,13 @@ export function PianoView({ enabled }: PianoViewProps) {
   const { currentVoicing } = useChordPlayer({ enabled });
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto px-4 py-8">
-      <div className="flex-shrink-0">
+    <div className="flex flex-col items-center flex-grow">
+      {/* Chord name display */}
+      <div className="mt-4">
         <ChordDisplay voicing={currentVoicing} />
       </div>
+
+      {/* Main keyboard guide area */}
       <div className="flex-grow flex items-center justify-center py-8">
         <KeyboardGuide voicing={currentVoicing} />
       </div>

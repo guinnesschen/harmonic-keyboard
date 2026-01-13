@@ -1,42 +1,47 @@
 import type { ChordVoicing } from '../../domain/types';
-import { formatChordWithBass, getMidiNoteName } from '../../domain/chord';
+import { NOTE_NAMES, QUALITY_NAMES } from '../../domain/constants';
 
 interface ChordDisplayProps {
   voicing: ChordVoicing | null;
 }
 
+// More readable quality names for display
+const QUALITY_DISPLAY: Record<string, string> = {
+  major: 'major',
+  minor: 'minor',
+  dominant7: 'dominant 7',
+  major7: 'major 7',
+  minor7: 'minor 7',
+  diminished7: 'diminished 7',
+  halfDiminished7: 'half dim 7',
+  augmented: 'augmented',
+  sus4: 'sus 4',
+  dominant7sus4: 'dom 7 sus 4',
+  minorMajor7: 'minor maj 7',
+  add9: 'add 9',
+  minorAdd9: 'minor add 9',
+};
+
 export function ChordDisplay({ voicing }: ChordDisplayProps) {
   if (!voicing) {
     return (
-      <div className="text-center py-8">
-        <div className="text-4xl font-light text-gray-300">Press keys to play</div>
-        <div className="text-sm text-gray-400 mt-2">
-          Bass note + Quality + Inversion
+      <div className="text-center py-6">
+        <div className="chord-name text-4xl text-gray-300">
+          Play a chord
         </div>
       </div>
     );
   }
 
-  const chordName = formatChordWithBass(
-    voicing.root,
-    voicing.quality,
-    voicing.notes[0] % 12 as any
-  );
+  const rootName = NOTE_NAMES[voicing.root];
+  const qualityName = QUALITY_DISPLAY[voicing.quality] || voicing.quality;
 
   return (
-    <div className="text-center py-4">
-      <div className="text-5xl font-bold text-gray-900 tracking-tight">
-        {chordName}
-      </div>
-      <div className="flex justify-center gap-2 mt-3">
-        {voicing.notes.map((note, i) => (
-          <span
-            key={i}
-            className="px-2 py-1 bg-gray-100 rounded text-sm font-mono text-gray-600"
-          >
-            {getMidiNoteName(note)}
-          </span>
-        ))}
+    <div className="text-center py-6">
+      <div className="chord-name text-5xl">
+        <span className="text-gray-900">{rootName}</span>
+        {' '}
+        <span className="text-gray-500">{qualityName}</span>
       </div>
     </div>
   );
